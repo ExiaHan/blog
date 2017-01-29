@@ -176,6 +176,166 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Expand-A-Logical-Volume-In-LVM" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/29/Expand-A-Logical-Volume-In-LVM/">Expand A Logical Volume In LVM</a>
+    </h1>
+  
+
+        
+        <a href="/2017/01/29/Expand-A-Logical-Volume-In-LVM/" class="archive-article-date">
+  	<time datetime="2017-01-28T19:29:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-01-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>This blog is used to record the instructions about how to expand a logic volume in lvm.</p>
+<p><strong>CAUTION!</strong></p>
+<ul>
+<li><em>What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD.</em></li>
+<li><em>Resize volume may cause data lost, so be carefully.</em></li>
+<li><strong>Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</strong></li>
+<li><strong>Do some research before you do this.</strong></li>
+</ul>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>To imporve my notebook’s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c" target="_blank" rel="external">SSD</a> to speed up my notebook’s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
+<p><img src="../blog_image/expand_a_logical_volume_in_lvm/before.png" alt="device mapper before"></p>
+<p>As the pic shows, <strong>sda</strong> is the new <em>SSD</em>, <strong>sdb</strong> is the old hdd, it set <em>sdb3</em> as boot, set the <em>sdb5</em> as the lvm physical volume, and create a volume group named <em>archlvm</em>, in the <em>archlvm</em> volume, there four logical volumes:</p>
+<ul>
+<li>root. Mounted to the “root” point.</li>
+<li>var. Mounted to the “/var” point.</li>
+<li>swap. Used as the SWAP File.</li>
+<li>home. The largest logical volume, used to store all of my files.</li>
+</ul>
+<p>Now what I want to do is:</p>
+<ol>
+<li>Let <strong>sda1</strong> be mounted to “/boot” point.</li>
+<li>Migrate contents in <em>archlvm-root</em> to <em>sda2</em>, and then let <strong>sda2</strong> be mounted to “/“ point.</li>
+<li>Delete logical volume <em>archlvm-root</em>, and then expand <strong>archlvm-home</strong> to use all the free space we get after delete <em>archlvm-root</em>.</li>
+</ol>
+<p>The following content will show you how to do this.</p>
+<h2 id="Preparing"><a href="#Preparing" class="headerlink" title="Preparing"></a>Preparing</h2><p>To complete all the missions, we need a archlinux-live-usb.</p>
+<ul>
+<li>Download a <a href="http://mirrors.ustc.edu.cn/archlinux/iso/" target="_blank" rel="external">archlinux iso</a> here. If you are not in China, choose other mirrors :).</li>
+<li>Create a live-USB.<ul>
+<li>For UEFI Support, it’s highly recommended to use <a href="https://rufus.akeo.ie/?locale=en_US" target="_blank" rel="external">Rufus</a> to create the Live-USB.</li>
+</ul>
+</li>
+</ul>
+<h2 id="Migrate-“-Boot”-and-“Root”"><a href="#Migrate-“-Boot”-and-“Root”" class="headerlink" title="Migrate “/Boot” and “Root”"></a>Migrate “/Boot” and “Root”</h2><ul>
+<li>Mount the partions like below:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div></pre></td></tr></table></figure>
+<p>Then run this command in shell:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># rsync -SPAaXxr --exclude=&#123;/boot,/home,/var&#125;  ./ /mnt/</span></div></pre></td></tr></table></figure></p>
+<p>wait the command complete. Then reboot into Live-USB.</p>
+<ul>
+<li>Mount the partions like below:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div><div class="line">   |--sda1 /mnt/boot</div><div class="line">|--sdb</div><div class="line">   |--sdb5</div><div class="line">      |--archlvm-var /mnt/var</div><div class="line">	  |--archlvm-home /mnt/home</div></pre></td></tr></table></figure>
+<ul>
+<li><p>turn on the swap</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># swapon /dev/archlvm/swap</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>Regenerate the fstab(<strong>Remember to check it, it there is something wrong in it, you may can’t boot after reboot without Live-USB</strong>)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">genfstab -U -p /mnt &gt; /mnt/etc/fstab</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>A classic fstab can be found in <a href="https://wiki.archlinux.org/index.php/Fstab" target="_blank" rel="external">ArchLinux WIKI</a>, the UUID you may need can be get by command <strong>blkid</strong></p>
+<ul>
+<li><strong>arch-chroot</strong> to “/mnt”</li>
+<li>Reinstall Grub to <strong>sda</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub</span></div></pre></td></tr></table></figure>
+<p>After do this, we should not run <strong>grub-mkconfig</strong> immediately, because we haven’t expand the “archlvm-home”.</p>
+<h2 id="Expand-Logical-Volume"><a href="#Expand-Logical-Volume" class="headerlink" title="Expand Logical Volume"></a>Expand Logical Volume</h2><p>As I said, what I want is deleting archlvm-root, and expand archlvm-home with the space the being deleted archlvm-root has. Now let’s follow below step to reach this goal.</p>
+<ul>
+<li>Exit the <strong>arch-chroot</strong></li>
+<li>Unmount all the logical volumes in group <strong>archlvm</strong>.(<strong>CAUTION: This must be done, or you may get error.</strong>)</li>
+<li>Delete <strong>archlvm-root</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvremove /dev/archlvm/root</span></div></pre></td></tr></table></figure>
+<ul>
+<li>expand <strong>archlvm-home</strong><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvresize -l +100%FREE /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>After do this, the <strong>archlvm-home</strong> will take all the free space freed by delete <em>archlvm-root</em>.</p>
+<ul>
+<li>resizefs(<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br>After we execute <em>lvresize</em>, we need to <strong>resize filesystem</strong> to let system know the change.<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># resize2fs /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>In somecase, the <strong>resize2fs</strong> may say that you should run command <strong>e2fsck</strong> first. If you get this, run it. (<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># e2fsck -f /dev/archlvm/home</span></div></pre></td></tr></table></figure></p>
+<p>After this complete, you can run command <strong>resize2fs</strong>.</p>
+<h2 id="Complete"><a href="#Complete" class="headerlink" title="Complete"></a>Complete</h2><p>If all the steps are completed successfully, there is only one instruction we need to do——<em>grub-mkconfig</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-mkconfig \-o /boot/grub/grub.cfg</span></div></pre></td></tr></table></figure>
+<p>Reboot your computer, now we should migrate our data to SSD and expand logical volume <strong>archlvm-home</strong> successfully.</p>
+<p><img src="../blog_image/expand_a_logical_volume_in_lvm/after.png" alt="after"></p>
+<p><strong>Tips:</strong></p>
+<ul>
+<li>Some device may have a legacy entry in EFI loader table. You can delete it in UEFI safely.</li>
+<li>If you found anything wrong about device mapper, check your fstab, it is in “/etc/fstab”, to modifiy it, you’d better reboot into the Live-USB again.</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">LVM</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">ArchLinux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Linux/" class="article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-Happy-Chinese-New-Year-In-2017" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1230,130 +1390,6 @@
 
 
   
-    <article id="post-Xposed-with-Android-Studio" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/09/02/Xposed-with-Android-Studio/">Xposed with Android Studio</a>
-    </h1>
-  
-
-        
-        <a href="/2015/09/02/Xposed-with-Android-Studio/" class="archive-article-date">
-  	<time datetime="2015-09-02T08:06:55.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-09-02</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##0x1 介绍<br>Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。<br>本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。</p>
-<p>##0x2 开工<br><strong>这篇文章也是作为Xposed插桩的练习记录</strong></p>
-<p>###引入Xposed框架<br>不得不说，即使有<a href="https://github.com/rovo89" target="_blank" rel="external">rovo89</a>的<a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial" target="_blank" rel="external">Xposed Tutorial</a>，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。</p>
-<ul>
-<li>下载xposed框架jar包</li>
-<li>创建你的xposed module工程，如”HelloXposedHook”</li>
-<li>在app/src下创建文件夹xposedLib</li>
-</ul>
-<hr>
-<p>之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含</p>
-<ul>
-<li><strong>方法一：</strong><ul>
-<li>把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library</li>
-<li>在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde</li>
-</ul>
-</li>
-</ul>
-<p>如图：<br><img src="../blog_image/xposed_with_androidstudio/xposedprovide.jpg" alt="xposed provide"></p>
-<ul>
-<li><strong>方法二：</strong><ul>
-<li>把下载好的xposed-bridgeAPI.jar包拖进去</li>
-<li>在app/xposedLib/路径里创建build.gradle文件，内容如下</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">apply plugin: 'java'</div><div class="line">dependencies &#123;</div><div class="line">    compile project(":lib")</div><div class="line">    provided fileTree(dir: 'lib', include: ['*.jar'])</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含<br>xposed的jar包要求仅被引用，而不能包含<br>所以放xposedLib<br>并且在module settings里把相关项改成provide</p>
-</blockquote>
-<p><strong>到这里xposed框架的引入即可成功</strong></p>
-<p>###创建你的Xposed Module</p>
-<ul>
-<li>修改AndroidManifest.xml，加入xposed的meta元素（<strong>具体如何参见rovo89的Tutorial</strong>）</li>
-</ul>
-<p>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">application</span></span></div><div class="line">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></div><div class="line">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></div><div class="line">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"My First Xposed Module for Hook"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"30"</span> /&gt;</div><div class="line">		<span class="tag">&lt;<span class="name">activity</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">".MainActivity"</span></div><div class="line">            <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</div><div class="line">......</div></pre></td></tr></table></figure></p>
-<ul>
-<li>创建你的使用xposed插件的函数，如MyXposedModule</li>
-<li>添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名<ul>
-<li>如<strong>com.xxx.helloxposedhook.MyXposedModule</strong></li>
-</ul>
-</li>
-</ul>
-<p>这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数</p>
-<p>功能代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXposedModule</span> <span class="keyword">implements</span> <span class="title">IXposedHookLoadPackage</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam lpparam)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">        <span class="comment">//TODO Auto-generated method stub</span></div><div class="line">        <span class="comment">//filter the package</span></div><div class="line"></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!lpparam.packageName.equals(<span class="string">"com.xxx.remotecontrol"</span>))</div><div class="line">            <span class="keyword">return</span>;</div><div class="line"></div><div class="line">        Log.e(<span class="string">"Package"</span>, <span class="string">"\n"</span> + lpparam.packageName + <span class="string">"\n"</span>);</div><div class="line"></div><div class="line">        <span class="comment">//if has a custom class param, use reflact to get the class as type</span></div><div class="line">        <span class="comment">//Class&lt;?&gt; XXXJni = null;</span></div><div class="line">        <span class="comment">//XXXJni = lpparam.classLoader.loadClass("com.xxx.remotecontrol");</span></div><div class="line">        findAndHookMethod(<span class="string">"com.xxx.remotecontrol.mainActivity"</span>, lpparam.classLoader, <span class="string">"forHook"</span>, String.class, <span class="keyword">new</span> XC_MethodHook() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called before the clock was updated by the original method</span></div><div class="line">                String parg = (String) param.args[<span class="number">0</span>];</div><div class="line">                Log.e(<span class="string">"Result:"</span>, <span class="string">"\nHi\n"</span>);</div><div class="line">                Log.e(<span class="string">"CMD:"</span>, parg);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called after the clock was updated by the original method</span></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>Hook成功后首先打印Hi，然后打印参数，即CMD后的parg</p>
-<p>结果如图：<br><img src="../blog_image/xposed_with_androidstudio/result.jpg" alt="result"></p>
-<p><strong>到这里也即完成了xposed module的创建</strong></p>
-<p>##0x3 结束<br>这里仅仅作为一个例子，同样</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android-Studio</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Xposed</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android/" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1459,6 +1495,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
@@ -1479,11 +1523,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1515,6 +1567,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
               </li>
              
@@ -1523,19 +1579,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
               </li>
             
             <div class="clearfix"></div>

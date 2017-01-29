@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.exiahan.com/"/>
-  <updated>2017-01-28T19:12:50.802Z</updated>
+  <updated>2017-01-29T19:15:14.290Z</updated>
   <id>http://blog.exiahan.com/</id>
   
   <author>
@@ -16,11 +16,121 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Expand A Logical Volume In LVM</title>
+    <link href="http://blog.exiahan.com/2017/01/29/Expand-A-Logical-Volume-In-LVM/"/>
+    <id>http://blog.exiahan.com/2017/01/29/Expand-A-Logical-Volume-In-LVM/</id>
+    <published>2017-01-28T19:29:32.000Z</published>
+    <updated>2017-01-29T19:15:14.290Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>This blog is used to record the instructions about how to expand a logic volume in lvm.</p>
+<p><strong>CAUTION!</strong></p>
+<ul>
+<li><em>What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD.</em></li>
+<li><em>Resize volume may cause data lost, so be carefully.</em></li>
+<li><strong>Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</strong></li>
+<li><strong>Do some research before you do this.</strong></li>
+</ul>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>To imporve my notebook’s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c" target="_blank" rel="external">SSD</a> to speed up my notebook’s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
+<p><img src="../blog_image/expand_a_logical_volume_in_lvm/before.png" alt="device mapper before"></p>
+<p>As the pic shows, <strong>sda</strong> is the new <em>SSD</em>, <strong>sdb</strong> is the old hdd, it set <em>sdb3</em> as boot, set the <em>sdb5</em> as the lvm physical volume, and create a volume group named <em>archlvm</em>, in the <em>archlvm</em> volume, there four logical volumes:</p>
+<ul>
+<li>root. Mounted to the “root” point.</li>
+<li>var. Mounted to the “/var” point.</li>
+<li>swap. Used as the SWAP File.</li>
+<li>home. The largest logical volume, used to store all of my files.</li>
+</ul>
+<p>Now what I want to do is:</p>
+<ol>
+<li>Let <strong>sda1</strong> be mounted to “/boot” point.</li>
+<li>Migrate contents in <em>archlvm-root</em> to <em>sda2</em>, and then let <strong>sda2</strong> be mounted to “/“ point.</li>
+<li>Delete logical volume <em>archlvm-root</em>, and then expand <strong>archlvm-home</strong> to use all the free space we get after delete <em>archlvm-root</em>.</li>
+</ol>
+<p>The following content will show you how to do this.</p>
+<h2 id="Preparing"><a href="#Preparing" class="headerlink" title="Preparing"></a>Preparing</h2><p>To complete all the missions, we need a archlinux-live-usb.</p>
+<ul>
+<li>Download a <a href="http://mirrors.ustc.edu.cn/archlinux/iso/" target="_blank" rel="external">archlinux iso</a> here. If you are not in China, choose other mirrors :).</li>
+<li>Create a live-USB.<ul>
+<li>For UEFI Support, it’s highly recommended to use <a href="https://rufus.akeo.ie/?locale=en_US" target="_blank" rel="external">Rufus</a> to create the Live-USB.</li>
+</ul>
+</li>
+</ul>
+<h2 id="Migrate-“-Boot”-and-“Root”"><a href="#Migrate-“-Boot”-and-“Root”" class="headerlink" title="Migrate “/Boot” and “Root”"></a>Migrate “/Boot” and “Root”</h2><ul>
+<li>Mount the partions like below:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div></pre></td></tr></table></figure>
+<p>Then run this command in shell:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># rsync -SPAaXxr --exclude=&#123;/boot,/home,/var&#125;  ./ /mnt/</span></div></pre></td></tr></table></figure></p>
+<p>wait the command complete. Then reboot into Live-USB.</p>
+<ul>
+<li>Mount the partions like below:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div><div class="line">   |--sda1 /mnt/boot</div><div class="line">|--sdb</div><div class="line">   |--sdb5</div><div class="line">      |--archlvm-var /mnt/var</div><div class="line">	  |--archlvm-home /mnt/home</div></pre></td></tr></table></figure>
+<ul>
+<li><p>turn on the swap</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># swapon /dev/archlvm/swap</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>Regenerate the fstab(<strong>Remember to check it, it there is something wrong in it, you may can’t boot after reboot without Live-USB</strong>)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">genfstab -U -p /mnt &gt; /mnt/etc/fstab</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>A classic fstab can be found in <a href="https://wiki.archlinux.org/index.php/Fstab" target="_blank" rel="external">ArchLinux WIKI</a>, the UUID you may need can be get by command <strong>blkid</strong></p>
+<ul>
+<li><strong>arch-chroot</strong> to “/mnt”</li>
+<li>Reinstall Grub to <strong>sda</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub</span></div></pre></td></tr></table></figure>
+<p>After do this, we should not run <strong>grub-mkconfig</strong> immediately, because we haven’t expand the “archlvm-home”.</p>
+<h2 id="Expand-Logical-Volume"><a href="#Expand-Logical-Volume" class="headerlink" title="Expand Logical Volume"></a>Expand Logical Volume</h2><p>As I said, what I want is deleting archlvm-root, and expand archlvm-home with the space the being deleted archlvm-root has. Now let’s follow below step to reach this goal.</p>
+<ul>
+<li>Exit the <strong>arch-chroot</strong></li>
+<li>Unmount all the logical volumes in group <strong>archlvm</strong>.(<strong>CAUTION: This must be done, or you may get error.</strong>)</li>
+<li>Delete <strong>archlvm-root</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvremove /dev/archlvm/root</span></div></pre></td></tr></table></figure>
+<ul>
+<li>expand <strong>archlvm-home</strong><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvresize -l +100%FREE /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>After do this, the <strong>archlvm-home</strong> will take all the free space freed by delete <em>archlvm-root</em>.</p>
+<ul>
+<li>resizefs(<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br>After we execute <em>lvresize</em>, we need to <strong>resize filesystem</strong> to let system know the change.<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># resize2fs /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>In somecase, the <strong>resize2fs</strong> may say that you should run command <strong>e2fsck</strong> first. If you get this, run it. (<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># e2fsck -f /dev/archlvm/home</span></div></pre></td></tr></table></figure></p>
+<p>After this complete, you can run command <strong>resize2fs</strong>.</p>
+<h2 id="Complete"><a href="#Complete" class="headerlink" title="Complete"></a>Complete</h2><p>If all the steps are completed successfully, there is only one instruction we need to do——<em>grub-mkconfig</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-mkconfig \-o /boot/grub/grub.cfg</span></div></pre></td></tr></table></figure>
+<p>Reboot your computer, now we should migrate our data to SSD and expand logical volume <strong>archlvm-home</strong> successfully.</p>
+<p><img src="../blog_image/expand_a_logical_volume_in_lvm/after.png" alt="after"></p>
+<p><strong>Tips:</strong></p>
+<ul>
+<li>Some device may have a legacy entry in EFI loader table. You can delete it in UEFI safely.</li>
+<li>If you found anything wrong about device mapper, check your fstab, it is in “/etc/fstab”, to modifiy it, you’d better reboot into the Live-USB again.</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;Abstract&quot;&gt;&lt;a href=&quot;#Abstract&quot; class=&quot;headerlink&quot; title=&quot;Abstract&quot;&gt;&lt;/a&gt;Abstract&lt;/h2&gt;&lt;p&gt;This blog is used to record the instructions a
+    
+    </summary>
+    
+      <category term="Linux" scheme="http://blog.exiahan.com/categories/Linux/"/>
+    
+    
+      <category term="Linux" scheme="http://blog.exiahan.com/tags/Linux/"/>
+    
+      <category term="LVM" scheme="http://blog.exiahan.com/tags/LVM/"/>
+    
+      <category term="ArchLinux" scheme="http://blog.exiahan.com/tags/ArchLinux/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Happy_Chinese_New_Year_In_2017</title>
     <link href="http://blog.exiahan.com/2017/01/29/Happy-Chinese-New-Year-In-2017/"/>
     <id>http://blog.exiahan.com/2017/01/29/Happy-Chinese-New-Year-In-2017/</id>
     <published>2017-01-28T18:16:22.000Z</published>
-    <updated>2017-01-28T19:12:50.802Z</updated>
+    <updated>2017-01-28T19:13:39.022Z</updated>
     
     <content type="html"><![CDATA[<h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>Below is written by a man that with poor English skills. Read carefully if you really want to read.(But I will say thank you if you really read all the contents below. :) )</p>
 <p>Happy Chinese new year! In China, all the Chinese now say goodbye to the “Monkey Year” and step into the “year of Chicken”. Watching the Spring Festival Gala Evening provided by CCTV is a tradition for almost every Chinese. We watch the TV shows with families and share the stories that happend to each in Monkey Year.</p>
