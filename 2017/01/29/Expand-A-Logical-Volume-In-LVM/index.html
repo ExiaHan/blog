@@ -20,16 +20,16 @@ What I write here may not completely right because there have been one month pas
 CAUTION!
 
 What I write here may not completely right because there have been one month passed since I co">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/expand_a_logical_volume_in_lvm/before.png">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/expand_a_logical_volume_in_lvm/after.png">
-<meta property="og:updated_time" content="2017-01-29T19:15:14.290Z">
+<meta property="og:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/before.png">
+<meta property="og:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/after.png">
+<meta property="og:updated_time" content="2017-01-29T19:41:33.263Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Expand A Logical Volume In LVM">
 <meta name="twitter:description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm.
 CAUTION!
 
 What I write here may not completely right because there have been one month passed since I co">
-<meta name="twitter:image" content="http://blog.exiahan.com/../blog_image/expand_a_logical_volume_in_lvm/before.png">
+<meta name="twitter:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/before.png">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
   
@@ -216,7 +216,7 @@ What I write here may not completely right because there have been one month pas
 <li><strong>Do some research before you do this.</strong></li>
 </ul>
 <h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>To imporve my notebook’s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c" target="_blank" rel="external">SSD</a> to speed up my notebook’s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
-<p><img src="../blog_image/expand_a_logical_volume_in_lvm/before.png" alt="device mapper before"></p>
+<p><img src="/images/expand_a_logical_volume_in_lvm/before.png" alt="device mapper before"></p>
 <p>As the pic shows, <strong>sda</strong> is the new <em>SSD</em>, <strong>sdb</strong> is the old hdd, it set <em>sdb3</em> as boot, set the <em>sdb5</em> as the lvm physical volume, and create a volume group named <em>archlvm</em>, in the <em>archlvm</em> volume, there four logical volumes:</p>
 <ul>
 <li>root. Mounted to the “root” point.</li>
@@ -285,7 +285,7 @@ What I write here may not completely right because there have been one month pas
 <h2 id="Complete"><a href="#Complete" class="headerlink" title="Complete"></a>Complete</h2><p>If all the steps are completed successfully, there is only one instruction we need to do——<em>grub-mkconfig</em></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-mkconfig \-o /boot/grub/grub.cfg</span></div></pre></td></tr></table></figure>
 <p>Reboot your computer, now we should migrate our data to SSD and expand logical volume <strong>archlvm-home</strong> successfully.</p>
-<p><img src="../blog_image/expand_a_logical_volume_in_lvm/after.png" alt="after"></p>
+<p><img src="/images/expand_a_logical_volume_in_lvm/after.png" alt="after"></p>
 <p><strong>Tips:</strong></p>
 <ul>
 <li>Some device may have a legacy entry in EFI loader table. You can delete it in UEFI safely.</li>

@@ -28,15 +28,15 @@
 运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。
 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳
 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/re11.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/re12.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/re21.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/re22.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/misc1.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/web1.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/crypto2.jpg">
-<meta property="og:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/crypto3.jpg">
-<meta property="og:updated_time" content="2017-01-08T15:22:43.913Z">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re11.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re12.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re21.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re22.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/misc1.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/web1.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/crypto2.jpg">
+<meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/crypto3.jpg">
+<meta property="og:updated_time" content="2017-01-29T19:42:13.243Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSCTF2015 WriteUp">
 <meta name="twitter:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
@@ -47,7 +47,7 @@
 运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。
 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳
 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
-<meta name="twitter:image" content="http://blog.exiahan.com/../blog_image/nsctf2015/re11.jpg">
+<meta name="twitter:image" content="http://blog.exiahan.com/images/nsctf2015/re11.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
   
@@ -238,11 +238,11 @@
 <li>单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理</li>
 <li>修改jle跳转为改为<strong>“jmp short Reverse0.00401150”</strong>，即调用其本来会通过jle跳过的函数，如图：</li>
 </ul>
-<p><img src="../blog_image/nsctf2015/re11.jpg" alt="reverse01.0"></p>
+<p><img src="/images/nsctf2015/re11.jpg" alt="reverse01.0"></p>
 <ul>
 <li>继续F9运行，程序吐出flag，如图：</li>
 </ul>
-<p><img src="../blog_image/nsctf2015/re12.jpg" alt="reverse01.1"></p>
+<p><img src="/images/nsctf2015/re12.jpg" alt="reverse01.1"></p>
 <p>###0x2 较简单的逆向</p>
 <p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/806b95d9497584c4a9d89118c8944424/Reverse02.exe" target="_blank" rel="external">Reverse02</a></p>
 <p><em>本题和第一题类似，只不过改成了窗口程序</em></p>
@@ -253,11 +253,11 @@
 <li>查看导入表，发现是个dialogbox，查找调用，找到<strong>0x00401240</strong>处的DialogBoxParamA调用，从其参数里找到对应回调处理函数入口为<strong>0x00401180</strong></li>
 <li>转到<strong>0x00401180</strong>处，发现有个GetDlgItemTextA的调用，在其下有个<strong>call 0x00401070</strong>，猜测会在其中处理Flag，修改程序执行流，让其可以执行，跟踪进入此函数，如图：</li>
 </ul>
-<p><img src="../blog_image/nsctf2015/re21.jpg" alt="reverse02.0"></p>
+<p><img src="/images/nsctf2015/re21.jpg" alt="reverse02.0"></p>
 <ul>
 <li>进入0x00401070后，可以看到上面有个0x00401000的函数，可以看到内部有调用MessageBoxA显示Flag，同时在0x00401070内发现有此函数调用，修改执行流让其可以执行，跟踪进入0x00401000，在MessageBoxA调用前下断，看到真正的flag，如图：</li>
 </ul>
-<p><img src="../blog_image/nsctf2015/re22.jpg" alt="reverse02.1"></p>
+<p><img src="/images/nsctf2015/re22.jpg" alt="reverse02.1"></p>
 <p>###0x3 逆向</p>
 <p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/877afdad88a2340eaefe8c1a87bb391e/Revesre03.exe" target="_blank" rel="external">Reverse03</a></p>
 <p><em>分析：使用python生成的程序，运行时在本地Temp文件夹里释放文件，通过CreateProcessA运行一个新进程来执行，没搞定。。。。。。。。囧。。</em></p>
@@ -266,7 +266,7 @@
 <p>###0x2 Wireshark</p>
 <p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/16d8a763795dd8cc3cf5f599fbb5e5af/sniffer.pcapng" target="_blank" rel="external">sniffer.pcapng</a></p>
 <p>从题目可以看出来是个抓包题，wireshark打开文件[也可以用Dshell，或者binwalk]</p>
-<p><img src="../blog_image/nsctf2015/misc1.jpg" alt="misc02"></p>
+<p><img src="/images/nsctf2015/misc1.jpg" alt="misc02"></p>
 <ul>
 <li>题目说是下载，猜测在http里，表达式过滤http</li>
 <li>看到有个key.rar，服务器为192.168.52.1</li>
@@ -277,7 +277,7 @@
 <p>#WEB</p>
 <p>###0x1 Be Careful</p>
 <p>使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。</p>
-<p><img src="../blog_image/nsctf2015/web1.jpg" alt="web01"></p>
+<p><img src="/images/nsctf2015/web1.jpg" alt="web01"></p>
 <p>###0x2 Decode</p>
 <p>题目里给了个php的函数，接受传入的字符串</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">encode</span><span class="params">($str)</span></span>&#123;</div><div class="line">	$_o = strrev($str);</div><div class="line">	<span class="keyword">for</span>($_0=<span class="number">0</span>;$_0&lt;strlen($_o);$_0++)&#123;</div><div class="line">		$_c = substr($_o,$_0,<span class="number">1</span>);</div><div class="line">		$__ = ord($_c)+<span class="number">1</span>;</div><div class="line">		$_c = chr($__);</div><div class="line">		$_= $_.$_c;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> str_rot13(strrev(base64_encode($_)));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -297,11 +297,11 @@
 <p>###0x2 神奇的图片</p>
 <p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/8041661a723dcc82a8a088163e2cd9ac/oddpic.jpg" target="_blank" rel="external">oddpic.jpg</a></p>
 <p>binwalk走一遍，里面有其他的jpeg，dd出来，得到flag</p>
-<p><img src="../blog_image/nsctf2015/crypto2.jpg" alt="crypt02"></p>
+<p><img src="/images/nsctf2015/crypto2.jpg" alt="crypt02"></p>
 <p>###0x3 神秘的图片+10086</p>
 <p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/50cf3d7ee75c2bbb7a91808dc811aa24/newnewnew.jpg" target="_blank" rel="external">newnewnew.jpg</a></p>
 <p>binwalk走一下没结果，用stegsolv分析下，在blue plane 0通道看到一个颜色反转的二维码，保存出来，用ps等工具反转下颜色，手机扫描，得到flag</p>
-<p><img src="../blog_image/nsctf2015/crypto3.jpg" alt="crypt03"></p>
+<p><img src="/images/nsctf2015/crypto3.jpg" alt="crypt03"></p>
 <p><strong>Update:附上官方博客资料，里面有WriteUp，<a href="http://blog.nsfocus.net/nsctf-network-attack-defence-game-download/" target="_blank" rel="external">绿盟博客</a></strong></p>
 
       
