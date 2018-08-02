@@ -8,49 +8,18 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>ELF_Simple_Shell | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="#0x00 前言
-之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
-大概流程如下：
-
-核心代码放到指定节
-.init section 加入解密函数decryptFunc
-加密程序读取编译好的elf文件，加密指定节
-运行时decryptFunc函数解密核心代码
-正确执行
-
-#0x01 准备工作
-要对">
+  <meta name="description" content="#0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。 大概流程如下：  核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  #0x01 准备工作 要对">
+<meta name="keywords" content="Linux,ELF,Shell">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ELF_Simple_Shell">
 <meta property="og:url" content="http://blog.exiahan.com/2015/08/18/ELF-Simple-Shell/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="#0x00 前言
-之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
-大概流程如下：
-
-核心代码放到指定节
-.init section 加入解密函数decryptFunc
-加密程序读取编译好的elf文件，加密指定节
-运行时decryptFunc函数解密核心代码
-正确执行
-
-#0x01 准备工作
-要对">
-<meta property="og:updated_time" content="2015-08-20T16:46:58.193Z">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="#0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。 大概流程如下：  核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  #0x01 准备工作 要对">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.277Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ELF_Simple_Shell">
-<meta name="twitter:description" content="#0x00 前言
-之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
-大概流程如下：
-
-核心代码放到指定节
-.init section 加入解密函数decryptFunc
-加密程序读取编译好的elf文件，加密指定节
-运行时decryptFunc函数解密核心代码
-正确执行
-
-#0x01 准备工作
-要对">
+<meta name="twitter:description" content="#0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。 大概流程如下：  核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  #0x01 准备工作 要对">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
   
@@ -229,7 +198,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>#0x00 前言</p>
-<p>之前看了ELF文件的文件格式PDF<a href="http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf" target="_blank" rel="external">文档</a>，又从<a href="http://bbs.pediy.com/showthread.php?t=191649" target="_blank" rel="external">看雪论坛</a>和<a href="http://www.burningcodes.net/" target="_blank" rel="external">光哥</a>那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。</p>
+<p>之前看了ELF文件的文件格式PDF<a href="http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf" target="_blank" rel="noopener">文档</a>，又从<a href="http://bbs.pediy.com/showthread.php?t=191649" target="_blank" rel="noopener">看雪论坛</a>和<a href="http://www.burningcodes.net/" target="_blank" rel="noopener">光哥</a>那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。</p>
 <p>大概流程如下：</p>
 <ul>
 <li>核心代码放到指定节</li>
@@ -285,7 +254,7 @@
 </tbody>
 </table>
 <p>ELF文件ELF Header结构如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int8_t</span> u1;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int16_t</span> u2;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int32_t</span> u4;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int8_t</span> i1;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int16_t</span> i2;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int32_t</span> i4;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">    u1 e_ident[EI_NIDENT];</div><div class="line">    u2 e_type;</div><div class="line">    u2 e_machine;</div><div class="line">    u4 e_version;</div><div class="line">    u4 e_entry;</div><div class="line">    u4 e_phoff;</div><div class="line">    u4 e_shoff;</div><div class="line">    u4 e_flags;</div><div class="line">    u2 e_ehsize;</div><div class="line">    u2 e_phentsize;</div><div class="line">    u2 e_phnum;</div><div class="line">    u2 e_shentsize;</div><div class="line">    u2 e_shnum;</div><div class="line">    u2 e_shstrndx;</div><div class="line">&#125;elf32_Header, *pElf32_Header;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int8_t</span> u1;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int16_t</span> u2;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int32_t</span> u4;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int8_t</span> i1;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int16_t</span> i2;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int32_t</span> i4;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    u1 e_ident[EI_NIDENT];</span><br><span class="line">    u2 e_type;</span><br><span class="line">    u2 e_machine;</span><br><span class="line">    u4 e_version;</span><br><span class="line">    u4 e_entry;</span><br><span class="line">    u4 e_phoff;</span><br><span class="line">    u4 e_shoff;</span><br><span class="line">    u4 e_flags;</span><br><span class="line">    u2 e_ehsize;</span><br><span class="line">    u2 e_phentsize;</span><br><span class="line">    u2 e_phnum;</span><br><span class="line">    u2 e_shentsize;</span><br><span class="line">    u2 e_shnum;</span><br><span class="line">    u2 e_shstrndx;</span><br><span class="line">&#125;elf32_Header, *pElf32_Header;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
 <p>根据文档，对于Linker，其对Section进行操作，而在装入内存执行时，进程内部数据是按照段(Segment)进行组织，所以对于非可执行的ELF文件，如gcc -c xxx.o生成的 xxx.o文件，其内部可以没有Program Header Table，但必须有Section Header Table；对于可执行文件(gcc -o xxx)，其内部可以没有Section Header Table，但是必须有Program Header Table。</p>
 <p>因此，我们可以利用ELF Header中与section有关的字段，如e_shoff和e_shentsize，用来存放我们加解密需要的数据来供decryptFunc函数使用，如此不仅方便，还能有效避免可执行文件被IDA等静态工具分析。</p>
 <p>##0x02 开工</p>
@@ -295,7 +264,7 @@
 <li>头文件elf32.h，包含对elf header结构的定义</li>
 <li>example.c 示例文件，包含解密函数等定义</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"elf32.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLEN 1000</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGESIZE 4096</span></div><div class="line"></div><div class="line"><span class="comment">//The function to decrypt the segment</span></div><div class="line">__attribute__((constructor)) <span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="comment">//The section that will be encrypted</span></div><div class="line">__attribute((section(<span class="string">"mysection"</span>))) <span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">__attribute((section(<span class="string">"mysection_data"</span>))) <span class="keyword">char</span> strMySec[] = <span class="string">"NzTfdujpo"</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</div><div class="line">    mysecFunction();</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    ......</div><div class="line">	<span class="comment">//deal data in section mysection_data</span></div><div class="line">	<span class="comment">//then print it</span></div><div class="line">	......</div><div class="line">    <span class="keyword">return</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	......</div><div class="line">	<span class="comment">//code will decrypt data in section: mysection</span></div><div class="line">	......</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/****************************************************</span></div><div class="line">* find a module's base via /proc/[pid]/maps,</div><div class="line">* in this scenario, it will be the base addr of the</div><div class="line">* executable elf file's base address</div><div class="line">****************************************************/</div><div class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</div><div class="line">&#123;</div><div class="line">    <span class="keyword">char</span> buf[MAXLEN] = &#123;<span class="number">0</span>&#125;;</div><div class="line">    <span class="keyword">char</span> *sAddr = <span class="literal">NULL</span>;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> uRet = <span class="number">0</span>;</div><div class="line">    FILE *fp = <span class="literal">NULL</span>;</div><div class="line"></div><div class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">"/proc/%d/maps"</span>, getpid());</div><div class="line">    <span class="keyword">if</span> (!(fp = fopen(buf, <span class="string">"r"</span>))) &#123;</div><div class="line">        perror(<span class="string">"Error when open file\n"</span>);</div><div class="line">        <span class="keyword">return</span> uRet;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">while</span>(fgets(buf, <span class="keyword">sizeof</span>(buf), fp)) &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(buf, strName)) &#123;</div><div class="line">            sAddr = strtok(buf, <span class="string">"-"</span>);</div><div class="line">            uRet = strtol(sAddr, <span class="literal">NULL</span>, <span class="number">16</span>);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> uRet;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"elf32.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLEN 1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGESIZE 4096</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//The function to decrypt the segment</span></span><br><span class="line">__attribute__((constructor)) <span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//The section that will be encrypted</span></span><br><span class="line">__attribute((section(<span class="string">"mysection"</span>))) <span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">__attribute((section(<span class="string">"mysection_data"</span>))) <span class="keyword">char</span> strMySec[] = <span class="string">"NzTfdujpo"</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</span><br><span class="line">    mysecFunction();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">true<span class="comment">//deal data in section mysection_data</span></span><br><span class="line">true<span class="comment">//then print it</span></span><br><span class="line">true......</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">true......</span><br><span class="line">true<span class="comment">//code will decrypt data in section: mysection</span></span><br><span class="line">true......</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/****************************************************</span></span><br><span class="line"><span class="comment">* find a module's base via /proc/[pid]/maps,</span></span><br><span class="line"><span class="comment">* in this scenario, it will be the base addr of the</span></span><br><span class="line"><span class="comment">* executable elf file's base address</span></span><br><span class="line"><span class="comment">****************************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[MAXLEN] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">char</span> *sAddr = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> uRet = <span class="number">0</span>;</span><br><span class="line">    FILE *fp = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">"/proc/%d/maps"</span>, getpid());</span><br><span class="line">    <span class="keyword">if</span> (!(fp = fopen(buf, <span class="string">"r"</span>))) &#123;</span><br><span class="line">        perror(<span class="string">"Error when open file\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> uRet;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(fgets(buf, <span class="keyword">sizeof</span>(buf), fp)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(buf, strName)) &#123;</span><br><span class="line">            sAddr = strtok(buf, <span class="string">"-"</span>);</span><br><span class="line">            uRet = strtol(sAddr, <span class="literal">NULL</span>, <span class="number">16</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> uRet;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>代码大概内容如下：</p>
 <ul>
 <li>一个mysection节，包含一个会被加密的函数mysecFunction()，函数会把mysectin_data里的字符数组进行处理（其实是加），打印出真正的字符串</li>
@@ -304,7 +273,7 @@
 <li>一个getAddress函数，用来获取程序加载基地址(<strong>其实这个函数在这里可以看成是多余的，因为和shared object不一样，可执行文件的程序地址是写死的，写这里是作为备忘，总归会碰到加密so的</strong>)</li>
 </ul>
 <p>对源码进行编译生成目标文件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -m32 -c -o example.o example.c</div><div class="line">$ gcc -m32 -o example example.o -Wl,--section-start=mysection=0x08881000</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -m32 -c -o example.o example.c</span><br><span class="line">$ gcc -m32 -o example example.o -Wl,--section-start=mysection=0x08881000</span><br></pre></td></tr></table></figure>
 <p>这里需要注意的是加了编译选项-Wl,–section-start=mysection=0x08881000，原因在于：</p>
 <ul>
 <li>so被加载进来后，通常其起始地址是按页对齐的，不同于so，elf可执行文件里代码位置是写死的，而且通常每个section里的代码在segment里并不会按页对齐，所以我们的mysection通常不会在一个页的起始处</li>
@@ -312,7 +281,7 @@
 </ul>
 <p>所以，指定对应节的起始地址为一个按4K对齐的地址。</p>
 <p>####B、加密生成的ELF可执行文件的指定区域</p>
-<p>这里使用python脚本自动搜索完成<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./elfshell.py example</div></pre></td></tr></table></figure></p>
+<p>这里使用python脚本自动搜索完成<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./elfshell.py example</span><br></pre></td></tr></table></figure></p>
 <p>思路如下：</p>
 <ul>
 <li>读取ELF Header，取得Section Table，Section String Name Table</li>
@@ -328,7 +297,7 @@
 <li>解密mysection</li>
 <li>程序开始执行</li>
 </ul>
-<p>代码：<a href="https://github.com/ExiaHan/ELF_Shell" target="_blank" rel="external">github</a></p>
+<p>代码：<a href="https://github.com/ExiaHan/ELF_Shell" target="_blank" rel="noopener">github</a></p>
 
       
 
@@ -485,7 +454,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -576,22 +545,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -604,11 +557,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -617,6 +570,62 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -636,31 +645,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

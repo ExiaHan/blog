@@ -10,12 +10,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="I am a 逗比.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ExiaHan's Blog">
+<meta property="og:title" content="ExiaHan&#39;s Blog">
 <meta property="og:url" content="http://blog.exiahan.com/page/2/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
 <meta property="og:description" content="I am a 逗比.">
+<meta property="og:locale" content="zh-CN">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ExiaHan's Blog">
+<meta name="twitter:title" content="ExiaHan&#39;s Blog">
 <meta name="twitter:description" content="I am a 逗比.">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -176,6 +177,380 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-XDCTF-WRITEUP" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/02/XDCTF-WRITEUP/">XDCTF2015 WRITEUP(我才不会说我就做出来一题)</a>
+    </h1>
+  
+
+        
+        <a href="/2015/10/02/XDCTF-WRITEUP/" class="archive-article-date">
+  	<time datetime="2015-10-02T15:12:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#0x1 给大黑阔们跪了</p>
+<p>本来准备出去玩的，结果到家后发现要过两天才有人回来，就趁机做了把XDCTF的线上，结果被虐的北都找不到了，看着6星和Sigma一路突突突，只能膜了。。有思路的一共三题，结果最后只做出来1题。。。另外两题做到一大半怎么也进行不下去了。<br>总体来说虽然没做出来多少，但是感觉XDCTF水平是很高的了，题目也都很虐人（Pia!&lt;(=ｏ ‵-′)ノ☆<br>这里写个备忘，毕竟是一次经历。</p>
+<p>#0x2 没写出来但有思路的的</p>
+<p>###Reverse 01</p>
+<p>一个linux 的elf x64程序，还是挺有意思的，可惜没做出来，逆向功力不够，大概思路：</p>
+<ul>
+<li>入口函数是函数0x4008e1，里面会有ptrace反调试，然后获取输入<ul>
+<li>这里的输入从分析看应该是要解密后面说到的加密方法的</li>
+</ul>
+</li>
+<li>后面的坑就来了，如果顺着0x4008e1走，最后会打印出来”Congratulations? Key is XDCTF{Input}”，一看就不对</li>
+<li>继续看，发现有个函数在0x400787,最后也会打印出来一个flag，而且会吧上面的string的“？”换成“！”，所以这个函数才是真正会吐出flag的过程</li>
+<li>解体思路应该是修改执行流到这里，但是问题有三个：<ul>
+<li>逆向出加密算法</li>
+<li>给出能通过的输入</li>
+<li>在什么时刻强制从0x4008e1跳到0x400787</li>
+</ul>
+</li>
+<li>因为没搞定上面三个问题，所以没写出来</li>
+</ul>
+<p><strong>最后说下里面加密会用到字符串*</strong>ZzAwZF9DcjRrM3JfZzBfb24=*，不过加密算法，我就真不想看了。</p>
+<p>###Misc 01</p>
+<p>这题后来给了tips，也就是org原图。</p>
+<ul>
+<li>先用stegsolv打开zzzzzzyu.png，跳几个plane后可以看到顶部有个条，原图org.png是没的</li>
+<li>用stegsolve两张combine一下，然后sub后发现顶部会出现两像素宽的条状区，里面零星分布一些黑色像素点</li>
+<li>导出成bmp，去色成黑白</li>
+<li>用python 的PIL库把顶部两行的按照像素输出，白色是0,黑色是1,可以得到如下字符串：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">11111111111111111111111111111110111111111111111111101011111111111111110111111111111111111011111111111111111111111110111111111111111101011111111111111111111111111111110111111110101110111111111111111111111111111011101110111111111111111111111111110111111111111111111111011111110111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111101111111111111111110101111111011111010111111011111111111111111111111111111111111111111110111111111111111111010111111101111101011111101111111111111111111111111111111101110111111111111111</span><br></pre></td></tr></table></figure>
+<p>但是接下来用jpk处理的时候，4bit格式format，然后处理完实在找不到什么特征了。。作罢。。。（o&lt;&lt;(≧口≦)&gt;&gt;o</p>
+<p>#0x3 解出来的</p>
+<p>嘛，怎么着还是做出来一题的，至少不是鸭蛋，咩哈哈哈哈&lt;(=￣_￣)σ…&lt;( ＿ ＿)ノ｜</p>
+<p>给了一个数据文件，file一下识别不了格式，strings也没啥有用信息，bless看的时候发现开头几个字符是VIMG….fat12….VMWare Visual什么的，搜了下，唯独fat12有点信息，但是挂载的话还是会失败。</p>
+<p>换用binwalk，可以看到里面有很多东西，但是有两个zip文件，而且最后那个里面有flag.txt，于是把两个都dd出来<br><strong>不过要说的是dd中间那个的时候，如何能精确的dd出来还是听麻烦的，试了好久，dd出来了一个没有多余附加尾部的zip，如果有更好的方法还希望有人留言说下哈</strong></p>
+<p>dd出来后有flag的那个，姑且命名为flag.zip有密码，试着去掉密码位后一样不行，说明不是伪加密，再看没加密的那个，姑且命名为x.zip，发现两个都有个readme.txt</p>
+<p>用unzip -v查看了下两个的内容，结果两个readme.txt相同诶，于是想到明文破解，把x.zip里除readme.txt外的文件全部删掉，然后用pkcrack大法，大概用法是</p>
+<p>pkcrack -c “readme.txt” -p raedme.txt -C flag.zip -P x.zip -d ok.zip</p>
+<ul>
+<li>-c是指出加密zip里readme.txt的文件结构，从顶层文件夹开始</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flag.zip</span><br><span class="line">true|---readme.txt</span><br><span class="line">true|---flag.txt</span><br></pre></td></tr></table></figure>
+<p>这里flag.zip文件结构如图</p>
+<ul>
+<li>-p是明文的readme.txt所在位置，防止麻烦都放一块，当前目录下</li>
+<li>-C是待破解加密包flag.zip</li>
+<li>-P是包含明文readme.txt的无密码zip包x.zip</li>
+<li>-d指明破解成功后的明文包输出为ok.zip</li>
+</ul>
+<p>然后后开跑，大概10分钟搞定，得到无密码包，拿到flag</p>
+<p>如图：</p>
+<p><img src="/images/xdctf2015/misc21.jpg" alt="misc02.0"><br><img src="/images/xdctf2015/misc22.jpg" alt="misc02.1"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">WriteUp</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">XDCTF2015</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/CTF/" class="article-tag-list-link color4">CTF</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
+    <article id="post-NSCTF2015-WriteUp" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/25/NSCTF2015-WriteUp/">NSCTF2015 WriteUp</a>
+    </h1>
+  
+
+        
+        <a href="/2015/09/25/NSCTF2015-WriteUp/" class="archive-article-date">
+  	<time datetime="2015-09-25T12:56:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-09-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘</strong></p>
+<p>#Reverse</p>
+<p>###0x1 简单的逆向</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/74ec9621ac5f8573abc90b3fb9199e38/Reverse01.exe" target="_blank" rel="noopener">Reverse01</a></p>
+<ul>
+<li>运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。</li>
+<li>使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳</li>
+<li><del>不需要完整脱壳，在壳程序运行完，dump程序</del>[此步不是必须，但是可以dump出来后查看源码]</li>
+<li>回到od，查找字符串，找到提示的那句<strong>“please input ns-ctf password”</strong>，跳转到引用文字，发现有strcmp比较，比较字符串固定，为<strong>“nsF0cuS!x01”</strong></li>
+<li>输入上面的字符串<strong>“nsF0cuS!x01”</strong></li>
+<li>单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理</li>
+<li>修改jle跳转为改为<strong>“jmp short Reverse0.00401150”</strong>，即调用其本来会通过jle跳过的函数，如图：</li>
+</ul>
+<p><img src="/images/nsctf2015/re11.jpg" alt="reverse01.0"></p>
+<ul>
+<li>继续F9运行，程序吐出flag，如图：</li>
+</ul>
+<p><img src="/images/nsctf2015/re12.jpg" alt="reverse01.1"></p>
+<p>###0x2 较简单的逆向</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/806b95d9497584c4a9d89118c8944424/Reverse02.exe" target="_blank" rel="noopener">Reverse02</a></p>
+<p><em>本题和第一题类似，只不过改成了窗口程序</em></p>
+<ul>
+<li>运行，发现窗口程序</li>
+<li>使用OD或者IDA打开</li>
+<li>尝试搜索”Flag”，发现有好几个匹配，记下，同时猜测可能和第一题一样有对flag处理</li>
+<li>查看导入表，发现是个dialogbox，查找调用，找到<strong>0x00401240</strong>处的DialogBoxParamA调用，从其参数里找到对应回调处理函数入口为<strong>0x00401180</strong></li>
+<li>转到<strong>0x00401180</strong>处，发现有个GetDlgItemTextA的调用，在其下有个<strong>call 0x00401070</strong>，猜测会在其中处理Flag，修改程序执行流，让其可以执行，跟踪进入此函数，如图：</li>
+</ul>
+<p><img src="/images/nsctf2015/re21.jpg" alt="reverse02.0"></p>
+<ul>
+<li>进入0x00401070后，可以看到上面有个0x00401000的函数，可以看到内部有调用MessageBoxA显示Flag，同时在0x00401070内发现有此函数调用，修改执行流让其可以执行，跟踪进入0x00401000，在MessageBoxA调用前下断，看到真正的flag，如图：</li>
+</ul>
+<p><img src="/images/nsctf2015/re22.jpg" alt="reverse02.1"></p>
+<p>###0x3 逆向</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/877afdad88a2340eaefe8c1a87bb391e/Revesre03.exe" target="_blank" rel="noopener">Reverse03</a></p>
+<p><em>分析：使用python生成的程序，运行时在本地Temp文件夹里释放文件，通过CreateProcessA运行一个新进程来执行，没搞定。。。。。。。。囧。。</em></p>
+<p>#MISC</p>
+<p>###0x1 Twitter<br><strong>这题，额。。。啧啧。。一个md5,100块钱，不过有人抖了答案出来</strong></p>
+<p>###0x2 Wireshark</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/16d8a763795dd8cc3cf5f599fbb5e5af/sniffer.pcapng" target="_blank" rel="noopener">sniffer.pcapng</a></p>
+<p>从题目可以看出来是个抓包题，wireshark打开文件[也可以用Dshell，或者binwalk]</p>
+<p><img src="/images/nsctf2015/misc1.jpg" alt="misc02"></p>
+<ul>
+<li>题目说是下载，猜测在http里，表达式过滤http</li>
+<li>看到有个key.rar，服务器为192.168.52.1</li>
+<li>dump出key.rar，解压，需要密码</li>
+<li>继续查找发现获取rar之前还有个从服务器获取的页面，dump内容保存成html文件，内容有提示密码为nsfocus+5个数字</li>
+<li>生成字典，爆破，解压密码为nsfocus56317,打开后获得flag</li>
+</ul>
+<p>#WEB</p>
+<p>###0x1 Be Careful</p>
+<p>使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。</p>
+<p><img src="/images/nsctf2015/web1.jpg" alt="web01"></p>
+<p>###0x2 Decode</p>
+<p>题目里给了个php的函数，接受传入的字符串</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">encode</span><span class="params">($str)</span></span>&#123;</span><br><span class="line">true$_o = strrev($str);</span><br><span class="line">true<span class="keyword">for</span>($_0=<span class="number">0</span>;$_0&lt;strlen($_o);$_0++)&#123;</span><br><span class="line">truetrue$_c = substr($_o,$_0,<span class="number">1</span>);</span><br><span class="line">truetrue$__ = ord($_c)+<span class="number">1</span>;</span><br><span class="line">truetrue$_c = chr($__);</span><br><span class="line">truetrue$_= $_.$_c;</span><br><span class="line">true&#125;</span><br><span class="line">true<span class="keyword">return</span> str_rot13(strrev(base64_encode($_)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其作用如下：</p>
+<ul>
+<li>反转字符串</li>
+<li>每个字符对应值加1再转回字符串，即每个字符都变成其后一个字符</li>
+<li>得到的新字符串base64编码</li>
+<li>编码后再反转</li>
+<li>反转后rot13编码得到最终字符串，即题目的</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws**</span><br></pre></td></tr></table></figure>
+<p>根据上面的分析逆向一次即可得到flag</p>
+<p>#CRYPTO</p>
+<p>###0x1 神秘的字符串</p>
+<p>给了一串字符串（写在比赛结束后，已经看不到了。。），感觉像base64，解一下，发现有Salted_字样的玩意，应该是AES加密，到网上找了个网站解密了一下，结果解出来是flag{字符串}的形式，因为字符串不是NSCTF开头，感觉还有加密，在密码机器网上跑了一下，发现是凯撒移位加密，得到最终flag是NSCTF_Rot_Encryption</p>
+<p>###0x2 神奇的图片</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/8041661a723dcc82a8a088163e2cd9ac/oddpic.jpg" target="_blank" rel="noopener">oddpic.jpg</a></p>
+<p>binwalk走一遍，里面有其他的jpeg，dd出来，得到flag</p>
+<p><img src="/images/nsctf2015/crypto2.jpg" alt="crypt02"></p>
+<p>###0x3 神秘的图片+10086</p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/50cf3d7ee75c2bbb7a91808dc811aa24/newnewnew.jpg" target="_blank" rel="noopener">newnewnew.jpg</a></p>
+<p>binwalk走一下没结果，用stegsolv分析下，在blue plane 0通道看到一个颜色反转的二维码，保存出来，用ps等工具反转下颜色，手机扫描，得到flag</p>
+<p><img src="/images/nsctf2015/crypto3.jpg" alt="crypt03"></p>
+<p><strong>Update:附上官方博客资料，里面有WriteUp，<a href="http://blog.nsfocus.net/nsctf-network-attack-defence-game-download/" target="_blank" rel="noopener">绿盟博客</a></strong></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">WriteUp</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">NSCTF2015</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/CTF/" class="article-tag-list-link color4">CTF</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
+    <article id="post-Dice-Write-Up" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/18/Dice-Write-Up/">Dice Write Up</a>
+    </h1>
+  
+
+        
+        <a href="/2015/09/18/Dice-Write-Up/" class="archive-article-date">
+  	<time datetime="2015-09-18T12:01:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-09-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#0x1</p>
+<p>题目链接：<a href="http://ctf5.simplexue.com/re/Dice.exe" target="_blank" rel="noopener">Simple-Reverse-Dice</a></p>
+<p>#0x2</p>
+<p>拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。</p>
+<p>运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。</p>
+<p>#0x3</p>
+<p>使用IDA和Ollydbg进行分析</p>
+<ul>
+<li>在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个<strong>time类型</strong>，推测可能每次摇骰子是随机生成数值。</li>
+<li>继续向下，可以看到程序有判断是否有附加调试器：<ul>
+<li>isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测</li>
+</ul>
+</li>
+<li>继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7</li>
+<li><del>再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch</del></li>
+<li>仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2</li>
+<li>最后发现上面最好patch后，加了横线的描述应该不会发生</li>
+</ul>
+<p>#0x4<br>上述步骤完成，拿到flag，如图：</p>
+<p><img src="/images/dice_write_up/flag.jpg" alt="flag"></p>
+<p>#0x5</p>
+<p>昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&lt;&lt;(≧口≦)&gt;&gt;o，炸裂了。。我好蠢。。汪，就这样</p>
+<p>顺便把我的暴力方法打的断点图备忘一下：</p>
+<p><img src="/images/dice_write_up/breaklist.jpg" alt="break list"></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">CTF</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Reverse</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SimpleXue</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/CTF/" class="article-tag-list-link color4">CTF</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-Xposed-with-Android-Studio" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -198,7 +573,7 @@
       
         <p>##0x1 介绍<br>Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。<br>本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。</p>
 <p>##0x2 开工<br><strong>这篇文章也是作为Xposed插桩的练习记录</strong></p>
-<p>###引入Xposed框架<br>不得不说，即使有<a href="https://github.com/rovo89" target="_blank" rel="external">rovo89</a>的<a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial" target="_blank" rel="external">Xposed Tutorial</a>，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。</p>
+<p>###引入Xposed框架<br>不得不说，即使有<a href="https://github.com/rovo89" target="_blank" rel="noopener">rovo89</a>的<a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial" target="_blank" rel="noopener">Xposed Tutorial</a>，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。</p>
 <ul>
 <li>下载xposed框架jar包</li>
 <li>创建你的xposed module工程，如”HelloXposedHook”</li>
@@ -221,7 +596,7 @@
 </ul>
 </li>
 </ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">apply plugin: 'java'</div><div class="line">dependencies &#123;</div><div class="line">    compile project(":lib")</div><div class="line">    provided fileTree(dir: 'lib', include: ['*.jar'])</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: 'java'</span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile project(":lib")</span><br><span class="line">    provided fileTree(dir: 'lib', include: ['*.jar'])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含<br>xposed的jar包要求仅被引用，而不能包含<br>所以放xposedLib<br>并且在module settings里把相关项改成provide</p>
 </blockquote>
@@ -230,7 +605,7 @@
 <ul>
 <li>修改AndroidManifest.xml，加入xposed的meta元素（<strong>具体如何参见rovo89的Tutorial</strong>）</li>
 </ul>
-<p>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">application</span></span></div><div class="line">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></div><div class="line">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></div><div class="line">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"My First Xposed Module for Hook"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"30"</span> /&gt;</div><div class="line">		<span class="tag">&lt;<span class="name">activity</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">".MainActivity"</span></div><div class="line">            <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</div><div class="line">......</div></pre></td></tr></table></figure></p>
+<p>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"My First Xposed Module for Hook"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"30"</span> /&gt;</span></span><br><span class="line">truetrue<span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">".MainActivity"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</span></span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>创建你的使用xposed插件的函数，如MyXposedModule</li>
 <li>添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名<ul>
@@ -239,7 +614,7 @@
 </li>
 </ul>
 <p>这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数</p>
-<p>功能代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXposedModule</span> <span class="keyword">implements</span> <span class="title">IXposedHookLoadPackage</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam lpparam)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">        <span class="comment">//TODO Auto-generated method stub</span></div><div class="line">        <span class="comment">//filter the package</span></div><div class="line"></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!lpparam.packageName.equals(<span class="string">"com.xxx.remotecontrol"</span>))</div><div class="line">            <span class="keyword">return</span>;</div><div class="line"></div><div class="line">        Log.e(<span class="string">"Package"</span>, <span class="string">"\n"</span> + lpparam.packageName + <span class="string">"\n"</span>);</div><div class="line"></div><div class="line">        <span class="comment">//if has a custom class param, use reflact to get the class as type</span></div><div class="line">        <span class="comment">//Class&lt;?&gt; XXXJni = null;</span></div><div class="line">        <span class="comment">//XXXJni = lpparam.classLoader.loadClass("com.xxx.remotecontrol");</span></div><div class="line">        findAndHookMethod(<span class="string">"com.xxx.remotecontrol.mainActivity"</span>, lpparam.classLoader, <span class="string">"forHook"</span>, String.class, <span class="keyword">new</span> XC_MethodHook() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called before the clock was updated by the original method</span></div><div class="line">                String parg = (String) param.args[<span class="number">0</span>];</div><div class="line">                Log.e(<span class="string">"Result:"</span>, <span class="string">"\nHi\n"</span>);</div><div class="line">                Log.e(<span class="string">"CMD:"</span>, parg);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called after the clock was updated by the original method</span></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>功能代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXposedModule</span> <span class="keyword">implements</span> <span class="title">IXposedHookLoadPackage</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam lpparam)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">//TODO Auto-generated method stub</span></span><br><span class="line">        <span class="comment">//filter the package</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!lpparam.packageName.equals(<span class="string">"com.xxx.remotecontrol"</span>))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        Log.e(<span class="string">"Package"</span>, <span class="string">"\n"</span> + lpparam.packageName + <span class="string">"\n"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//if has a custom class param, use reflact to get the class as type</span></span><br><span class="line">        <span class="comment">//Class&lt;?&gt; XXXJni = null;</span></span><br><span class="line">        <span class="comment">//XXXJni = lpparam.classLoader.loadClass("com.xxx.remotecontrol");</span></span><br><span class="line">        findAndHookMethod(<span class="string">"com.xxx.remotecontrol.mainActivity"</span>, lpparam.classLoader, <span class="string">"forHook"</span>, String.class, <span class="keyword">new</span> XC_MethodHook() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// this will be called before the clock was updated by the original method</span></span><br><span class="line">                String parg = (String) param.args[<span class="number">0</span>];</span><br><span class="line">                Log.e(<span class="string">"Result:"</span>, <span class="string">"\nHi\n"</span>);</span><br><span class="line">                Log.e(<span class="string">"CMD:"</span>, parg);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// this will be called after the clock was updated by the original method</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>Hook成功后首先打印Hi，然后打印参数，即CMD后的parg</p>
 <p>结果如图：<br><img src="/images/xposed_with_androidstudio/result.jpg" alt="result"></p>
 <p><strong>到这里也即完成了xposed module的创建</strong></p>
@@ -321,7 +696,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>#0x00 前言</p>
-<p>之前看了ELF文件的文件格式PDF<a href="http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf" target="_blank" rel="external">文档</a>，又从<a href="http://bbs.pediy.com/showthread.php?t=191649" target="_blank" rel="external">看雪论坛</a>和<a href="http://www.burningcodes.net/" target="_blank" rel="external">光哥</a>那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。</p>
+<p>之前看了ELF文件的文件格式PDF<a href="http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf" target="_blank" rel="noopener">文档</a>，又从<a href="http://bbs.pediy.com/showthread.php?t=191649" target="_blank" rel="noopener">看雪论坛</a>和<a href="http://www.burningcodes.net/" target="_blank" rel="noopener">光哥</a>那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。</p>
 <p>大概流程如下：</p>
 <ul>
 <li>核心代码放到指定节</li>
@@ -377,7 +752,7 @@
 </tbody>
 </table>
 <p>ELF文件ELF Header结构如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">......</div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int8_t</span> u1;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int16_t</span> u2;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">u_int32_t</span> u4;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int8_t</span> i1;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int16_t</span> i2;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int32_t</span> i4;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">    u1 e_ident[EI_NIDENT];</div><div class="line">    u2 e_type;</div><div class="line">    u2 e_machine;</div><div class="line">    u4 e_version;</div><div class="line">    u4 e_entry;</div><div class="line">    u4 e_phoff;</div><div class="line">    u4 e_shoff;</div><div class="line">    u4 e_flags;</div><div class="line">    u2 e_ehsize;</div><div class="line">    u2 e_phentsize;</div><div class="line">    u2 e_phnum;</div><div class="line">    u2 e_shentsize;</div><div class="line">    u2 e_shnum;</div><div class="line">    u2 e_shstrndx;</div><div class="line">&#125;elf32_Header, *pElf32_Header;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int8_t</span> u1;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int16_t</span> u2;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">u_int32_t</span> u4;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int8_t</span> i1;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int16_t</span> i2;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int32_t</span> i4;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    u1 e_ident[EI_NIDENT];</span><br><span class="line">    u2 e_type;</span><br><span class="line">    u2 e_machine;</span><br><span class="line">    u4 e_version;</span><br><span class="line">    u4 e_entry;</span><br><span class="line">    u4 e_phoff;</span><br><span class="line">    u4 e_shoff;</span><br><span class="line">    u4 e_flags;</span><br><span class="line">    u2 e_ehsize;</span><br><span class="line">    u2 e_phentsize;</span><br><span class="line">    u2 e_phnum;</span><br><span class="line">    u2 e_shentsize;</span><br><span class="line">    u2 e_shnum;</span><br><span class="line">    u2 e_shstrndx;</span><br><span class="line">&#125;elf32_Header, *pElf32_Header;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
 <p>根据文档，对于Linker，其对Section进行操作，而在装入内存执行时，进程内部数据是按照段(Segment)进行组织，所以对于非可执行的ELF文件，如gcc -c xxx.o生成的 xxx.o文件，其内部可以没有Program Header Table，但必须有Section Header Table；对于可执行文件(gcc -o xxx)，其内部可以没有Section Header Table，但是必须有Program Header Table。</p>
 <p>因此，我们可以利用ELF Header中与section有关的字段，如e_shoff和e_shentsize，用来存放我们加解密需要的数据来供decryptFunc函数使用，如此不仅方便，还能有效避免可执行文件被IDA等静态工具分析。</p>
 <p>##0x02 开工</p>
@@ -387,7 +762,7 @@
 <li>头文件elf32.h，包含对elf header结构的定义</li>
 <li>example.c 示例文件，包含解密函数等定义</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"elf32.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLEN 1000</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGESIZE 4096</span></div><div class="line"></div><div class="line"><span class="comment">//The function to decrypt the segment</span></div><div class="line">__attribute__((constructor)) <span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="comment">//The section that will be encrypted</span></div><div class="line">__attribute((section(<span class="string">"mysection"</span>))) <span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">__attribute((section(<span class="string">"mysection_data"</span>))) <span class="keyword">char</span> strMySec[] = <span class="string">"NzTfdujpo"</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</div><div class="line">    mysecFunction();</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    ......</div><div class="line">	<span class="comment">//deal data in section mysection_data</span></div><div class="line">	<span class="comment">//then print it</span></div><div class="line">	......</div><div class="line">    <span class="keyword">return</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	......</div><div class="line">	<span class="comment">//code will decrypt data in section: mysection</span></div><div class="line">	......</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/****************************************************</span></div><div class="line">* find a module's base via /proc/[pid]/maps,</div><div class="line">* in this scenario, it will be the base addr of the</div><div class="line">* executable elf file's base address</div><div class="line">****************************************************/</div><div class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</div><div class="line">&#123;</div><div class="line">    <span class="keyword">char</span> buf[MAXLEN] = &#123;<span class="number">0</span>&#125;;</div><div class="line">    <span class="keyword">char</span> *sAddr = <span class="literal">NULL</span>;</div><div class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> uRet = <span class="number">0</span>;</div><div class="line">    FILE *fp = <span class="literal">NULL</span>;</div><div class="line"></div><div class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">"/proc/%d/maps"</span>, getpid());</div><div class="line">    <span class="keyword">if</span> (!(fp = fopen(buf, <span class="string">"r"</span>))) &#123;</div><div class="line">        perror(<span class="string">"Error when open file\n"</span>);</div><div class="line">        <span class="keyword">return</span> uRet;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">while</span>(fgets(buf, <span class="keyword">sizeof</span>(buf), fp)) &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(buf, strName)) &#123;</div><div class="line">            sAddr = strtok(buf, <span class="string">"-"</span>);</div><div class="line">            uRet = strtol(sAddr, <span class="literal">NULL</span>, <span class="number">16</span>);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> uRet;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"elf32.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXLEN 1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PAGESIZE 4096</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//The function to decrypt the segment</span></span><br><span class="line">__attribute__((constructor)) <span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//The section that will be encrypted</span></span><br><span class="line">__attribute((section(<span class="string">"mysection"</span>))) <span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">__attribute((section(<span class="string">"mysection_data"</span>))) <span class="keyword">char</span> strMySec[] = <span class="string">"NzTfdujpo"</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"hello world\n"</span>);</span><br><span class="line">    mysecFunction();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mysecFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">true<span class="comment">//deal data in section mysection_data</span></span><br><span class="line">true<span class="comment">//then print it</span></span><br><span class="line">true......</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mydecrypt</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">true......</span><br><span class="line">true<span class="comment">//code will decrypt data in section: mysection</span></span><br><span class="line">true......</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/****************************************************</span></span><br><span class="line"><span class="comment">* find a module's base via /proc/[pid]/maps,</span></span><br><span class="line"><span class="comment">* in this scenario, it will be the base addr of the</span></span><br><span class="line"><span class="comment">* executable elf file's base address</span></span><br><span class="line"><span class="comment">****************************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">getAddress</span><span class="params">(<span class="keyword">char</span> *strName)</span></span>;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[MAXLEN] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">char</span> *sAddr = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> uRet = <span class="number">0</span>;</span><br><span class="line">    FILE *fp = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">sprintf</span>(buf, <span class="string">"/proc/%d/maps"</span>, getpid());</span><br><span class="line">    <span class="keyword">if</span> (!(fp = fopen(buf, <span class="string">"r"</span>))) &#123;</span><br><span class="line">        perror(<span class="string">"Error when open file\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> uRet;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(fgets(buf, <span class="keyword">sizeof</span>(buf), fp)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(buf, strName)) &#123;</span><br><span class="line">            sAddr = strtok(buf, <span class="string">"-"</span>);</span><br><span class="line">            uRet = strtol(sAddr, <span class="literal">NULL</span>, <span class="number">16</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> uRet;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>代码大概内容如下：</p>
 <ul>
 <li>一个mysection节，包含一个会被加密的函数mysecFunction()，函数会把mysectin_data里的字符数组进行处理（其实是加），打印出真正的字符串</li>
@@ -396,7 +771,7 @@
 <li>一个getAddress函数，用来获取程序加载基地址(<strong>其实这个函数在这里可以看成是多余的，因为和shared object不一样，可执行文件的程序地址是写死的，写这里是作为备忘，总归会碰到加密so的</strong>)</li>
 </ul>
 <p>对源码进行编译生成目标文件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gcc -m32 -c -o example.o example.c</div><div class="line">$ gcc -m32 -o example example.o -Wl,--section-start=mysection=0x08881000</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -m32 -c -o example.o example.c</span><br><span class="line">$ gcc -m32 -o example example.o -Wl,--section-start=mysection=0x08881000</span><br></pre></td></tr></table></figure>
 <p>这里需要注意的是加了编译选项-Wl,–section-start=mysection=0x08881000，原因在于：</p>
 <ul>
 <li>so被加载进来后，通常其起始地址是按页对齐的，不同于so，elf可执行文件里代码位置是写死的，而且通常每个section里的代码在segment里并不会按页对齐，所以我们的mysection通常不会在一个页的起始处</li>
@@ -404,7 +779,7 @@
 </ul>
 <p>所以，指定对应节的起始地址为一个按4K对齐的地址。</p>
 <p>####B、加密生成的ELF可执行文件的指定区域</p>
-<p>这里使用python脚本自动搜索完成<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./elfshell.py example</div></pre></td></tr></table></figure></p>
+<p>这里使用python脚本自动搜索完成<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./elfshell.py example</span><br></pre></td></tr></table></figure></p>
 <p>思路如下：</p>
 <ul>
 <li>读取ELF Header，取得Section Table，Section String Name Table</li>
@@ -420,7 +795,7 @@
 <li>解密mysection</li>
 <li>程序开始执行</li>
 </ul>
-<p>代码：<a href="https://github.com/ExiaHan/ELF_Shell" target="_blank" rel="external">github</a></p>
+<p>代码：<a href="https://github.com/ExiaHan/ELF_Shell" target="_blank" rel="noopener">github</a></p>
 
       
 
@@ -620,22 +995,22 @@
 <p>####ELF Header(文件头)</p>
 <p>有些Object File的控制结构(Control Structures)可以增长，因为ELF Header包含了它们的实际大小。如果Object File的文件格式改变，程序可能会遇到控制结构与期望的大小不相符的情况。在这种情况下程序可能会忽略掉“多余”(因为比期望的大小大，可能会多出一些描述数据)的信息；对于“遗失”(因为比期望的大小小)的信息的处理方法依赖于上下文，并且如果定义extensions的话，将在其中被规定相关处理方式。</p>
 <p><strong>ELF Header</strong></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line">	unsignedchar  	e_ident[EI_NIDENT];</div><div class="line">	Elf32_Half		e_type;</div><div class="line">	Elf32_Half		e_machine;</div><div class="line">	Elf32_Word		e_version;</div><div class="line">	Elf32_Addr		e_entry;</div><div class="line">	Elf32_Off	 	e_phoff;</div><div class="line">	Elf32_Off	 	e_shoff;</div><div class="line">	Elf32_Word		e_flags;</div><div class="line">	Elf32_Half		e_ehsize;</div><div class="line">	Elf32_Half		e_phentsize;</div><div class="line">	Elf32_Half		e_phnum;</div><div class="line">	Elf32_Half		e_shentsize;</div><div class="line">	Elf32_Half		e_shnum;</div><div class="line">	Elf32_Half		e_shstrndx;</div><div class="line">&#125;Elf32_Ehdr;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">trueunsignedchar  	e_ident[EI_NIDENT];</span><br><span class="line">trueElf32_Half		e_type;</span><br><span class="line">trueElf32_Half		e_machine;</span><br><span class="line">trueElf32_Word		e_version;</span><br><span class="line">trueElf32_Addr		e_entry;</span><br><span class="line">trueElf32_Off	 	e_phoff;</span><br><span class="line">trueElf32_Off	 	e_shoff;</span><br><span class="line">trueElf32_Word		e_flags;</span><br><span class="line">trueElf32_Half		e_ehsize;</span><br><span class="line">trueElf32_Half		e_phentsize;</span><br><span class="line">trueElf32_Half		e_phnum;</span><br><span class="line">trueElf32_Half		e_shentsize;</span><br><span class="line">trueElf32_Half		e_shnum;</span><br><span class="line">trueElf32_Half		e_shstrndx;</span><br><span class="line">&#125;Elf32_Ehdr;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>e_ident 标记整个文件为Object File并且提供平台无关的数据用来解码和翻译整个文件内容。</li>
 <li>e_type 说明具体是哪一种Object File：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Type&#123;</div><div class="line">	ET_NONE = <span class="number">0x0</span>;</div><div class="line">	ET_REL = <span class="number">0x1</span>;</div><div class="line">	ET_EXEC = <span class="number">0x2</span>;</div><div class="line">	ET_DYN = <span class="number">0x3</span>;</div><div class="line">	ET_CORE = <span class="number">0x4</span>;</div><div class="line">	ET_LOPROC = <span class="number">0xff00</span>;</div><div class="line">	ET_HIPROC = <span class="number">0xffff</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Type&#123;</span><br><span class="line">trueET_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueET_REL = <span class="number">0x1</span>;</span><br><span class="line">trueET_EXEC = <span class="number">0x2</span>;</span><br><span class="line">trueET_DYN = <span class="number">0x3</span>;</span><br><span class="line">trueET_CORE = <span class="number">0x4</span>;</span><br><span class="line">trueET_LOPROC = <span class="number">0xff00</span>;</span><br><span class="line">trueET_HIPROC = <span class="number">0xffff</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>Core File的内容没有被制定，ET_CORE作为保留字存在。ET_LOPROC/HIPROC两者作为处理器指定语义的保留字，两者可兼或(ET_LOPROC | ET_HIPROC)，其他的一些没有用到的类型同样作为保留字，将来可能用来关联一些新的必要的文件类型。</p>
 <ul>
 <li>e_machine 指定平台架构：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Machine&#123;</div><div class="line">	EM_NONE = <span class="number">0x0</span>;</div><div class="line">	EM_M32 = <span class="number">0x1</span>;</div><div class="line">	EM_SPARC = <span class="number">0x2</span>;</div><div class="line">	EM_386 = <span class="number">0x3</span>;</div><div class="line">	EM_68K = <span class="number">0x4</span>;</div><div class="line">	EM_88K = <span class="number">0x5</span>;</div><div class="line">	EM_860 = <span class="number">0x7</span>;</div><div class="line">	EM_MIPS = <span class="number">0x8</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>其他的值作为保留字来关联将来可能出现的新平台架构，处理器定制(Processor-specific)ELF名使用机器平台名来区分它们，举例来说：有一个在平台EM_386上的 e<em>flag(会以EF</em>开头) 为 WIDGET，那么，这个flag的将会写成 EF_386_WINDGET。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Machine&#123;</span><br><span class="line">trueEM_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueEM_M32 = <span class="number">0x1</span>;</span><br><span class="line">trueEM_SPARC = <span class="number">0x2</span>;</span><br><span class="line">trueEM_386 = <span class="number">0x3</span>;</span><br><span class="line">trueEM_68K = <span class="number">0x4</span>;</span><br><span class="line">trueEM_88K = <span class="number">0x5</span>;</span><br><span class="line">trueEM_860 = <span class="number">0x7</span>;</span><br><span class="line">trueEM_MIPS = <span class="number">0x8</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>其他的值作为保留字来关联将来可能出现的新平台架构，处理器定制(Processor-specific)ELF名使用机器平台名来区分它们，举例来说：有一个在平台EM_386上的 e_flag(会以EF_开头) 为 WIDGET，那么，这个flag的将会写成 EF_386_WINDGET。</p>
 <ul>
 <li>e_version 指定ELF的文件版本，现在只有两个值：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Version&#123;</div><div class="line">	EV_NONE = <span class="number">0x0</span>;</div><div class="line">	EV_CURRENT = <span class="number">0x1</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Version&#123;</span><br><span class="line">trueEV_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueEV_CURRENT = <span class="number">0x1</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>目前一般情况下值是1，但一些特殊情况下也会是一些其他的数值(如有扩展的ELF会用一个大数，或者当需要用不同的值来反应当前的版本时)。</p>
 <ul>
 <li>e_entry 给出system first transfers control需要的用来启动进程的虚拟地址，如果没有入口，那么值是0</li>
@@ -884,7 +1259,7 @@
 </ul>
 <p><strong>Section Header(节头)</strong></p>
 <p>Section Header 的结构化定义如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">	Elf32_Word	sh_name;</div><div class="line">	Elf32_Word	sh_type;</div><div class="line">	Elf32_Word	sh_flags;</div><div class="line">	Elf32_Addr	sh_addr;</div><div class="line">	Elf32_Off 	sh_offset;</div><div class="line">	Elf32_Word	sh_size;</div><div class="line">	Elf32_Word	sh_link;</div><div class="line">	Elf32_Word	sh_info;</div><div class="line">	Elf32_Word	sh_addralign;</div><div class="line">	Elf32_Word	sh_entsize;</div><div class="line">&#125;Elf32_Shdr;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">trueElf32_Word	sh_name;</span><br><span class="line">trueElf32_Word	sh_type;</span><br><span class="line">trueElf32_Word	sh_flags;</span><br><span class="line">trueElf32_Addr	sh_addr;</span><br><span class="line">trueElf32_Off 	sh_offset;</span><br><span class="line">trueElf32_Word	sh_size;</span><br><span class="line">trueElf32_Word	sh_link;</span><br><span class="line">trueElf32_Word	sh_info;</span><br><span class="line">trueElf32_Word	sh_addralign;</span><br><span class="line">trueElf32_Word	sh_entsize;</span><br><span class="line">&#125;Elf32_Shdr;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以’\0’结尾的字符串，C风格字符串)</li>
 <li>sh_type 归类总结本段内容和语义</li>
@@ -1192,48 +1567,48 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>##Foreword<br>For have read a article in WebSite <a href="http://www.codeproject.com/Articles/33340/Code-Injection-into-Running-Linux-Application" target="_blank" rel="external">code project</a>, and learned lots of from it. So make a memo for later consulting.</p>
+        <p>##Foreword<br>For have read a article in WebSite <a href="http://www.codeproject.com/Articles/33340/Code-Injection-into-Running-Linux-Application" target="_blank" rel="noopener">code project</a>, and learned lots of from it. So make a memo for later consulting.</p>
 <p>##Start<br>First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//file mylib.h</span></div><div class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> _MYLIB_H_</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> _MYLIB_H_</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">myprint</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *str)</span></span>;</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//file mylib.c</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">myprint</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">static</span> <span class="keyword">unsigned</span> counter = <span class="number">0</span>;</div><div class="line">   counter++;</div><div class="line">   <span class="built_in">printf</span>(<span class="string">"%d, pid (%d)"</span>, counter, getpid());</div><div class="line">   <span class="keyword">return</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//mymain.c</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> TRUE 1</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">while</span>(TRUE) &#123;</div><div class="line">        myprint();</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Going to sleep\n"</span>);</div><div class="line">        sleep(<span class="number">3</span>);</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"Wake up\n"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//file myinject.c</span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">injection</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    myprint();</div><div class="line">    system(<span class="string">"date"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file mylib.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> _MYLIB_H_</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _MYLIB_H_</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">myprint</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *str)</span></span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file mylib.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">myprint</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">static</span> <span class="keyword">unsigned</span> counter = <span class="number">0</span>;</span><br><span class="line">   counter++;</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">"%d, pid (%d)"</span>, counter, getpid());</span><br><span class="line">   <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//mymain.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRUE 1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(TRUE) &#123;</span><br><span class="line">        myprint();</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Going to sleep\n"</span>);</span><br><span class="line">        sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Wake up\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file myinject.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mylib.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">injection</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    myprint();</span><br><span class="line">    system(<span class="string">"date"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>For in the above, the file mylib.h, mylib.c is used to generate our test app, and the file myinject.c is used to do our injdect, that is we want hook the myprint function, when myprint is invoke, the function injection will be invoked indeed.</p>
 <p>create the three file, and compile like below.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ gcc -g -Wall  <span class="_">-f</span>PIC -shared mylib.c -o libmylib.so</div><div class="line">$ gcc -g -lmylib -L ./ mymain.c -o app</div><div class="line">$ gcc -Wall myinject.c -c -o myinject.o</div><div class="line">$ <span class="built_in">export</span> LD_LIBRARY_PATH=.:[your path <span class="built_in">where</span> the libmylib.so <span class="keyword">in</span>]</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so</span><br><span class="line">$ gcc -g -lmylib -L ./ mymain.c -o app</span><br><span class="line">$ gcc -Wall myinject.c -c -o myinject.o</span><br><span class="line">$ <span class="built_in">export</span> LD_LIBRARY_PATH=.:[your path <span class="built_in">where</span> the libmylib.so <span class="keyword">in</span>]</span><br></pre></td></tr></table></figure>
 <p>For Address-Independent, we add the option -fPIC when build mylib.c to libmylib.so</p>
 <p>what you should care is the -lmylib is fixed to the libmylib, so remember to change it if you name your file another name.</p>
 <p>##Let’s Rock Our App</p>
 <p>Now we can do with the elf file what we just generated.</p>
 <p>####1.Start our app</p>
-<p>Run our app:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./app</div></pre></td></tr></table></figure></p>
+<p>Run our app:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./app</span><br></pre></td></tr></table></figure></p>
 <p>Now we will see the PID via the output. Then we will use gdb to attach the app, via the pid:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ ./app</div><div class="line">1, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">2, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">3, pid (5832)Going to sleep</div></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo gdb -p PID[5832]</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ./app</span><br><span class="line">1, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">2, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">3, pid (5832)Going to sleep</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gdb -p PID[5832]</span><br></pre></td></tr></table></figure>
 <p>After do this, we now attached to the app:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ sudo gdb -p 5832</div><div class="line">GNU gdb (GDB) 7.9.1</div><div class="line">Copyright (C) 2015 Free Software Foundation, Inc.</div><div class="line">License GPLv3+: GNU GPL version 3 or later</div><div class="line">......</div><div class="line">Attaching to process 6618</div><div class="line">Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.</div><div class="line">Reading symbols from ./libmylib.so...done.</div><div class="line">Reading symbols from /usr/lib32/libc.so.6...(no debugging symbols found)...done.</div><div class="line">Reading symbols from /lib/ld-linux.so.2...(no debugging symbols found)...done.</div><div class="line">0xf7722c10 <span class="keyword">in</span> __kernel_vsyscall ()</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
-<p>####2.Operate and Analysis our app/myinject.o<br>First we load our myinject.o into the app’s process space.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">(gdb)call open(<span class="string">"myinject.o"</span>, 2)</div><div class="line">(gdb)call mmap(0, Size, 1|2|4, 2, ReturnFrom-open, 0)</div></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gdb -p 5832</span><br><span class="line">GNU gdb (GDB) 7.9.1</span><br><span class="line">Copyright (C) 2015 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later</span><br><span class="line">......</span><br><span class="line">Attaching to process 6618</span><br><span class="line">Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.</span><br><span class="line">Reading symbols from ./libmylib.so...done.</span><br><span class="line">Reading symbols from /usr/lib32/libc.so.6...(no debugging symbols found)...<span class="keyword">done</span>.</span><br><span class="line">Reading symbols from /lib/ld-linux.so.2...(no debugging symbols found)...<span class="keyword">done</span>.</span><br><span class="line">0xf7722c10 <span class="keyword">in</span> __kernel_vsyscall ()</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+<p>####2.Operate and Analysis our app/myinject.o<br>First we load our myinject.o into the app’s process space.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb)call open(<span class="string">"myinject.o"</span>, 2)</span><br><span class="line">(gdb)call mmap(0, Size, 1|2|4, 2, ReturnFrom-open, 0)</span><br></pre></td></tr></table></figure></p>
 <p>In the open ,the value 2 represent the O_RDWR(Read and Write),then we use mmap function, to put the myinject.o in to the app’s process space, the first and second specify the size of myinject.o, if first is NULL(0), the os justify the start address of the file, the <strong>Size</strong> can be get via:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls <span class="_">-l</span> myinject.o</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ls -l myinject.o</span><br></pre></td></tr></table></figure>
 <p>Then the 1|2|4 represent PROT_READ | PROT_WRITE | PROT_EXEC, so we can for we will write and execute it. The follow 1 represent the <strong>MAP_SHARED</strong> <strong>[But caution, we can use 2, means MAP_PRIVATE, it also works, the MAP_SHARED  will cause the myinject.o in the file also be changed if we write something, yes, actually we will.][好吧，重要的地方说中文，flags最好设置成MAP_PRIIVATE，这样mmap文件到内存后，修改不会影响disk文件，按照英文的文档用SHARED的话，下次要重新生成myinject.o，不然文件被改，怎么做都不会对的，对，我就是蠢货，没好好看mmap的文档，倒腾一天]</strong>. Also the ReturnFom-open is the return value after we call the open(), after do the above two steps, what we will see is like this:</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">(gdb) call open("myinject.o", 2)</div><div class="line">$1 = 3</div><div class="line">(gdb) call mmap(0, 1044, 1|2|4, 2, 3, 0)</div><div class="line">$2 = -143544320</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="function">call <span class="title">open</span><span class="params">(<span class="string">"myinject.o"</span>, <span class="number">2</span>)</span></span></span><br><span class="line">$1 = 3</span><br><span class="line">(gdb) <span class="function">call <span class="title">mmap</span><span class="params">(<span class="number">0</span>, <span class="number">1044</span>, <span class="number">1</span>|<span class="number">2</span>|<span class="number">4</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)</span></span></span><br><span class="line">$2 = -143544320</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
 <hr>
 <p>Then, we will use readelf to analyse our the app and myinject.o</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[exiahan@Veda hijack]$ readelf -r app</div><div class="line"></div><div class="line">重定位节 <span class="string">'.rel.dyn'</span> 位于偏移量 0x3c8 含有 1 个条目：</div><div class="line"> Offset     Info    Type            Sym.Value  Sym. Name</div><div class="line">08049844  00000506 R_386_GLOB_DAT    00000000   __gmon_start__</div><div class="line"></div><div class="line">重定位节 <span class="string">'.rel.plt'</span> 位于偏移量 0x3d0 含有 5 个条目：</div><div class="line"> Offset     Info    Type            Sym.Value  Sym. Name</div><div class="line">08049854  00000207 R_386_JUMP_SLOT   00000000   sleep</div><div class="line">08049858  00000307 R_386_JUMP_SLOT   00000000   myprint</div><div class="line">0804985c  00000407 R_386_JUMP_SLOT   00000000   puts</div><div class="line">08049860  00000507 R_386_JUMP_SLOT   00000000   __gmon_start__</div><div class="line">08049864  00000607 R_386_JUMP_SLOT   00000000   __libc_start_main</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[exiahan@Veda hijack]$ readelf -r app</span><br><span class="line"></span><br><span class="line">重定位节 <span class="string">'.rel.dyn'</span> 位于偏移量 0x3c8 含有 1 个条目：</span><br><span class="line"> Offset     Info    Type            Sym.Value  Sym. Name</span><br><span class="line">08049844  00000506 R_386_GLOB_DAT    00000000   __gmon_start__</span><br><span class="line"></span><br><span class="line">重定位节 <span class="string">'.rel.plt'</span> 位于偏移量 0x3d0 含有 5 个条目：</span><br><span class="line"> Offset     Info    Type            Sym.Value  Sym. Name</span><br><span class="line">08049854  00000207 R_386_JUMP_SLOT   00000000   sleep</span><br><span class="line">08049858  00000307 R_386_JUMP_SLOT   00000000   myprint</span><br><span class="line">0804985c  00000407 R_386_JUMP_SLOT   00000000   puts</span><br><span class="line">08049860  00000507 R_386_JUMP_SLOT   00000000   __gmon_start__</span><br><span class="line">08049864  00000607 R_386_JUMP_SLOT   00000000   __libc_start_main</span><br></pre></td></tr></table></figure>
 <p>we can see that the offset of the function we <strong>myprint</strong> want to hook is <strong>0x08049858</strong>, it is the address where it location in the file. But when app be loaded into memory, the the address will change. So how the app still can invoke myprint via call <em>0x08049858, it is the plt(Procedure Linker Table) and the GOT(Global Offset Table), when app is going to invoke myprint, it will call the </em>0x08049858(in fact it’s in the GOT), what in the address is a pointer that pointer to some procedure in plt, via the procedure, will found the real address of myprint, then the address will be put in 0x08049858, in the furture, when invoke myprint, simple call *0x08049858 will work.</p>
 <p>So, when the app is running, we can change the value in 0x08049858, then we done the hook operation of the function <strong>myprint</strong>.</p>
 <p>For do this, we first get the Base Address of myinject.o in app’s process space:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/5832/maps | grep myinject</div><div class="line"></div><div class="line">f771b000<span class="_">-f</span>771c000 rwxp 00000000 fe:03 20342761  [path]/myinject.o</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/5832/maps | grep myinject</span><br><span class="line"></span><br><span class="line">f771b000-f771c000 rwxp 00000000 fe:03 20342761  [path]/myinject.o</span><br></pre></td></tr></table></figure>
 <p>Now we know that the base-addr is 0xf774f000, then use readelf to get other info we need, like the offset of function injection(), and others that need to be relocated.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ readelf <span class="_">-s</span> myinject.o</div><div class="line"></div><div class="line">Symbol table <span class="string">'.symtab'</span> contains 12 entries:</div><div class="line">   Num:    Value  Size Type    Bind   Vis      Ndx Name</div><div class="line">     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND</div><div class="line">     1: 00000000     0 FILE    LOCAL  DEFAULT  ABS myinject.c</div><div class="line">     2: 00000000     0 SECTION LOCAL  DEFAULT    1</div><div class="line">     3: 00000000     0 SECTION LOCAL  DEFAULT    3</div><div class="line">     4: 00000000     0 SECTION LOCAL  DEFAULT    4</div><div class="line">     5: 00000000     0 SECTION LOCAL  DEFAULT    5</div><div class="line">     6: 00000000     0 SECTION LOCAL  DEFAULT    7</div><div class="line">     7: 00000000     0 SECTION LOCAL  DEFAULT    8</div><div class="line">     8: 00000000     0 SECTION LOCAL  DEFAULT    6</div><div class="line">     9: 00000000    30 FUNC    GLOBAL DEFAULT    1 injection</div><div class="line">    10: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND myprint</div><div class="line">    11: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND system</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -s myinject.o</span><br><span class="line"></span><br><span class="line">Symbol table <span class="string">'.symtab'</span> contains 12 entries:</span><br><span class="line">   Num:    Value  Size Type    Bind   Vis      Ndx Name</span><br><span class="line">     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND</span><br><span class="line">     1: 00000000     0 FILE    LOCAL  DEFAULT  ABS myinject.c</span><br><span class="line">     2: 00000000     0 SECTION LOCAL  DEFAULT    1</span><br><span class="line">     3: 00000000     0 SECTION LOCAL  DEFAULT    3</span><br><span class="line">     4: 00000000     0 SECTION LOCAL  DEFAULT    4</span><br><span class="line">     5: 00000000     0 SECTION LOCAL  DEFAULT    5</span><br><span class="line">     6: 00000000     0 SECTION LOCAL  DEFAULT    7</span><br><span class="line">     7: 00000000     0 SECTION LOCAL  DEFAULT    8</span><br><span class="line">     8: 00000000     0 SECTION LOCAL  DEFAULT    6</span><br><span class="line">     9: 00000000    30 FUNC    GLOBAL DEFAULT    1 injection</span><br><span class="line">    10: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND myprint</span><br><span class="line">    11: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND system</span><br></pre></td></tr></table></figure>
 <p>We see that the offset of function injection() is 0x0(the value).</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ readelf -S myinject.o</div><div class="line">共有 13 个节头，从偏移量 0x20c 开始：</div><div class="line"></div><div class="line">节头：</div><div class="line">  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al</div><div class="line">  [ 0]                   NULL            00000000 000000 000000 00      0   0  0</div><div class="line">  [ 1] .text             PROGBITS        00000000 000034 00001e 00  AX  0   0  1</div><div class="line">  [ 2] .rel.text         REL             00000000 0001ec 000018 08   I 11   1  4</div><div class="line">  [ 3] .data             PROGBITS        00000000 000052 000000 00  WA  0   0  1</div><div class="line">  [ 4] .bss              NOBITS          00000000 000052 000000 00  WA  0   0  1</div><div class="line">  [ 5] .rodata           PROGBITS        00000000 000052 000005 00   A  0   0  1</div><div class="line">  [ 6] .comment          PROGBITS        00000000 000057 000012 01  MS  0   0  1</div><div class="line">  [ 7] .note.GNU-stack   PROGBITS        00000000 000069 000000 00      0   0  1</div><div class="line">  [ 8] .eh_frame         PROGBITS        00000000 00006c 000038 00   A  0   0  4</div><div class="line">  [ 9] .rel.eh_frame     REL             00000000 000204 000008 08   I 11   8  4</div><div class="line">  [10] .shstrtab         STRTAB          00000000 0000a4 00005f 00      0   0  1</div><div class="line">  [11] .symtab           SYMTAB          00000000 000104 0000c0 10     12   9  4</div><div class="line">  [12] .strtab           STRTAB          00000000 0001c4 000025 00      0   0  1</div><div class="line">Key to Flags:</div><div class="line">  W (write), A (alloc), X (execute), M (merge), S (strings)</div><div class="line">  I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)</div><div class="line">  O (extra OS processing required) o (OS specific), p (processor specific)</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -S myinject.o</span><br><span class="line">共有 13 个节头，从偏移量 0x20c 开始：</span><br><span class="line"></span><br><span class="line">节头：</span><br><span class="line">  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al</span><br><span class="line">  [ 0]                   NULL            00000000 000000 000000 00      0   0  0</span><br><span class="line">  [ 1] .text             PROGBITS        00000000 000034 00001e 00  AX  0   0  1</span><br><span class="line">  [ 2] .rel.text         REL             00000000 0001ec 000018 08   I 11   1  4</span><br><span class="line">  [ 3] .data             PROGBITS        00000000 000052 000000 00  WA  0   0  1</span><br><span class="line">  [ 4] .bss              NOBITS          00000000 000052 000000 00  WA  0   0  1</span><br><span class="line">  [ 5] .rodata           PROGBITS        00000000 000052 000005 00   A  0   0  1</span><br><span class="line">  [ 6] .comment          PROGBITS        00000000 000057 000012 01  MS  0   0  1</span><br><span class="line">  [ 7] .note.GNU-stack   PROGBITS        00000000 000069 000000 00      0   0  1</span><br><span class="line">  [ 8] .eh_frame         PROGBITS        00000000 00006c 000038 00   A  0   0  4</span><br><span class="line">  [ 9] .rel.eh_frame     REL             00000000 000204 000008 08   I 11   8  4</span><br><span class="line">  [10] .shstrtab         STRTAB          00000000 0000a4 00005f 00      0   0  1</span><br><span class="line">  [11] .symtab           SYMTAB          00000000 000104 0000c0 10     12   9  4</span><br><span class="line">  [12] .strtab           STRTAB          00000000 0001c4 000025 00      0   0  1</span><br><span class="line">Key to Flags:</span><br><span class="line">  W (write), A (alloc), X (execute), M (merge), S (strings)</span><br><span class="line">  I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)</span><br><span class="line">  O (extra OS processing required) o (OS specific), p (processor specific)</span><br></pre></td></tr></table></figure>
 <p>Now,we know that the offset .text about the file base is 0x34, the .rodata is 0x52, which the string “date” in.<br>So, the entry addr of injection() is:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">0xf771b000 + 0x34 = 0xf771b034</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xf771b000 + 0x34 = 0xf771b034</span><br></pre></td></tr></table></figure>
 <p>So we change the value in 0x08049858 to 0xf771b034:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(gdb)<span class="built_in">set</span> *0x08049858 = 0xf771b034</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb)<span class="built_in">set</span> *0x08049858 = 0xf771b034</span><br></pre></td></tr></table></figure>
 <p>But, only change the address of myprint() to injection() is not enough, there are some other entries need to be relocated, below:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ readelf -r myinject.o</div><div class="line"></div><div class="line">重定位节 <span class="string">'.rel.text'</span> 位于偏移量 0x1ec 含有 3 个条目：</div><div class="line"> Offset     Info    Type            Sym.Value  Sym. Name</div><div class="line">00000007  00000a02 R_386_PC32        00000000   myprint</div><div class="line">0000000f  00000501 R_386_32          00000000   .rodata</div><div class="line">00000014  00000b02 R_386_PC32        00000000   system</div><div class="line"></div><div class="line">重定位节 <span class="string">'.rel.eh_frame'</span> 位于偏移量 0x204 含有 1 个条目：</div><div class="line"> Offset     Info    Type            Sym.Value  Sym. Name</div><div class="line">00000020  00000202 R_386_PC32        00000000   .text</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ readelf -r myinject.o</span><br><span class="line"></span><br><span class="line">重定位节 <span class="string">'.rel.text'</span> 位于偏移量 0x1ec 含有 3 个条目：</span><br><span class="line"> Offset     Info    Type            Sym.Value  Sym. Name</span><br><span class="line">00000007  00000a02 R_386_PC32        00000000   myprint</span><br><span class="line">0000000f  00000501 R_386_32          00000000   .rodata</span><br><span class="line">00000014  00000b02 R_386_PC32        00000000   system</span><br><span class="line"></span><br><span class="line">重定位节 <span class="string">'.rel.eh_frame'</span> 位于偏移量 0x204 含有 1 个条目：</span><br><span class="line"> Offset     Info    Type            Sym.Value  Sym. Name</span><br><span class="line">00000020  00000202 R_386_PC32        00000000   .text</span><br></pre></td></tr></table></figure>
 <p>As we invoke myprint() and system() in injection(), we give a string arguement “date” that stored in .rodata.<br>Because the myinject.o is load in to mem manual, so we have to do the relocation as the linker.<br>From above we see that there two kinds of relocation:</p>
 <ul>
 <li>R_386_PC32</li>
@@ -1245,11 +1620,11 @@
 <p>(尼码，英语实在说不明白了，大概意思就是计算的偏移和实际运行是的eip相关，计算方法大概是实际所在的地址相对于读到这条指令后，紧接着的指令的地址的偏移。计算方法就是<strong>S、A、P</strong>分别表示的事该条目运行时的<strong>实际所在地址</strong>， <strong>附加数（有时候一个段，如.rodata要重定位的不止一个，一个个排的话肯定需要一个附加数，通常是2,4,8,结构体另说）</strong>，<strong>将被影响的地址，即此地址的值要被修改成真正的地址所在(通过readelf 和加载基地址联合重定位节.rel.text里的偏移得到)</strong>).</p>
 <p>The R_386_32 is the absolute offset, just calc via base-addr + offset + addend.<br>(直接加载后基地址加上所在段偏移和附加数就OK)。</p>
 <p>So, we will relocation the myprint(), “date”, system():</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#relocate myprint()</span></div><div class="line">(gdb) p *(0xf771b000 + 0x34 + 0x7)</div><div class="line"><span class="variable">$3</span> = -4</div><div class="line">(gdb) p myprint</div><div class="line"><span class="variable">$4</span> = &#123;void ()&#125; 0xf771d550 &lt;myprint&gt;</div><div class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0x7) = 0xf771d550 - (0xf771b000 + 0x34 + 0x7) - 4</div><div class="line"></div><div class="line"><span class="comment">#relocate system()</span></div><div class="line">(gdb) p *(0xf771b000 + 0x34 + 0x14)</div><div class="line"><span class="variable">$5</span> = -4</div><div class="line">(gdb) p system</div><div class="line"><span class="variable">$6</span> = &#123;&lt;text variable, no debug info&gt;&#125; 0xf7542e00 &lt;system&gt;</div><div class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0x14) = 0xf7542e00 - (0xf771b000 + 0x34 + 0x14) - 4</div><div class="line"></div><div class="line"><span class="comment">#relocate "date", in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o</span></div><div class="line">(gdb) p *(0xf771b000 + 0x34 + 0xf)</div><div class="line"><span class="variable">$7</span> = 0</div><div class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0xf) = 0xf771b000 + 0x52</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#relocate myprint()</span></span><br><span class="line">(gdb) p *(0xf771b000 + 0x34 + 0x7)</span><br><span class="line"><span class="variable">$3</span> = -4</span><br><span class="line">(gdb) p myprint</span><br><span class="line"><span class="variable">$4</span> = &#123;void ()&#125; 0xf771d550 &lt;myprint&gt;</span><br><span class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0x7) = 0xf771d550 - (0xf771b000 + 0x34 + 0x7) - 4</span><br><span class="line"></span><br><span class="line"><span class="comment">#relocate system()</span></span><br><span class="line">(gdb) p *(0xf771b000 + 0x34 + 0x14)</span><br><span class="line"><span class="variable">$5</span> = -4</span><br><span class="line">(gdb) p system</span><br><span class="line"><span class="variable">$6</span> = &#123;&lt;text variable, no debug info&gt;&#125; 0xf7542e00 &lt;system&gt;</span><br><span class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0x14) = 0xf7542e00 - (0xf771b000 + 0x34 + 0x14) - 4</span><br><span class="line"></span><br><span class="line"><span class="comment">#relocate "date", in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o</span></span><br><span class="line">(gdb) p *(0xf771b000 + 0x34 + 0xf)</span><br><span class="line"><span class="variable">$7</span> = 0</span><br><span class="line">(gdb) <span class="built_in">set</span> *(0xf771b000 + 0x34 + 0xf) = 0xf771b000 + 0x52</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
 <p>####3.Final</p>
 <p>After do this, we will get the result like below:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">2, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">3, pid (5832)Going to sleep</div><div class="line">2015年 07月 29日 星期三 21:17:17 CST</div><div class="line">4, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">2015年 07月 29日 星期三 21:17:20 CST</div><div class="line">5, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">2015年 07月 29日 星期三 21:17:23 CST</div><div class="line">6, pid (5832)Going to sleep</div><div class="line">Wake up</div><div class="line">2015年 07月 29日 星期三 21:17:26 CST</div><div class="line">7, pid (5832)Going to sleep</div></pre></td></tr></table></figure>
-<p>##Summary<br>So we use gdb(ptrace) to attach a running process, and manual pull a .o file into its process space, then we replace the myprint@got.plt to the address of injection(), then we do the relocation for myinject.o as a linker(yeah, cause when the .o file to a executable file, the linker do the relocation, so we have to do it manually). Then we get our goal.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">1, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">2, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">3, pid (5832)Going to sleep</span><br><span class="line">2015年 07月 29日 星期三 21:17:17 CST</span><br><span class="line">4, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">2015年 07月 29日 星期三 21:17:20 CST</span><br><span class="line">5, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">2015年 07月 29日 星期三 21:17:23 CST</span><br><span class="line">6, pid (5832)Going to sleep</span><br><span class="line">Wake up</span><br><span class="line">2015年 07月 29日 星期三 21:17:26 CST</span><br><span class="line">7, pid (5832)Going to sleep</span><br></pre></td></tr></table></figure>
+<p>##Summary<br>So we use gdb(ptrace) to attach a running process, and manual pull a .o file into its process space, then we replace the <a href="mailto:myprint@got.plt" target="_blank" rel="noopener">myprint@got.plt</a> to the address of injection(), then we do the relocation for myinject.o as a linker(yeah, cause when the .o file to a executable file, the linker do the relocation, so we have to do it manually). Then we get our goal.</p>
 <p>And in this lab, what we should learn is:</p>
 <ul>
 <li>ELF File Format</li>
@@ -1337,7 +1712,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -1428,22 +1803,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -1456,11 +1815,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1469,6 +1828,62 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1488,31 +1903,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

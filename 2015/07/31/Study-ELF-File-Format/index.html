@@ -8,28 +8,18 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>Study ELF File Format | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="##前言
-为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ)
-##正文
-####简介
-ELF是Executable and Linking Format的简称，作为Application Binary I">
+  <meta name="description" content="##前言 为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ) ##正文 ####简介 ELF是Executable and Linking Format的简称，作为Application Binary I">
+<meta name="keywords" content="ELF">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Study ELF File Format">
 <meta property="og:url" content="http://blog.exiahan.com/2015/07/31/Study-ELF-File-Format/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="##前言
-为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ)
-##正文
-####简介
-ELF是Executable and Linking Format的简称，作为Application Binary I">
-<meta property="og:updated_time" content="2017-01-08T15:23:08.153Z">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="##前言 为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ) ##正文 ####简介 ELF是Executable and Linking Format的简称，作为Application Binary I">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.321Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Study ELF File Format">
-<meta name="twitter:description" content="##前言
-为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ)
-##正文
-####简介
-ELF是Executable and Linking Format的简称，作为Application Binary I">
+<meta name="twitter:description" content="##前言 为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ) ##正文 ####简介 ELF是Executable and Linking Format的简称，作为Application Binary I">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
   
@@ -330,22 +320,22 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
 <p>####ELF Header(文件头)</p>
 <p>有些Object File的控制结构(Control Structures)可以增长，因为ELF Header包含了它们的实际大小。如果Object File的文件格式改变，程序可能会遇到控制结构与期望的大小不相符的情况。在这种情况下程序可能会忽略掉“多余”(因为比期望的大小大，可能会多出一些描述数据)的信息；对于“遗失”(因为比期望的大小小)的信息的处理方法依赖于上下文，并且如果定义extensions的话，将在其中被规定相关处理方式。</p>
 <p><strong>ELF Header</strong></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line">	unsignedchar  	e_ident[EI_NIDENT];</div><div class="line">	Elf32_Half		e_type;</div><div class="line">	Elf32_Half		e_machine;</div><div class="line">	Elf32_Word		e_version;</div><div class="line">	Elf32_Addr		e_entry;</div><div class="line">	Elf32_Off	 	e_phoff;</div><div class="line">	Elf32_Off	 	e_shoff;</div><div class="line">	Elf32_Word		e_flags;</div><div class="line">	Elf32_Half		e_ehsize;</div><div class="line">	Elf32_Half		e_phentsize;</div><div class="line">	Elf32_Half		e_phnum;</div><div class="line">	Elf32_Half		e_shentsize;</div><div class="line">	Elf32_Half		e_shnum;</div><div class="line">	Elf32_Half		e_shstrndx;</div><div class="line">&#125;Elf32_Ehdr;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EI_NIDENT 16</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">trueunsignedchar  	e_ident[EI_NIDENT];</span><br><span class="line">trueElf32_Half		e_type;</span><br><span class="line">trueElf32_Half		e_machine;</span><br><span class="line">trueElf32_Word		e_version;</span><br><span class="line">trueElf32_Addr		e_entry;</span><br><span class="line">trueElf32_Off	 	e_phoff;</span><br><span class="line">trueElf32_Off	 	e_shoff;</span><br><span class="line">trueElf32_Word		e_flags;</span><br><span class="line">trueElf32_Half		e_ehsize;</span><br><span class="line">trueElf32_Half		e_phentsize;</span><br><span class="line">trueElf32_Half		e_phnum;</span><br><span class="line">trueElf32_Half		e_shentsize;</span><br><span class="line">trueElf32_Half		e_shnum;</span><br><span class="line">trueElf32_Half		e_shstrndx;</span><br><span class="line">&#125;Elf32_Ehdr;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>e_ident 标记整个文件为Object File并且提供平台无关的数据用来解码和翻译整个文件内容。</li>
 <li>e_type 说明具体是哪一种Object File：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Type&#123;</div><div class="line">	ET_NONE = <span class="number">0x0</span>;</div><div class="line">	ET_REL = <span class="number">0x1</span>;</div><div class="line">	ET_EXEC = <span class="number">0x2</span>;</div><div class="line">	ET_DYN = <span class="number">0x3</span>;</div><div class="line">	ET_CORE = <span class="number">0x4</span>;</div><div class="line">	ET_LOPROC = <span class="number">0xff00</span>;</div><div class="line">	ET_HIPROC = <span class="number">0xffff</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Type&#123;</span><br><span class="line">trueET_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueET_REL = <span class="number">0x1</span>;</span><br><span class="line">trueET_EXEC = <span class="number">0x2</span>;</span><br><span class="line">trueET_DYN = <span class="number">0x3</span>;</span><br><span class="line">trueET_CORE = <span class="number">0x4</span>;</span><br><span class="line">trueET_LOPROC = <span class="number">0xff00</span>;</span><br><span class="line">trueET_HIPROC = <span class="number">0xffff</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>Core File的内容没有被制定，ET_CORE作为保留字存在。ET_LOPROC/HIPROC两者作为处理器指定语义的保留字，两者可兼或(ET_LOPROC | ET_HIPROC)，其他的一些没有用到的类型同样作为保留字，将来可能用来关联一些新的必要的文件类型。</p>
 <ul>
 <li>e_machine 指定平台架构：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Machine&#123;</div><div class="line">	EM_NONE = <span class="number">0x0</span>;</div><div class="line">	EM_M32 = <span class="number">0x1</span>;</div><div class="line">	EM_SPARC = <span class="number">0x2</span>;</div><div class="line">	EM_386 = <span class="number">0x3</span>;</div><div class="line">	EM_68K = <span class="number">0x4</span>;</div><div class="line">	EM_88K = <span class="number">0x5</span>;</div><div class="line">	EM_860 = <span class="number">0x7</span>;</div><div class="line">	EM_MIPS = <span class="number">0x8</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>其他的值作为保留字来关联将来可能出现的新平台架构，处理器定制(Processor-specific)ELF名使用机器平台名来区分它们，举例来说：有一个在平台EM_386上的 e<em>flag(会以EF</em>开头) 为 WIDGET，那么，这个flag的将会写成 EF_386_WINDGET。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Machine&#123;</span><br><span class="line">trueEM_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueEM_M32 = <span class="number">0x1</span>;</span><br><span class="line">trueEM_SPARC = <span class="number">0x2</span>;</span><br><span class="line">trueEM_386 = <span class="number">0x3</span>;</span><br><span class="line">trueEM_68K = <span class="number">0x4</span>;</span><br><span class="line">trueEM_88K = <span class="number">0x5</span>;</span><br><span class="line">trueEM_860 = <span class="number">0x7</span>;</span><br><span class="line">trueEM_MIPS = <span class="number">0x8</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>其他的值作为保留字来关联将来可能出现的新平台架构，处理器定制(Processor-specific)ELF名使用机器平台名来区分它们，举例来说：有一个在平台EM_386上的 e_flag(会以EF_开头) 为 WIDGET，那么，这个flag的将会写成 EF_386_WINDGET。</p>
 <ul>
 <li>e_version 指定ELF的文件版本，现在只有两个值：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> Elf32_Version&#123;</div><div class="line">	EV_NONE = <span class="number">0x0</span>;</div><div class="line">	EV_CURRENT = <span class="number">0x1</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Elf32_Version&#123;</span><br><span class="line">trueEV_NONE = <span class="number">0x0</span>;</span><br><span class="line">trueEV_CURRENT = <span class="number">0x1</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>目前一般情况下值是1，但一些特殊情况下也会是一些其他的数值(如有扩展的ELF会用一个大数，或者当需要用不同的值来反应当前的版本时)。</p>
 <ul>
 <li>e_entry 给出system first transfers control需要的用来启动进程的虚拟地址，如果没有入口，那么值是0</li>
@@ -594,7 +584,7 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
 </ul>
 <p><strong>Section Header(节头)</strong></p>
 <p>Section Header 的结构化定义如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</div><div class="line">	Elf32_Word	sh_name;</div><div class="line">	Elf32_Word	sh_type;</div><div class="line">	Elf32_Word	sh_flags;</div><div class="line">	Elf32_Addr	sh_addr;</div><div class="line">	Elf32_Off 	sh_offset;</div><div class="line">	Elf32_Word	sh_size;</div><div class="line">	Elf32_Word	sh_link;</div><div class="line">	Elf32_Word	sh_info;</div><div class="line">	Elf32_Word	sh_addralign;</div><div class="line">	Elf32_Word	sh_entsize;</div><div class="line">&#125;Elf32_Shdr;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">trueElf32_Word	sh_name;</span><br><span class="line">trueElf32_Word	sh_type;</span><br><span class="line">trueElf32_Word	sh_flags;</span><br><span class="line">trueElf32_Addr	sh_addr;</span><br><span class="line">trueElf32_Off 	sh_offset;</span><br><span class="line">trueElf32_Word	sh_size;</span><br><span class="line">trueElf32_Word	sh_link;</span><br><span class="line">trueElf32_Word	sh_info;</span><br><span class="line">trueElf32_Word	sh_addralign;</span><br><span class="line">trueElf32_Word	sh_entsize;</span><br><span class="line">&#125;Elf32_Shdr;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以’\0’结尾的字符串，C风格字符串)</li>
 <li>sh_type 归类总结本段内容和语义</li>
@@ -982,7 +972,7 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -1073,22 +1063,6 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -1101,11 +1075,11 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1114,6 +1088,62 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1133,31 +1163,19 @@ ELF是Executable and Linking Format的简称，作为Application Binary I">
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

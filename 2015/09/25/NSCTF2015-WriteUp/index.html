@@ -8,26 +8,14 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>NSCTF2015 WriteUp | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
-#Reverse
-###0x1 简单的逆向
-题目地址：Reverse01
-
-运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。
-使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳
-不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
+  <meta name="description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘 #Reverse ###0x1 简单的逆向 题目地址：Reverse01  运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
+<meta name="keywords" content="WriteUp,NSCTF2015">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NSCTF2015 WriteUp">
 <meta property="og:url" content="http://blog.exiahan.com/2015/09/25/NSCTF2015-WriteUp/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
-#Reverse
-###0x1 简单的逆向
-题目地址：Reverse01
-
-运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。
-使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳
-不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘 #Reverse ###0x1 简单的逆向 题目地址：Reverse01  运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re11.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re12.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/re21.jpg">
@@ -36,17 +24,10 @@
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/web1.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/crypto2.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/nsctf2015/crypto3.jpg">
-<meta property="og:updated_time" content="2017-01-29T19:42:13.243Z">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.314Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSCTF2015 WriteUp">
-<meta name="twitter:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
-#Reverse
-###0x1 简单的逆向
-题目地址：Reverse01
-
-运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。
-使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳
-不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
+<meta name="twitter:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘 #Reverse ###0x1 简单的逆向 题目地址：Reverse01  运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以">
 <meta name="twitter:image" content="http://blog.exiahan.com/images/nsctf2015/re11.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -228,7 +209,7 @@
         <p><strong>参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘</strong></p>
 <p>#Reverse</p>
 <p>###0x1 简单的逆向</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/74ec9621ac5f8573abc90b3fb9199e38/Reverse01.exe" target="_blank" rel="external">Reverse01</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/74ec9621ac5f8573abc90b3fb9199e38/Reverse01.exe" target="_blank" rel="noopener">Reverse01</a></p>
 <ul>
 <li>运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。</li>
 <li>使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳</li>
@@ -244,7 +225,7 @@
 </ul>
 <p><img src="/images/nsctf2015/re12.jpg" alt="reverse01.1"></p>
 <p>###0x2 较简单的逆向</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/806b95d9497584c4a9d89118c8944424/Reverse02.exe" target="_blank" rel="external">Reverse02</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/806b95d9497584c4a9d89118c8944424/Reverse02.exe" target="_blank" rel="noopener">Reverse02</a></p>
 <p><em>本题和第一题类似，只不过改成了窗口程序</em></p>
 <ul>
 <li>运行，发现窗口程序</li>
@@ -259,12 +240,12 @@
 </ul>
 <p><img src="/images/nsctf2015/re22.jpg" alt="reverse02.1"></p>
 <p>###0x3 逆向</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/877afdad88a2340eaefe8c1a87bb391e/Revesre03.exe" target="_blank" rel="external">Reverse03</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/877afdad88a2340eaefe8c1a87bb391e/Revesre03.exe" target="_blank" rel="noopener">Reverse03</a></p>
 <p><em>分析：使用python生成的程序，运行时在本地Temp文件夹里释放文件，通过CreateProcessA运行一个新进程来执行，没搞定。。。。。。。。囧。。</em></p>
 <p>#MISC</p>
 <p>###0x1 Twitter<br><strong>这题，额。。。啧啧。。一个md5,100块钱，不过有人抖了答案出来</strong></p>
 <p>###0x2 Wireshark</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/16d8a763795dd8cc3cf5f599fbb5e5af/sniffer.pcapng" target="_blank" rel="external">sniffer.pcapng</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/16d8a763795dd8cc3cf5f599fbb5e5af/sniffer.pcapng" target="_blank" rel="noopener">sniffer.pcapng</a></p>
 <p>从题目可以看出来是个抓包题，wireshark打开文件[也可以用Dshell，或者binwalk]</p>
 <p><img src="/images/nsctf2015/misc1.jpg" alt="misc02"></p>
 <ul>
@@ -280,7 +261,7 @@
 <p><img src="/images/nsctf2015/web1.jpg" alt="web01"></p>
 <p>###0x2 Decode</p>
 <p>题目里给了个php的函数，接受传入的字符串</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">encode</span><span class="params">($str)</span></span>&#123;</div><div class="line">	$_o = strrev($str);</div><div class="line">	<span class="keyword">for</span>($_0=<span class="number">0</span>;$_0&lt;strlen($_o);$_0++)&#123;</div><div class="line">		$_c = substr($_o,$_0,<span class="number">1</span>);</div><div class="line">		$__ = ord($_c)+<span class="number">1</span>;</div><div class="line">		$_c = chr($__);</div><div class="line">		$_= $_.$_c;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> str_rot13(strrev(base64_encode($_)));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">encode</span><span class="params">($str)</span></span>&#123;</span><br><span class="line">true$_o = strrev($str);</span><br><span class="line">true<span class="keyword">for</span>($_0=<span class="number">0</span>;$_0&lt;strlen($_o);$_0++)&#123;</span><br><span class="line">truetrue$_c = substr($_o,$_0,<span class="number">1</span>);</span><br><span class="line">truetrue$__ = ord($_c)+<span class="number">1</span>;</span><br><span class="line">truetrue$_c = chr($__);</span><br><span class="line">truetrue$_= $_.$_c;</span><br><span class="line">true&#125;</span><br><span class="line">true<span class="keyword">return</span> str_rot13(strrev(base64_encode($_)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>其作用如下：</p>
 <ul>
 <li>反转字符串</li>
@@ -289,20 +270,20 @@
 <li>编码后再反转</li>
 <li>反转后rot13编码得到最终字符串，即题目的</li>
 </ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">**a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws**</div></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws**</span><br></pre></td></tr></table></figure>
 <p>根据上面的分析逆向一次即可得到flag</p>
 <p>#CRYPTO</p>
 <p>###0x1 神秘的字符串</p>
 <p>给了一串字符串（写在比赛结束后，已经看不到了。。），感觉像base64，解一下，发现有Salted_字样的玩意，应该是AES加密，到网上找了个网站解密了一下，结果解出来是flag{字符串}的形式，因为字符串不是NSCTF开头，感觉还有加密，在密码机器网上跑了一下，发现是凯撒移位加密，得到最终flag是NSCTF_Rot_Encryption</p>
 <p>###0x2 神奇的图片</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/8041661a723dcc82a8a088163e2cd9ac/oddpic.jpg" target="_blank" rel="external">oddpic.jpg</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/8041661a723dcc82a8a088163e2cd9ac/oddpic.jpg" target="_blank" rel="noopener">oddpic.jpg</a></p>
 <p>binwalk走一遍，里面有其他的jpeg，dd出来，得到flag</p>
 <p><img src="/images/nsctf2015/crypto2.jpg" alt="crypt02"></p>
 <p>###0x3 神秘的图片+10086</p>
-<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/50cf3d7ee75c2bbb7a91808dc811aa24/newnewnew.jpg" target="_blank" rel="external">newnewnew.jpg</a></p>
+<p><strong>题目地址：</strong><a href="http://www.nsctf.net/static/uploads/50cf3d7ee75c2bbb7a91808dc811aa24/newnewnew.jpg" target="_blank" rel="noopener">newnewnew.jpg</a></p>
 <p>binwalk走一下没结果，用stegsolv分析下，在blue plane 0通道看到一个颜色反转的二维码，保存出来，用ps等工具反转下颜色，手机扫描，得到flag</p>
 <p><img src="/images/nsctf2015/crypto3.jpg" alt="crypt03"></p>
-<p><strong>Update:附上官方博客资料，里面有WriteUp，<a href="http://blog.nsfocus.net/nsctf-network-attack-defence-game-download/" target="_blank" rel="external">绿盟博客</a></strong></p>
+<p><strong>Update:附上官方博客资料，里面有WriteUp，<a href="http://blog.nsfocus.net/nsctf-network-attack-defence-game-download/" target="_blank" rel="noopener">绿盟博客</a></strong></p>
 
       
 
@@ -455,7 +436,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -546,22 +527,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -574,11 +539,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -587,6 +552,62 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -606,31 +627,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

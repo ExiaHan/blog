@@ -8,42 +8,20 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>Dice Write Up | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="#0x1
-题目链接：Simple-Reverse-Dice
-#0x2
-拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
-运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
-#0x3
-使用IDA和Ollydbg进行分析
-
-在String Tab中找到对应的String，找到其">
+  <meta name="description" content="#0x1 题目链接：Simple-Reverse-Dice #0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。 #0x3 使用IDA和Ollydbg进行分析  在String Tab中找到对应的String，找到其">
+<meta name="keywords" content="CTF,Reverse,SimpleXue">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dice Write Up">
 <meta property="og:url" content="http://blog.exiahan.com/2015/09/18/Dice-Write-Up/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="#0x1
-题目链接：Simple-Reverse-Dice
-#0x2
-拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
-运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
-#0x3
-使用IDA和Ollydbg进行分析
-
-在String Tab中找到对应的String，找到其">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="#0x1 题目链接：Simple-Reverse-Dice #0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。 #0x3 使用IDA和Ollydbg进行分析  在String Tab中找到对应的String，找到其">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://blog.exiahan.com/images/dice_write_up/flag.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/dice_write_up/breaklist.jpg">
-<meta property="og:updated_time" content="2017-01-29T19:40:26.264Z">
+<meta property="og:updated_time" content="2018-08-02T03:23:37.412Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dice Write Up">
-<meta name="twitter:description" content="#0x1
-题目链接：Simple-Reverse-Dice
-#0x2
-拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
-运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
-#0x3
-使用IDA和Ollydbg进行分析
-
-在String Tab中找到对应的String，找到其">
+<meta name="twitter:description" content="#0x1 题目链接：Simple-Reverse-Dice #0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。 #0x3 使用IDA和Ollydbg进行分析  在String Tab中找到对应的String，找到其">
 <meta name="twitter:image" content="http://blog.exiahan.com/images/dice_write_up/flag.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -223,7 +201,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>#0x1</p>
-<p>题目链接：<a href="http://ctf5.simplexue.com/re/Dice.exe" target="_blank" rel="external">Simple-Reverse-Dice</a></p>
+<p>题目链接：<a href="http://ctf5.simplexue.com/re/Dice.exe" target="_blank" rel="noopener">Simple-Reverse-Dice</a></p>
 <p>#0x2</p>
 <p>拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。</p>
 <p>运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。</p>
@@ -402,7 +380,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -493,22 +471,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -521,11 +483,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -534,6 +496,62 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -553,31 +571,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

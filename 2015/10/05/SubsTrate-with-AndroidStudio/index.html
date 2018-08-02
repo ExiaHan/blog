@@ -8,26 +8,19 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>SubsTrate with AndroidStudio | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="参考文档： 看雪，光哥博客，乌云知识库
-#0x1 介绍
-在家木事，学了下substrate用法，这里记录下～
-Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
+  <meta name="description" content="参考文档： 看雪，光哥博客，乌云知识库 #0x1 介绍 在家木事，学了下substrate用法，这里记录下～ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
+<meta name="keywords" content="Android,Android-Studio,SubsTrate">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SubsTrate with AndroidStudio">
 <meta property="og:url" content="http://blog.exiahan.com/2015/10/05/SubsTrate-with-AndroidStudio/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="参考文档： 看雪，光哥博客，乌云知识库
-#0x1 介绍
-在家木事，学了下substrate用法，这里记录下～
-Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="参考文档： 看雪，光哥博客，乌云知识库 #0x1 介绍 在家木事，学了下substrate用法，这里记录下～ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://blog.exiahan.com/images/substrate_with_androidstudio/result.jpg">
-<meta property="og:updated_time" content="2017-01-29T19:42:27.423Z">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.324Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SubsTrate with AndroidStudio">
-<meta name="twitter:description" content="参考文档： 看雪，光哥博客，乌云知识库
-#0x1 介绍
-在家木事，学了下substrate用法，这里记录下～
-Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
+<meta name="twitter:description" content="参考文档： 看雪，光哥博客，乌云知识库 #0x1 介绍 在家木事，学了下substrate用法，这里记录下～ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档也比较全，查阅也比较方">
 <meta name="twitter:image" content="http://blog.exiahan.com/images/substrate_with_androidstudio/result.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -206,17 +199,17 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>参考文档：</strong> <em><a href="http://bbs.pediy.com/showthread.php?t=199671" target="_blank" rel="external">看雪</a>，<a href="http://burningcodes.net/cydia-substrate-android-so-hook/" target="_blank" rel="external">光哥博客</a>，<a href="http://drops.wooyun.org/tips/8084" target="_blank" rel="external">乌云知识库</a></em></p>
+        <p><strong>参考文档：</strong> <em><a href="http://bbs.pediy.com/showthread.php?t=199671" target="_blank" rel="noopener">看雪</a>，<a href="http://burningcodes.net/cydia-substrate-android-so-hook/" target="_blank" rel="noopener">光哥博客</a>，<a href="http://drops.wooyun.org/tips/8084" target="_blank" rel="noopener">乌云知识库</a></em></p>
 <p>#0x1 介绍</p>
 <p>在家木事，学了下substrate用法，这里记录下～</p>
-<p><strong><a href="http://www.cydiasubstrate.com/" target="_blank" rel="external">Substrate</a></strong>是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的<strong><em><a href="http://www.cydiasubstrate.com/api/c/" target="_blank" rel="external">文档</a></em></strong>也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。</p>
+<p><strong><a href="http://www.cydiasubstrate.com/" target="_blank" rel="noopener">Substrate</a></strong>是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的<strong><em><a href="http://www.cydiasubstrate.com/api/c/" target="_blank" rel="noopener">文档</a></em></strong>也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。</p>
 <p>#0x2 准备工作</p>
 <ul>
 <li>确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本</li>
 <li>按照官方说明，下载substrate框架apk并安装，重启设备</li>
 <li>下载sdk到本地并解压，官方提供了两种方式<ul>
-<li><a href="http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip" target="_blank" rel="external">直接下载</a></li>
-<li>通过Android SDK Manager管理下载：<a href="http://www.cydiasubstrate.com/id/73e45fe5-4525-4de7-ac14-6016652cc1b8/" target="_blank" rel="external">说明页面</a></li>
+<li><a href="http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip" target="_blank" rel="noopener">直接下载</a></li>
+<li>通过Android SDK Manager管理下载：<a href="http://www.cydiasubstrate.com/id/73e45fe5-4525-4de7-ac14-6016652cc1b8/" target="_blank" rel="noopener">说明页面</a></li>
 </ul>
 </li>
 </ul>
@@ -226,7 +219,7 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
 <li>新建一个工程，名字随意，比如HelloSubstrate</li>
 <li>由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要</li>
 <li>在Project的app文件夹下创建子路径<strong>./lib/armabi/</strong>，把sdk里对应的文件夹下的.so文件丢进去</li>
-<li>在src/main下创建子路径<strong>./jni</strong>，创建一个<strong>xxx.cy.cpp</strong>文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别—<a href="http://www.cydiasubstrate.com/inject/android/" target="_blank" rel="external">文档</a></li>
+<li>在src/main下创建子路径<strong>./jni</strong>，创建一个<strong>xxx.cy.cpp</strong>文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别—<a href="http://www.cydiasubstrate.com/inject/android/" target="_blank" rel="noopener">文档</a></li>
 <li>在manifest文件里加上权限声明，否则无法正常工作<ul>
 <li><strong><em><code>&lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;</code></em></strong></li>
 </ul>
@@ -246,11 +239,11 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
 </ul>
 </li>
 </ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">apply plugin: 'com.android.model.application'</div><div class="line"></div><div class="line">model &#123;</div><div class="line">    android &#123;</div><div class="line">        compileSdkVersion = 23</div><div class="line">        buildToolsVersion = "23.0.2"</div><div class="line">        defaultConfig.with &#123;</div><div class="line">            applicationId = "com.exiahan.hellosubstrate"</div><div class="line">            minSdkVersion.apiLevel = 15</div><div class="line">            targetSdkVersion.apiLevel = 23</div><div class="line">            versionCode = 1</div><div class="line">            versionName = "1.0"</div><div class="line">        &#125;</div><div class="line">        tasks.withType(JavaCompile) &#123;</div><div class="line">            //指定编译JDK版本</div><div class="line">            sourceCompatibility = JavaVersion.VERSION_1_7</div><div class="line">            targetCompatibility = JavaVersion.VERSION_1_7</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    android.buildTypes &#123;</div><div class="line">        release &#123;</div><div class="line">            minifyEnabled = false</div><div class="line">            proguardFiles += file('proguard-rules.pro')</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    android.ndk &#123;</div><div class="line">        moduleName = "cydiaSubstrateHook.cy"</div><div class="line">        ldFlags += "-L./lib/armeabi"</div><div class="line">        ldLibs += "log"</div><div class="line">        ldLibs += "substrate"</div><div class="line">        ldLibs += "substrate-dvm"</div><div class="line">        abiFilters += "armeabi"</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">dependencies &#123;</div><div class="line">    compile fileTree(include: ['*.jar'], dir: 'libs')</div><div class="line">    compile 'com.android.support:appcompat-v7:23.0.0'</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: 'com.android.model.application'</span><br><span class="line"></span><br><span class="line">model &#123;</span><br><span class="line">    android &#123;</span><br><span class="line">        compileSdkVersion = 23</span><br><span class="line">        buildToolsVersion = "23.0.2"</span><br><span class="line">        defaultConfig.with &#123;</span><br><span class="line">            applicationId = "com.exiahan.hellosubstrate"</span><br><span class="line">            minSdkVersion.apiLevel = 15</span><br><span class="line">            targetSdkVersion.apiLevel = 23</span><br><span class="line">            versionCode = 1</span><br><span class="line">            versionName = "1.0"</span><br><span class="line">        &#125;</span><br><span class="line">        tasks.withType(JavaCompile) &#123;</span><br><span class="line">            //指定编译JDK版本</span><br><span class="line">            sourceCompatibility = JavaVersion.VERSION_1_7</span><br><span class="line">            targetCompatibility = JavaVersion.VERSION_1_7</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    android.buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            minifyEnabled = false</span><br><span class="line">            proguardFiles += file('proguard-rules.pro')</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    android.ndk &#123;</span><br><span class="line">        moduleName = "cydiaSubstrateHook.cy"</span><br><span class="line">        ldFlags += "-L./lib/armeabi"</span><br><span class="line">        ldLibs += "log"</span><br><span class="line">        ldLibs += "substrate"</span><br><span class="line">        ldLibs += "substrate-dvm"</span><br><span class="line">        abiFilters += "armeabi"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile fileTree(include: ['*.jar'], dir: 'libs')</span><br><span class="line">    compile 'com.android.support:appcompat-v7:23.0.0'</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>由于我们生成的hook用apk会在运行时使用substrate框架提供的库函数和log相关函数，所以需要加上动态链接的一些选项，同时按照sdk要求，生成的modulename必须是.cy.so结尾</p>
 <p>一切就绪，就可以开始编写小例子了。</p>
 <p>在刚刚的jni文件夹里创建cydiaSubstrateHook.cy.cpp文件，内容如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">// Created by exiahan on 15-10-5.</span></div><div class="line"><span class="comment">//</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;android/log.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"substrate.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> TAG <span class="meta-string">"CydiaSubstrate"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)<span class="comment">//define LOGI Marco</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> GETLR(store_lr)  \</span></div><div class="line">  __asm__ __volatile__(  \</div><div class="line">    <span class="meta-string">"mov %0, lr\n\t"</span>  \</div><div class="line">    :  <span class="meta-string">"=r"</span>(store_lr)  \</div><div class="line">  )</div><div class="line"></div><div class="line"><span class="comment">//Specify the lib to hook</span></div><div class="line">MSConfig(MSFilterLibrary, <span class="string">"/system/lib/libc.so"</span>)</div><div class="line"></div><div class="line"><span class="keyword">int</span> (* oldfopen)(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">const</span> <span class="keyword">char</span>* mode);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">newfopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">const</span> <span class="keyword">char</span>* mode)</span> </span>&#123;</div><div class="line">	<span class="keyword">unsigned</span> lr;</div><div class="line">    LOGI(<span class="string">"[I]:newfopen called! -- [%d]"</span>, getpid());</div><div class="line">    GETLR(lr);</div><div class="line">    LOGI(<span class="string">"[I]:BackTrace -- [0x%x]\n"</span>, lr);</div><div class="line">    LOGI(<span class="string">"[I]:File Path -- [%s]"</span>, path);</div><div class="line">    <span class="keyword">return</span> oldfopen(path, mode);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/*</span></div><div class="line"> * Substrate entry point</div><div class="line"> */</div><div class="line">MSInitialize</div><div class="line">&#123;</div><div class="line">    <span class="comment">// Let the user know that the extension has been</span></div><div class="line">    <span class="comment">// extension has been registered</span></div><div class="line">    LOGI( <span class="string">"Substrate initialized."</span>);</div><div class="line">    MSImageRef image;</div><div class="line"></div><div class="line">    image = MSGetImageByName(<span class="string">"/system/lib/libc.so"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (image != <span class="literal">NULL</span>)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">void</span> * hookfopen=MSFindSymbol(image,<span class="string">"fopen"</span>);</div><div class="line">        <span class="keyword">if</span>(hookfopen==<span class="literal">NULL</span>)</div><div class="line">        &#123;</div><div class="line">            LOGI(<span class="string">"error find fopen "</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span> &#123;</div><div class="line">            MSHookFunction(hookfopen,(<span class="keyword">void</span>*)&amp;newfopen,(<span class="keyword">void</span> **)&amp;oldfopen);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> &#123;</div><div class="line">        LOGI(<span class="string">"ERROR FIND LIBC"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Created by exiahan on 15-10-5.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;android/log.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"substrate.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TAG <span class="meta-string">"CydiaSubstrate"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)<span class="comment">//define LOGI Marco</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GETLR(store_lr)  \</span></span><br><span class="line">  __asm__ __volatile__(  \</span><br><span class="line">    <span class="string">"mov %0, lr\n\t"</span>  \</span><br><span class="line">    :  <span class="string">"=r"</span>(store_lr)  \</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line"><span class="comment">//Specify the lib to hook</span></span><br><span class="line">MSConfig(MSFilterLibrary, <span class="string">"/system/lib/libc.so"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> (* oldfopen)(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">const</span> <span class="keyword">char</span>* mode);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">newfopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">const</span> <span class="keyword">char</span>* mode)</span> </span>&#123;</span><br><span class="line">true<span class="keyword">unsigned</span> lr;</span><br><span class="line">    LOGI(<span class="string">"[I]:newfopen called! -- [%d]"</span>, getpid());</span><br><span class="line">    GETLR(lr);</span><br><span class="line">    LOGI(<span class="string">"[I]:BackTrace -- [0x%x]\n"</span>, lr);</span><br><span class="line">    LOGI(<span class="string">"[I]:File Path -- [%s]"</span>, path);</span><br><span class="line">    <span class="keyword">return</span> oldfopen(path, mode);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Substrate entry point</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">MSInitialize</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Let the user know that the extension has been</span></span><br><span class="line">    <span class="comment">// extension has been registered</span></span><br><span class="line">    LOGI( <span class="string">"Substrate initialized."</span>);</span><br><span class="line">    MSImageRef image;</span><br><span class="line"></span><br><span class="line">    image = MSGetImageByName(<span class="string">"/system/lib/libc.so"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (image != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">void</span> * hookfopen=MSFindSymbol(image,<span class="string">"fopen"</span>);</span><br><span class="line">        <span class="keyword">if</span>(hookfopen==<span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            LOGI(<span class="string">"error find fopen "</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            MSHookFunction(hookfopen,(<span class="keyword">void</span>*)&amp;newfopen,(<span class="keyword">void</span> **)&amp;oldfopen);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        LOGI(<span class="string">"ERROR FIND LIBC"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>阅读源码，可知Hook过程如下：</p>
 <ul>
 <li>确定我们要Hook的函数，为其重写一个我们自己的版本，这里选择的是fopen，也是脱壳时通常会注意的函数</li>
@@ -267,7 +260,7 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
 <p>#0x4 总结</p>
 <ul>
 <li>到现在为止接触了两种用于Hook的框架，相对于Xposed，Substrate在代码注入上更容易操作，而且提供了native层的注入选项，但是相对于xposed现在已经支持Lolipop而言，substrate还停留在dalvik的时代，期待支持lollipop的substrate尽快出现</li>
-<li>框架为我们提供了方便，但是阅读他们的文档就能发现归根结底的话都是在对rom做动态修改，最近看到了看雪上的<strong><a href="http://bbs.pediy.com/showthread.php?p=1389779#post1389779" target="_blank" rel="external">DexHunter</a></strong>，十分厉害，大概思路是定制ROM实现脱壳，这样apk做的一些反调试和防注入而言（<em>一些加固方案会自己通过.init方法在本地hook一些libc关键函数</em>）基本上都是小儿科了，准备下个月有空了买个Nexus好好研究下。</li>
+<li>框架为我们提供了方便，但是阅读他们的文档就能发现归根结底的话都是在对rom做动态修改，最近看到了看雪上的<strong><a href="http://bbs.pediy.com/showthread.php?p=1389779#post1389779" target="_blank" rel="noopener">DexHunter</a></strong>，十分厉害，大概思路是定制ROM实现脱壳，这样apk做的一些反调试和防注入而言（<em>一些加固方案会自己通过.init方法在本地hook一些libc关键函数</em>）基本上都是小儿科了，准备下个月有空了买个Nexus好好研究下。</li>
 </ul>
 
       
@@ -425,7 +418,7 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -516,22 +509,6 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -544,11 +521,11 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -557,6 +534,62 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -576,31 +609,19 @@ Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

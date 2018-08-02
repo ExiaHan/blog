@@ -8,21 +8,20 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>Xposed with Android Studio | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
-##0x2 开工这篇">
+  <meta name="description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。 ##0x2 开工这篇">
+<meta name="keywords" content="Android,Android-Studio,Xposed">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Xposed with Android Studio">
 <meta property="og:url" content="http://blog.exiahan.com/2015/09/02/Xposed-with-Android-Studio/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
-##0x2 开工这篇">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。 ##0x2 开工这篇">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://blog.exiahan.com/images/xposed_with_androidstudio/xposedprovide.jpg">
 <meta property="og:image" content="http://blog.exiahan.com/images/xposed_with_androidstudio/result.jpg">
-<meta property="og:updated_time" content="2017-01-29T19:42:57.316Z">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.347Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Xposed with Android Studio">
-<meta name="twitter:description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
-##0x2 开工这篇">
+<meta name="twitter:description" content="##0x1 介绍Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。 ##0x2 开工这篇">
 <meta name="twitter:image" content="http://blog.exiahan.com/images/xposed_with_androidstudio/xposedprovide.jpg">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -203,7 +202,7 @@
       
         <p>##0x1 介绍<br>Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。<br>本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。</p>
 <p>##0x2 开工<br><strong>这篇文章也是作为Xposed插桩的练习记录</strong></p>
-<p>###引入Xposed框架<br>不得不说，即使有<a href="https://github.com/rovo89" target="_blank" rel="external">rovo89</a>的<a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial" target="_blank" rel="external">Xposed Tutorial</a>，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。</p>
+<p>###引入Xposed框架<br>不得不说，即使有<a href="https://github.com/rovo89" target="_blank" rel="noopener">rovo89</a>的<a href="https://github.com/rovo89/XposedBridge/wiki/Development-tutorial" target="_blank" rel="noopener">Xposed Tutorial</a>，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。</p>
 <ul>
 <li>下载xposed框架jar包</li>
 <li>创建你的xposed module工程，如”HelloXposedHook”</li>
@@ -226,7 +225,7 @@
 </ul>
 </li>
 </ul>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">apply plugin: 'java'</div><div class="line">dependencies &#123;</div><div class="line">    compile project(":lib")</div><div class="line">    provided fileTree(dir: 'lib', include: ['*.jar'])</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: 'java'</span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile project(":lib")</span><br><span class="line">    provided fileTree(dir: 'lib', include: ['*.jar'])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含<br>xposed的jar包要求仅被引用，而不能包含<br>所以放xposedLib<br>并且在module settings里把相关项改成provide</p>
 </blockquote>
@@ -235,7 +234,7 @@
 <ul>
 <li>修改AndroidManifest.xml，加入xposed的meta元素（<strong>具体如何参见rovo89的Tutorial</strong>）</li>
 </ul>
-<p>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">application</span></span></div><div class="line">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></div><div class="line">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></div><div class="line">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"My First Xposed Module for Hook"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></div><div class="line">            <span class="attr">android:value</span>=<span class="string">"30"</span> /&gt;</div><div class="line">		<span class="tag">&lt;<span class="name">activity</span></span></div><div class="line">            <span class="attr">android:name</span>=<span class="string">".MainActivity"</span></div><div class="line">            <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</div><div class="line">......</div></pre></td></tr></table></figure></p>
+<p>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"My First Xposed Module for Hook"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:value</span>=<span class="string">"30"</span> /&gt;</span></span><br><span class="line">truetrue<span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">".MainActivity"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</span></span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>创建你的使用xposed插件的函数，如MyXposedModule</li>
 <li>添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名<ul>
@@ -244,7 +243,7 @@
 </li>
 </ul>
 <p>这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数</p>
-<p>功能代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXposedModule</span> <span class="keyword">implements</span> <span class="title">IXposedHookLoadPackage</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam lpparam)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">        <span class="comment">//TODO Auto-generated method stub</span></div><div class="line">        <span class="comment">//filter the package</span></div><div class="line"></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!lpparam.packageName.equals(<span class="string">"com.xxx.remotecontrol"</span>))</div><div class="line">            <span class="keyword">return</span>;</div><div class="line"></div><div class="line">        Log.e(<span class="string">"Package"</span>, <span class="string">"\n"</span> + lpparam.packageName + <span class="string">"\n"</span>);</div><div class="line"></div><div class="line">        <span class="comment">//if has a custom class param, use reflact to get the class as type</span></div><div class="line">        <span class="comment">//Class&lt;?&gt; XXXJni = null;</span></div><div class="line">        <span class="comment">//XXXJni = lpparam.classLoader.loadClass("com.xxx.remotecontrol");</span></div><div class="line">        findAndHookMethod(<span class="string">"com.xxx.remotecontrol.mainActivity"</span>, lpparam.classLoader, <span class="string">"forHook"</span>, String.class, <span class="keyword">new</span> XC_MethodHook() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called before the clock was updated by the original method</span></div><div class="line">                String parg = (String) param.args[<span class="number">0</span>];</div><div class="line">                Log.e(<span class="string">"Result:"</span>, <span class="string">"\nHi\n"</span>);</div><div class="line">                Log.e(<span class="string">"CMD:"</span>, parg);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">                <span class="comment">// this will be called after the clock was updated by the original method</span></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>功能代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXposedModule</span> <span class="keyword">implements</span> <span class="title">IXposedHookLoadPackage</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam lpparam)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">//TODO Auto-generated method stub</span></span><br><span class="line">        <span class="comment">//filter the package</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!lpparam.packageName.equals(<span class="string">"com.xxx.remotecontrol"</span>))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        Log.e(<span class="string">"Package"</span>, <span class="string">"\n"</span> + lpparam.packageName + <span class="string">"\n"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//if has a custom class param, use reflact to get the class as type</span></span><br><span class="line">        <span class="comment">//Class&lt;?&gt; XXXJni = null;</span></span><br><span class="line">        <span class="comment">//XXXJni = lpparam.classLoader.loadClass("com.xxx.remotecontrol");</span></span><br><span class="line">        findAndHookMethod(<span class="string">"com.xxx.remotecontrol.mainActivity"</span>, lpparam.classLoader, <span class="string">"forHook"</span>, String.class, <span class="keyword">new</span> XC_MethodHook() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// this will be called before the clock was updated by the original method</span></span><br><span class="line">                String parg = (String) param.args[<span class="number">0</span>];</span><br><span class="line">                Log.e(<span class="string">"Result:"</span>, <span class="string">"\nHi\n"</span>);</span><br><span class="line">                Log.e(<span class="string">"CMD:"</span>, parg);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// this will be called after the clock was updated by the original method</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>Hook成功后首先打印Hi，然后打印参数，即CMD后的parg</p>
 <p>结果如图：<br><img src="/images/xposed_with_androidstudio/result.jpg" alt="result"></p>
 <p><strong>到这里也即完成了xposed module的创建</strong></p>
@@ -405,7 +404,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -496,22 +495,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -524,11 +507,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -537,6 +520,62 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -556,31 +595,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>

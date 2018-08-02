@@ -8,27 +8,20 @@
   <link rel="dns-prefetch" href="http://blog.exiahan.com">
   <title>Expand A Logical Volume In LVM | ExiaHan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm.
-CAUTION!
-
-What I write here may not completely right because there have been one month passed since I co">
+  <meta name="description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm. CAUTION!  What I write here may not completely right because there have been one month passed since I co">
+<meta name="keywords" content="Linux,LVM,ArchLinux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Expand A Logical Volume In LVM">
 <meta property="og:url" content="http://blog.exiahan.com/2017/01/29/Expand-A-Logical-Volume-In-LVM/index.html">
-<meta property="og:site_name" content="ExiaHan's Blog">
-<meta property="og:description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm.
-CAUTION!
-
-What I write here may not completely right because there have been one month passed since I co">
+<meta property="og:site_name" content="ExiaHan&#39;s Blog">
+<meta property="og:description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm. CAUTION!  What I write here may not completely right because there have been one month passed since I co">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/before.png">
 <meta property="og:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/after.png">
-<meta property="og:updated_time" content="2017-01-29T19:41:33.263Z">
+<meta property="og:updated_time" content="2017-09-25T14:10:51.381Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Expand A Logical Volume In LVM">
-<meta name="twitter:description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm.
-CAUTION!
-
-What I write here may not completely right because there have been one month passed since I co">
+<meta name="twitter:description" content="AbstractThis blog is used to record the instructions about how to expand a logic volume in lvm. CAUTION!  What I write here may not completely right because there have been one month passed since I co">
 <meta name="twitter:image" content="http://blog.exiahan.com/images/expand_a_logical_volume_in_lvm/before.png">
   
     <link rel="alternative" href="/atom.xml" title="ExiaHan&#39;s Blog" type="application/atom+xml">
@@ -215,7 +208,7 @@ What I write here may not completely right because there have been one month pas
 <li><strong>Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</strong></li>
 <li><strong>Do some research before you do this.</strong></li>
 </ul>
-<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>To imporve my notebook’s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c" target="_blank" rel="external">SSD</a> to speed up my notebook’s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>To imporve my notebook’s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c" target="_blank" rel="noopener">SSD</a> to speed up my notebook’s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
 <p><img src="/images/expand_a_logical_volume_in_lvm/before.png" alt="device mapper before"></p>
 <p>As the pic shows, <strong>sda</strong> is the new <em>SSD</em>, <strong>sdb</strong> is the old hdd, it set <em>sdb3</em> as boot, set the <em>sdb5</em> as the lvm physical volume, and create a volume group named <em>archlvm</em>, in the <em>archlvm</em> volume, there four logical volumes:</p>
 <ul>
@@ -233,36 +226,36 @@ What I write here may not completely right because there have been one month pas
 <p>The following content will show you how to do this.</p>
 <h2 id="Preparing"><a href="#Preparing" class="headerlink" title="Preparing"></a>Preparing</h2><p>To complete all the missions, we need a archlinux-live-usb.</p>
 <ul>
-<li>Download a <a href="http://mirrors.ustc.edu.cn/archlinux/iso/" target="_blank" rel="external">archlinux iso</a> here. If you are not in China, choose other mirrors :).</li>
+<li>Download a <a href="http://mirrors.ustc.edu.cn/archlinux/iso/" target="_blank" rel="noopener">archlinux iso</a> here. If you are not in China, choose other mirrors :).</li>
 <li>Create a live-USB.<ul>
-<li>For UEFI Support, it’s highly recommended to use <a href="https://rufus.akeo.ie/?locale=en_US" target="_blank" rel="external">Rufus</a> to create the Live-USB.</li>
+<li>For UEFI Support, it’s highly recommended to use <a href="https://rufus.akeo.ie/?locale=en_US" target="_blank" rel="noopener">Rufus</a> to create the Live-USB.</li>
 </ul>
 </li>
 </ul>
 <h2 id="Migrate-“-Boot”-and-“Root”"><a href="#Migrate-“-Boot”-and-“Root”" class="headerlink" title="Migrate “/Boot” and “Root”"></a>Migrate “/Boot” and “Root”</h2><ul>
 <li>Mount the partions like below:</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div></pre></td></tr></table></figure>
-<p>Then run this command in shell:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># rsync -SPAaXxr --exclude=&#123;/boot,/home,/var&#125;  ./ /mnt/</span></div></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">|--sda</span><br><span class="line">   |--sda2 /mnt/</span><br></pre></td></tr></table></figure>
+<p>Then run this command in shell:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rsync -SPAaXxr --exclude=&#123;/boot,/home,/var&#125;  ./ /mnt/</span></span><br></pre></td></tr></table></figure></p>
 <p>wait the command complete. Then reboot into Live-USB.</p>
 <ul>
 <li>Mount the partions like below:</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">|--sda</div><div class="line">   |--sda2 /mnt/</div><div class="line">   |--sda1 /mnt/boot</div><div class="line">|--sdb</div><div class="line">   |--sdb5</div><div class="line">      |--archlvm-var /mnt/var</div><div class="line">	  |--archlvm-home /mnt/home</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">|--sda</span><br><span class="line">   |--sda2 /mnt/</span><br><span class="line">   |--sda1 /mnt/boot</span><br><span class="line">|--sdb</span><br><span class="line">   |--sdb5</span><br><span class="line">      |--archlvm-var /mnt/var</span><br><span class="line">true  |--archlvm-home /mnt/home</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p>turn on the swap</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># swapon /dev/archlvm/swap</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># swapon /dev/archlvm/swap</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>Regenerate the fstab(<strong>Remember to check it, it there is something wrong in it, you may can’t boot after reboot without Live-USB</strong>)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">genfstab -U -p /mnt &gt; /mnt/etc/fstab</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">genfstab -U -p /mnt &gt; /mnt/etc/fstab</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>A classic fstab can be found in <a href="https://wiki.archlinux.org/index.php/Fstab" target="_blank" rel="external">ArchLinux WIKI</a>, the UUID you may need can be get by command <strong>blkid</strong></p>
+<p>A classic fstab can be found in <a href="https://wiki.archlinux.org/index.php/Fstab" target="_blank" rel="noopener">ArchLinux WIKI</a>, the UUID you may need can be get by command <strong>blkid</strong></p>
 <ul>
 <li><strong>arch-chroot</strong> to “/mnt”</li>
 <li>Reinstall Grub to <strong>sda</strong></li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub</span></span><br></pre></td></tr></table></figure>
 <p>After do this, we should not run <strong>grub-mkconfig</strong> immediately, because we haven’t expand the “archlvm-home”.</p>
 <h2 id="Expand-Logical-Volume"><a href="#Expand-Logical-Volume" class="headerlink" title="Expand Logical Volume"></a>Expand Logical Volume</h2><p>As I said, what I want is deleting archlvm-root, and expand archlvm-home with the space the being deleted archlvm-root has. Now let’s follow below step to reach this goal.</p>
 <ul>
@@ -270,20 +263,20 @@ What I write here may not completely right because there have been one month pas
 <li>Unmount all the logical volumes in group <strong>archlvm</strong>.(<strong>CAUTION: This must be done, or you may get error.</strong>)</li>
 <li>Delete <strong>archlvm-root</strong></li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvremove /dev/archlvm/root</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lvremove /dev/archlvm/root</span></span><br></pre></td></tr></table></figure>
 <ul>
-<li>expand <strong>archlvm-home</strong><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># lvresize -l +100%FREE /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+<li>expand <strong>archlvm-home</strong><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lvresize -l +100%FREE /dev/archlvm/home</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <p>After do this, the <strong>archlvm-home</strong> will take all the free space freed by delete <em>archlvm-root</em>.</p>
 <ul>
-<li>resizefs(<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br>After we execute <em>lvresize</em>, we need to <strong>resize filesystem</strong> to let system know the change.<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># resize2fs /dev/archlvm/home</span></div></pre></td></tr></table></figure>
+<li>resizefs(<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br>After we execute <em>lvresize</em>, we need to <strong>resize filesystem</strong> to let system know the change.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># resize2fs /dev/archlvm/home</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>In somecase, the <strong>resize2fs</strong> may say that you should run command <strong>e2fsck</strong> first. If you get this, run it. (<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># e2fsck -f /dev/archlvm/home</span></div></pre></td></tr></table></figure></p>
+<p>In somecase, the <strong>resize2fs</strong> may say that you should run command <strong>e2fsck</strong> first. If you get this, run it. (<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># e2fsck -f /dev/archlvm/home</span></span><br></pre></td></tr></table></figure></p>
 <p>After this complete, you can run command <strong>resize2fs</strong>.</p>
 <h2 id="Complete"><a href="#Complete" class="headerlink" title="Complete"></a>Complete</h2><p>If all the steps are completed successfully, there is only one instruction we need to do——<em>grub-mkconfig</em></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># grub-mkconfig \-o /boot/grub/grub.cfg</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># grub-mkconfig \-o /boot/grub/grub.cfg</span></span><br></pre></td></tr></table></figure>
 <p>Reboot your computer, now we should migrate our data to SSD and expand logical volume <strong>archlvm-home</strong> successfully.</p>
 <p><img src="/images/expand_a_logical_volume_in_lvm/after.png" alt="after"></p>
 <p><strong>Tips:</strong></p>
@@ -393,6 +386,15 @@ What I write here may not completely right because there have been one month pas
   
 <nav id="article-nav">
   
+    <a href="/2017/01/30/Start-To-Use-Nginx-Hexo-and-Let-s-Encrypt/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Start To Use Nginx Hexo and Let&#39;s Encrypt
+        
+      </div>
+    </a>
+  
   
     <a href="/2017/01/29/Happy-Chinese-New-Year-In-2017/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title">Happy_Chinese_New_Year_In_2017</div>
@@ -438,7 +440,7 @@ What I write here may not completely right because there have been one month pas
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 ExiaHan
+    		&copy; 2018 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -529,22 +531,6 @@ What I write here may not completely right because there have been one month pas
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -557,11 +543,11 @@ What I write here may not completely right because there have been one month pas
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+                <a href="javascript:void(0)" class="js-tag color4">Dex</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -570,6 +556,62 @@ What I write here may not completely right because there have been one month pas
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -589,31 +631,19 @@ What I write here may not completely right because there have been one month pas
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>
