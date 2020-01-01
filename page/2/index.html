@@ -177,6 +177,108 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Dump-Dex-From-IJiaMi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/07/Dump-Dex-From-IJiaMi/">Dump Dex From IJiaMi</a>
+    </h1>
+  
+
+        
+        <a href="/2015/10/07/Dump-Dex-From-IJiaMi/" class="archive-article-date">
+  	<time datetime="2015-10-07T15:20:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>内容仅供学习讨论</strong><br><strong>参考文档：</strong> <em><a href="http://www.sycode.cn/2015/06/27/%E7%88%B1%E5%8A%A0%E5%AF%86-%E5%8A%A8%E6%80%81%E8%84%B1%E5%A3%B3%E4%B9%8B%E3%80%90%E6%99%BA%E8%83%BD%E8%A7%86%E7%AA%97app%E3%80%91%E8%84%B1%E5%A3%B3%E4%BF%AE%E5%A4%8D/#0x001" target="_blank" rel="noopener">爱加密动态脱壳</a>，<a href="http://www.cnblogs.com/2014asm/p/4112116.html" target="_blank" rel="noopener">爱加密动态脱壳法</a>，<a href="http://www.9hao.info/pages/2014/07/qian-tan-androidni-xiang-fen-xi-na-xie-lan-lu-hu" target="_blank" rel="noopener">浅谈android逆向分析那些拦路虎</a>，<a href="http://burningcodes.net/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%B8%AD%E8%B7%9F%E8%B8%AAdex%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B/" target="_blank" rel="noopener">光哥博客</a></em></p>
+<p>#0x1 说在开头</p>
+<p>现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。</p>
+<p>#0x2 实验环境</p>
+<ul>
+<li>Android 真机，Version 4.1.2， with <strong>ROOT &amp; Xposed</strong></li>
+<li>某被IJiaMi加固的App</li>
+<li>IDA调试器</li>
+<li>adb</li>
+</ul>
+<p>#0x3 过程</p>
+<p>下断点：</p>
+<ul>
+<li>libc.so fgets fopen</li>
+<li>libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex</li>
+</ul>
+<p>这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/</span><br><span class="line"> |---proc/[pid]/status</span><br></pre></td></tr></table></figure></p>
+<p>对于这个我也写了个，大概实现可以看这里：<a href="https://github.com/ExiaHan/exiahanLib/blob/master/exiahanLib.c" target="_blank" rel="noopener">getTracerPid</a></p>
+<p>文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID<br>所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试</p>
+<p><em>真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&lt;(=｀o′=)&gt;┓哼 ┏&lt;(=｀○′=)&gt;┛哼┏&lt;(=｀o′=)&gt;┓哈┗&lt;(=｀O′=)&gt;┛兮！！</em></p>
+<p>再下来是<strong>_Z21dvmDexFileOpenPartialPKviPP6DvmDex</strong>，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的<em>_Z21dvmDexFileOpenPartialPKviPP6DvmDex</em>即为运行一个dex前需要调用的<strong>参与打开dex文件</strong>的一个函数，为什么要在这里下断呢？</p>
+<p>去源码dalvik文件夹下执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -rn dvmDexFileOpen</span><br></pre></td></tr></table></figure></p>
+<p>可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">72</span> <span class="comment">/*</span></span><br><span class="line"><span class="comment">73  * Given a file descriptor for an open "optimized" DEX file, map it into</span></span><br><span class="line"><span class="comment">74  * memory and parse the contents.</span></span><br><span class="line"><span class="comment">75  *</span></span><br><span class="line"><span class="comment">76  * On success, returns 0 and sets "*ppDvmDex" to a newly-allocated DvmDex.</span></span><br><span class="line"><span class="comment">77  * On failure, returns a meaningful error code [currently just -1].</span></span><br><span class="line"><span class="comment">78  */</span></span><br><span class="line"><span class="number">79</span> <span class="function"><span class="keyword">int</span> <span class="title">dvmDexFileOpenFromFd</span><span class="params">(<span class="keyword">int</span> fd, DvmDex** ppDvmDex)</span></span>;</span><br><span class="line"><span class="number">80</span> </span><br><span class="line"><span class="number">81</span> <span class="comment">/*</span></span><br><span class="line"><span class="comment">82  * Open a partial DEX file.  Only useful as part of the optimization process.</span></span><br><span class="line"><span class="comment">83  */</span></span><br><span class="line"><span class="number">84</span> <span class="function"><span class="keyword">int</span> <span class="title">dvmDexFileOpenPartial</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>* addr, <span class="keyword">int</span> len, DvmDex** ppDvmDex)</span></span>;</span><br><span class="line"><span class="number">85</span> </span><br><span class="line"><span class="number">86</span> <span class="comment">/*</span></span><br><span class="line"><span class="comment">87  * Free a DvmDex structure, along with any associated structures.</span></span><br><span class="line"><span class="comment">88  */</span></span><br><span class="line"><span class="number">89</span> <span class="function"><span class="keyword">void</span> <span class="title">dvmDexFileFree</span><span class="params">(DvmDex* pDvmDex)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到三个和加载dex（包括odex）的函数都在这里，就像注释说明的，dvmDexFileOpenPartial函数是加载dex文件必须用到的一步，其前两个参数分别是dex文件在内存中的地址和其长度，知道这些后就可以尝试现在这里下断然后尝试dump出来dex文件啦。所以在其中下断，就能找到运行时所加载的真正dex文件，然后使用IDC脚本dump出来即可.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> fp, dexAddress;</span><br><span class="line">fp = fopen(<span class="string">"C:\\xx.dex"</span>,<span class="string">"wb"</span>);</span><br><span class="line"><span class="keyword">for</span> (dexAddress = <span class="number">0x3D4AE72C</span>; dexAddress &lt; <span class="number">0x3DB9C098</span>; dexAddress++)</span><br><span class="line">   fputc(Byte(dexAddress), fp)</span><br></pre></td></tr></table></figure>
+<p><del>脱掉后dex2jar转成jar用jd-gui看下真正的入口Activity，然后baksmali一下，把manifest.xml里的入口改掉，改成真正入口Activity。</del></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Reverse</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Dex</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/UnShell/" class="article-tag-list-link color3">UnShell</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-SubsTrate-with-AndroidStudio" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1851,7 +1953,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2019 ExiaHan
+    		&copy; 2020 ExiaHan
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -1930,6 +2032,34 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Android</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Build</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">CTF</a>
               </li>
              
@@ -1942,23 +2072,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Android</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Dex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">LVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">ArchLinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1970,31 +2084,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">LVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Happy New Year</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">LifeContinues</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Build</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">SQLITE</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2006,47 +2104,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Https</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Security</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">AntiDebug</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Signature Verify</a>
+                <a href="javascript:void(0)" class="js-tag color2">idf.cn</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2062,7 +2120,51 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">idf.cn</a>
+                <a href="javascript:void(0)" class="js-tag color1">Nginx</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">NSCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">WriteUp</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">MSC2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-Studio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SubsTrate</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">XDCTF2015</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Xposed</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ABI</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Security</a>
               </li>
             
             <div class="clearfix"></div>
