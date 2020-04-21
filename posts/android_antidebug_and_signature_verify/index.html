@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Android AntiDebug and Signature Verify Example // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="http://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android AntiDebug and Signature Verify Example"/>
+<meta name="twitter:description" content="Reference:grafx, IT Dreamer
+Introduction We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C&#43;&#43; code) because the arm-assembly language or C pseudo code are more difficult to read than java. But others can still read the native code if they really want, they can use IDA to read ."/>
+
+    <meta property="og:title" content="Android AntiDebug and Signature Verify Example" />
+<meta property="og:description" content="Reference:grafx, IT Dreamer
+Introduction We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C&#43;&#43; code) because the arm-assembly language or C pseudo code are more difficult to read than java. But others can still read the native code if they really want, they can use IDA to read ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://blog.exiahan.com/posts/android_antidebug_and_signature_verify/" />
+<meta property="article:published_time" content="2016-01-09T21:44:08+08:00" />
+<meta property="article:modified_time" content="2016-01-09T21:44:08+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="http://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Android AntiDebug and Signature Verify Example</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Jan 9, 2016
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          6 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="http://blog.exiahan.com/tags/antidebug/">AntiDebug</a></div></div>
+    </header>
+    <div class="post-content">
+      <p>Reference:<a href="http://blog.csdn.net/grafx/article/details/40403577">grafx</a>, <a href="http://burningcodes.net/%E7%94%A8jni%E5%AE%9E%E7%8E%B0apk%E7%9A%84%E5%8F%8D%E8%B0%83%E8%AF%95/">IT Dreamer</a></p>
+<h2 id="introduction">Introduction</h2>
+<p>We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C++ code) because the arm-assembly language or C pseudo code are more difficult to read than java.
+But others can still read the native code if they really want, they can use IDA to read .so files and debug our apps dynamicly. In order to make our apps difficultly to debug dynamicly, we may will need to add some methods that can provide antidebug functions for us.</p>
+<p>This aritcle will provide a simple example about how to antidebug and the sinature-verify.</p>
+<p><em>PS: Recently I am helping my teacher to prepare a Android-Security Course, so I feel it is time to record something, and</em> <strong>Sorry for my poor English. (: but I think write article in English is the fast way to help me to improve my English.</strong></p>
+<h2 id="sinature-verify">Sinature Verify</h2>
+<h3 id="java-level">Java Level</h3>
+<p>When we publish our apps to the app-store, we will sign apps with our private key, and put the public key into our apps, if others modify our apps, he will re-sign the apps and the public key will be changed, so we can add some code into our apps to check the sinature, if it is not same with ourselves public keys, we can let the apps to exit to prevent the modified apps do something that is harmful to users.
+Below is the code in java level:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Java" data-lang="Java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CheckSign</span> <span style="color:#f92672">{</span>
+    Context context<span style="color:#f92672">;</span>
+    PackageManager packageManager<span style="color:#f92672">;</span>
+    String strPackagename<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> byteSign<span style="color:#f92672">;</span>
+    String strSign<span style="color:#f92672">;</span>
+    Signature<span style="color:#f92672">[]</span> signatureArray<span style="color:#f92672">;</span>
+
+    CheckSign<span style="color:#f92672">(</span>Context context<span style="color:#f92672">){</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">context</span> <span style="color:#f92672">=</span> context<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">native</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">checkSignNative</span><span style="color:#f92672">(</span>Context context<span style="color:#f92672">);</span>
+    <span style="color:#75715e">//The arguement is your public key&#39;s value that is deal with md5 and base64
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">checkSign</span><span style="color:#f92672">(</span>String strOriSign<span style="color:#f92672">){</span>
+        checkSignNative<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">context</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">try</span><span style="color:#f92672">{</span>
+            packageManager <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">context</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageManager</span><span style="color:#f92672">();</span>
+            strPackagename <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">context</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageName</span><span style="color:#f92672">();</span>
+            signatureArray <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">packageManager</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageInfo</span><span style="color:#f92672">(</span>strPackagename<span style="color:#f92672">,</span> PackageManager<span style="color:#f92672">.</span><span style="color:#a6e22e">GET_SIGNATURES</span><span style="color:#f92672">).</span><span style="color:#a6e22e">signatures</span><span style="color:#f92672">;</span>
+
+            <span style="color:#75715e">/*Improper validation of app signatures could lead to
+</span><span style="color:#75715e">             *issues where a malicious app submits itself to the
+</span><span style="color:#75715e">             * Play Store with both its real certificate and a
+</span><span style="color:#75715e">             * fake certificate and gains access to functionality
+</span><span style="color:#75715e">             * or information it shouldn&#39;t have due to another
+</span><span style="color:#75715e">             * application only checking for the fake certificate
+</span><span style="color:#75715e">             * and ignoring the rest. Please make sure to validate
+</span><span style="color:#75715e">             * all signatures returned by this method.
+</span><span style="color:#75715e">             * */</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> signatureArray<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+                Log<span style="color:#f92672">.</span><span style="color:#a6e22e">v</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Verbose: &#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Check Signatures&#34;</span><span style="color:#f92672">);</span>
+                byteSign <span style="color:#f92672">=</span> signatureArray<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">();</span>
+                byteSign <span style="color:#f92672">=</span> CertificateFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;X509&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">generateCertificate</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ByteArrayInputStream<span style="color:#f92672">(</span>byteSign<span style="color:#f92672">)).</span><span style="color:#a6e22e">getEncoded</span><span style="color:#f92672">();</span>
+                strSign <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String<span style="color:#f92672">(</span>Base64<span style="color:#f92672">.</span><span style="color:#a6e22e">encode</span><span style="color:#f92672">(</span>MessageDigest<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;md5&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">digest</span><span style="color:#f92672">(</span>byteSign<span style="color:#f92672">),</span> 19<span style="color:#f92672">));</span>
+                <span style="color:#75715e">//strSign = Base64.encodeToString(MessageDigest.getInstance(&#34;md5&#34;).digest(byteSign), 19));
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>strOriSign<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>strSign<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                    Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Error: &#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Fake Signature&#34;</span><span style="color:#f92672">);</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">else</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span><span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">){</span>
+            Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Error: &#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;CheckSign Failed&#34;</span> <span style="color:#f92672">+</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">exit</span><span style="color:#f92672">(-</span>1<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>The java code above will do the sinature verify in java level. As what we have metioned, it is easy to be pathed by modify the smali file. So the more safy way is to do it in a .so file, which is so-called &ldquo;native level&rdquo;.</p>
+<h3 id="sinature-verify-via-c">Sinature Verify via C</h3>
+<p>To do it, we should add some code in our java code, and be careful, what this example do is simple add a native funciton that will only do the sign-check, this can be patched easily by modify the smali, too. So in the real env we should merge the code to our core-function, that means if we patched the native method call in java level, the app won&rsquo;t work.
+Below code will return the signature, you can do the verify after you get the sinature easily:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"><span style="color:#75715e">//Return the String, which is generated via base64(md5(signature));
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">getSignature</span>(JNIEnv<span style="color:#f92672">*</span> env, jobject obj)
+{
+    jstring jstringSign;
+    jbyte <span style="color:#f92672">*</span>byteSign;
+    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>strSign;
+    <span style="color:#75715e">// 获得Context类
+</span><span style="color:#75715e"></span>    jclass cls <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectClass(env, obj);
+    <span style="color:#75715e">// 得到getPackageManager方法的ID
+</span><span style="color:#75715e"></span>    jmethodID mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;getPackageManager&#34;</span>, <span style="color:#e6db74">&#34;()Landroid/content/pm/PackageManager;&#34;</span>);
+
+    <span style="color:#75715e">// 获得应用包的管理器
+</span><span style="color:#75715e"></span>    jobject pm <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallObjectMethod(env, obj, mid);
+
+    <span style="color:#75715e">// 得到getPackageName方法的ID
+</span><span style="color:#75715e"></span>    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;getPackageName&#34;</span>, <span style="color:#e6db74">&#34;()Ljava/lang/String;&#34;</span>);
+    <span style="color:#75715e">// 获得当前应用包名
+</span><span style="color:#75715e"></span>    jstring packageName <span style="color:#f92672">=</span> (jstring)(<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallObjectMethod(env, obj, mid);
+
+    <span style="color:#75715e">// 获得PackageManager类
+</span><span style="color:#75715e"></span>    cls <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectClass(env, pm);
+    <span style="color:#75715e">// 得到getPackageInfo方法的ID
+</span><span style="color:#75715e"></span>    mid  <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;getPackageInfo&#34;</span>, <span style="color:#e6db74">&#34;(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;&#34;</span>);
+    <span style="color:#75715e">// 获得应用包的信息
+</span><span style="color:#75715e"></span>    jobject packageInfo <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallObjectMethod(env, pm, mid, packageName, <span style="color:#ae81ff">0x40</span>); <span style="color:#75715e">//GET_SIGNATURES = 64;
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// 获得PackageInfo 类
+</span><span style="color:#75715e"></span>    cls <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectClass(env, packageInfo);
+    <span style="color:#75715e">// 获得签名数组属性的ID
+</span><span style="color:#75715e"></span>    jfieldID fid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetFieldID(env, cls, <span style="color:#e6db74">&#34;signatures&#34;</span>, <span style="color:#e6db74">&#34;[Landroid/content/pm/Signature;&#34;</span>);
+    <span style="color:#75715e">// 得到签名数组
+</span><span style="color:#75715e"></span>    jobjectArray signatures <span style="color:#f92672">=</span> (jobjectArray)(<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectField(env, packageInfo, fid);
+    <span style="color:#75715e">// 得到签名
+</span><span style="color:#75715e"></span>    jobject sign <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectArrayElement(env, signatures, <span style="color:#ae81ff">0</span>);
+
+
+    <span style="color:#75715e">// 获得Signature类
+</span><span style="color:#75715e"></span>    cls <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetObjectClass(env, sign);
+    <span style="color:#75715e">//得到ByteSign
+</span><span style="color:#75715e"></span>    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;toByteArray&#34;</span>, <span style="color:#e6db74">&#34;()[B&#34;</span>);
+    byteSign <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallObjectMethod(env, sign, mid);
+
+    <span style="color:#75715e">//根据Byte生成md5消息摘要
+</span><span style="color:#75715e"></span>    cls  <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>FindClass(env, <span style="color:#e6db74">&#34;java/security/MessageDigest&#34;</span>);
+    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetStaticMethodID(env, cls, <span style="color:#e6db74">&#34;getInstance&#34;</span>, <span style="color:#e6db74">&#34;(Ljava/lang/String;)Ljava/security/MessageDigest;&#34;</span>);
+    jobject jmd5 <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallStaticObjectMethod(env, cls, mid, (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>NewStringUTF(env, <span style="color:#e6db74">&#34;md5&#34;</span>));
+    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;update&#34;</span>, <span style="color:#e6db74">&#34;([B)V&#34;</span>);
+    (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallVoidMethod(env, jmd5, mid, byteSign);
+    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetMethodID(env, cls, <span style="color:#e6db74">&#34;digest&#34;</span>, <span style="color:#e6db74">&#34;()[B&#34;</span>);
+    <span style="color:#75715e">//md5散列后的byte[]
+</span><span style="color:#75715e"></span>    byteSign <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallObjectMethod(env, jmd5, mid);
+
+    <span style="color:#75715e">//生成Base64后的String
+</span><span style="color:#75715e"></span>    cls <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>FindClass(env, <span style="color:#e6db74">&#34;android/util/Base64&#34;</span>);
+    mid <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetStaticMethodID(env, cls, <span style="color:#e6db74">&#34;encodeToString&#34;</span>, <span style="color:#e6db74">&#34;([BI)Ljava/lang/String;&#34;</span>);
+    <span style="color:#75715e">//得到base64后的String
+</span><span style="color:#75715e"></span>    jstringSign <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>CallStaticObjectMethod(env, cls, mid, byteSign, <span style="color:#ae81ff">19</span>);
+    strSign <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>env)<span style="color:#f92672">-&gt;</span>GetStringUTFChars(env, jstringSign, NULL);
+    <span style="color:#75715e">//LOGW(&#34;%s&#34;, strSign);
+</span><span style="color:#75715e"></span>
+    <span style="color:#66d9ef">return</span> strSign;
+}
+</code></pre></div><p>The code above will call the java function via relfcetion, and the second arguement is a Context object that can be passed by declare a java method like</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Java" data-lang="Java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">native</span> <span style="color:#f92672">[</span>Return Type<span style="color:#f92672">]</span> <span style="color:#a6e22e">FunctionName</span><span style="color:#f92672">(</span>Context<span style="color:#f92672">,</span> <span style="color:#f92672">...);</span>
+</code></pre></div><h2 id="antidebug">Antidebug</h2>
+<p>Simplly, we can start a new process via the fork(), the new process will check the parent&rsquo;s <strong>/proc/[PID]/status</strong> file to see whether the <strong>TracerPid</strong> is 0, if not, kill the parent and then exit. Also, we should prevent others to debug the child process via dynamic debuging, we can let the child process <a href="https://en.wikipedia.org/wiki/Ptrace"><strong>ptrace</strong></a> itself.</p>
+<p>The code below will provide antidebug function:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP">
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">antiDebug</span>()
+{
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> bufsize <span style="color:#f92672">=</span> <span style="color:#ae81ff">1024</span>;
+    <span style="color:#66d9ef">char</span> filename[bufsize];
+    <span style="color:#66d9ef">char</span> line[bufsize];
+    <span style="color:#66d9ef">int</span> pid <span style="color:#f92672">=</span> getpid();
+    sprintf(filename, <span style="color:#e6db74">&#34;/proc/%d/status&#34;</span>, pid);
+    FILE<span style="color:#f92672">*</span> fd;
+    <span style="color:#75715e">//Child Proc check the parent&#39;s status
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (fork() <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) {
+        <span style="color:#66d9ef">int</span> pt;
+        pt <span style="color:#f92672">=</span> ptrace(PTRACE_TRACEME, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>); <span style="color:#75715e">//Child Proc anti ptrace
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">while</span> (<span style="color:#ae81ff">1</span>) {
+            fd <span style="color:#f92672">=</span> fopen(filename, <span style="color:#e6db74">&#34;r&#34;</span>);
+            <span style="color:#66d9ef">if</span> (fd <span style="color:#f92672">!=</span> NULL) {
+                <span style="color:#66d9ef">while</span> (fgets(line, bufsize, fd)) {
+                    <span style="color:#66d9ef">if</span> (strncmp(line, <span style="color:#e6db74">&#34;TracerPid&#34;</span>, <span style="color:#ae81ff">9</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) {
+                        <span style="color:#66d9ef">int</span> statue <span style="color:#f92672">=</span> atoi(<span style="color:#f92672">&amp;</span>line[<span style="color:#ae81ff">10</span>]);
+                        <span style="color:#66d9ef">if</span> (statue <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>) {
+                            fclose(fd);
+                            <span style="color:#66d9ef">int</span> ret <span style="color:#f92672">=</span> kill(pid, SIGKILL);
+                            exit(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+                        }
+                        <span style="color:#66d9ef">break</span>;
+                    }
+                }
+                fclose(fd);
+            }
+            <span style="color:#66d9ef">else</span> {
+				;
+            }
+            sleep(<span style="color:#ae81ff">100</span>);
+        }
+    }
+}
+</code></pre></div><p>To do something more, you can also create a marco which will do</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP">	fd <span style="color:#f92672">=</span> fopen(filename, <span style="color:#e6db74">&#34;r&#34;</span>);
+    <span style="color:#66d9ef">if</span> (fd <span style="color:#f92672">!=</span> NULL) {
+    	<span style="color:#66d9ef">while</span> (fgets(line, bufsize, fd)) {
+        	<span style="color:#66d9ef">if</span> (strncmp(line, <span style="color:#e6db74">&#34;TracerPid&#34;</span>, <span style="color:#ae81ff">9</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) {
+            	<span style="color:#66d9ef">int</span> statue <span style="color:#f92672">=</span> atoi(<span style="color:#f92672">&amp;</span>line[<span style="color:#ae81ff">10</span>]);
+            	<span style="color:#66d9ef">if</span> (statue <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>) {
+            		fclose(fd);
+            		<span style="color:#66d9ef">int</span> ret <span style="color:#f92672">=</span> kill(pid, SIGKILL);
+           		 	exit(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+           		}
+            	<span style="color:#66d9ef">break</span>;
+            }
+		}
+    }
+	fclose(fd);
+</code></pre></div><p>and put it in a lot of places in your c source code, to add the difficulty of reversing apps.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this article we provide a simple example about antidebug and signCheck, it can not prevent others to reverse our apps completely, but it can add the difficulty in reversing. Hope this article can help someone. :)</p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

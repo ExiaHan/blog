@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/categories/</link>
+    <description>Recent content in Categories on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Jan 2020 03:35:24 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Life</title>
+      <link>http://blog.exiahan.com/categories/life/</link>
+      <pubDate>Wed, 01 Jan 2020 03:35:24 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/life/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vision</title>
+      <link>http://blog.exiahan.com/categories/vision/</link>
+      <pubDate>Wed, 01 Jan 2020 03:35:24 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/vision/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>DevOps</title>
+      <link>http://blog.exiahan.com/categories/devops/</link>
+      <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/devops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Security</title>
+      <link>http://blog.exiahan.com/categories/security/</link>
+      <pubDate>Fri, 01 Jun 2018 22:10:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/security/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Blog</title>
+      <link>http://blog.exiahan.com/categories/blog/</link>
+      <pubDate>Mon, 30 Jan 2017 03:51:33 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/blog/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux</title>
+      <link>http://blog.exiahan.com/categories/linux/</link>
+      <pubDate>Sun, 29 Jan 2017 03:29:32 +0000</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Android</title>
+      <link>http://blog.exiahan.com/categories/android/</link>
+      <pubDate>Sat, 09 Jan 2016 21:44:08 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/android/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CTF</title>
+      <link>http://blog.exiahan.com/categories/ctf/</link>
+      <pubDate>Wed, 30 Dec 2015 22:12:08 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/ctf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>UnShell</title>
+      <link>http://blog.exiahan.com/categories/unshell/</link>
+      <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/categories/unshell/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

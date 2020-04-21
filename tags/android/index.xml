@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Android on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/android/</link>
+    <description>Recent content in Android on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/android/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Build SQLITE For Android</title>
+      <link>http://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
+    </item>
+    
+    <item>
+      <title>Dump Dex From IJiaMi</title>
+      <link>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
+      <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
+      <description>内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
+0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
+0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp;amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
+ libc.so fgets fopen libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex  这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取
+|---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
+文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID 所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试
+真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&amp;lt;(=｀o′=)&amp;gt;┓哼 ┏&amp;lt;(=｀○′=)&amp;gt;┛哼┏&amp;lt;(=｀o′=)&amp;gt;┓哈┗&amp;lt;(=｀O′=)&amp;gt;┛兮！！
+再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？
+去源码dalvik文件夹下执行
+grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
+72 /* 73 * Given a file descriptor for an open &amp;#34;optimized&amp;#34; DEX file, map it into 74 * memory and parse the contents. 75 * 76 * On success, returns 0 and sets &amp;#34;*ppDvmDex&amp;#34; to a newly-allocated DvmDex.</description>
+    </item>
+    
+    <item>
+      <title>Xposed with Android Studio</title>
+      <link>http://blog.exiahan.com/posts/xposed_with_android_studio/</link>
+      <pubDate>Wed, 02 Sep 2015 16:06:55 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
+      <description>0x1 介绍 Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。 本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
+0x2 开工 这篇文章也是作为Xposed插桩的练习记录
+引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
+ 下载xposed框架jar包 创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;rdquo; 在app/src下创建文件夹xposedLib   之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含
+ 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    apply plugin: &amp;#39;java&amp;#39; dependencies { compile project(&amp;#34;:lib&amp;#34;) provided fileTree(dir: &amp;#39;lib&amp;#39;, include: [&amp;#39;*.jar&amp;#39;]) }  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
+ 到这里xposed框架的引入即可成功
+创建你的Xposed Module  修改AndroidManifest.xml，加入xposed的meta元素（具体如何参见rovo89的Tutorial）  如下所示：
+&amp;lt;application android:allowBackup=&amp;#34;true&amp;#34; android:icon=&amp;#34;@mipmap/ic_launcher&amp;#34; android:label=&amp;#34;@string/app_name&amp;#34; android:theme=&amp;#34;@style/AppTheme&amp;#34; &amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposedmodule&amp;#34; android:value=&amp;#34;true&amp;#34; /&amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposeddescription&amp;#34; android:value=&amp;#34;My First Xposed Module for Hook&amp;#34; /&amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposedminversion&amp;#34; android:value=&amp;#34;30&amp;#34; /&amp;gt; &amp;lt;activity android:name=&amp;#34;.</description>
+    </item>
+    
+    <item>
+      <title>SubsTrate with AndroidStudio</title>
+      <link>http://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
+      <description>参考文档： 看雪，光哥博客，乌云知识库
+0x1 介绍 在家木事，学了下substrate用法，这里记录下～
+*Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
+0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
+ 新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&amp;mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &amp;lt;uses-permission android:name=&amp;quot;cydia.permission.SUBSTRATE&amp;quot;/&amp;gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &amp;ldquo;=&amp;rdquo; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式    apply plugin: &amp;#39;com.android.model.application&amp;#39; model { android { compileSdkVersion = 23 buildToolsVersion = &amp;#34;23.</description>
+    </item>
+    
+  </channel>
+</rss>

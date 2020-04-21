@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SQLITE on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/sqlite/</link>
+    <description>Recent content in SQLITE on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/sqlite/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Build SQLITE For Android</title>
+      <link>http://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
+    </item>
+    
+  </channel>
+</rss>

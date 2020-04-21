@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>SubsTrate with AndroidStudio // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="http://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SubsTrate with AndroidStudio"/>
+<meta name="twitter:description" content="参考文档： 看雪，光哥博客，乌云知识库
+0x1 介绍 在家木事，学了下substrate用法，这里记录下～
+*Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
+0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
+ 新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &ldquo;=&rdquo; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    apply plugin: &#39;com.android.model.application&#39; model { android { compileSdkVersion = 23 buildToolsVersion = &#34;23."/>
+
+    <meta property="og:title" content="SubsTrate with AndroidStudio" />
+<meta property="og:description" content="参考文档： 看雪，光哥博客，乌云知识库
+0x1 介绍 在家木事，学了下substrate用法，这里记录下～
+*Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
+0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
+ 新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &ldquo;=&rdquo; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    apply plugin: &#39;com.android.model.application&#39; model { android { compileSdkVersion = 23 buildToolsVersion = &#34;23." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://blog.exiahan.com/posts/substrate_with_androidstudio/" />
+
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="http://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">SubsTrate with AndroidStudio</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Jan 1, 0001
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="http://blog.exiahan.com/tags/android/">Android</a><a class="tag" href="http://blog.exiahan.com/tags/android-studio/">Android-Studio</a><a class="tag" href="http://blog.exiahan.com/tags/substrate/">SubsTrate</a></div></div>
+    </header>
+    <div class="post-content">
+      <p><strong>参考文档：</strong> <em><a href="http://bbs.pediy.com/showthread.php?t=199671">看雪</a>，<a href="http://burningcodes.net/cydia-substrate-android-so-hook/">光哥博客</a>，<a href="http://drops.wooyun.org/tips/8084">乌云知识库</a></em></p>
+<h2 id="0x1-介绍">0x1 介绍</h2>
+<p>在家木事，学了下substrate用法，这里记录下～</p>
+<p>*<em><a href="http://www.cydiasubstrate.com/">Substrate</a><strong>是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的</strong></em><a href="http://www.cydiasubstrate.com/api/c/">文档</a>***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。</p>
+<h2 id="0x2-准备工作">0x2 准备工作</h2>
+<ul>
+<li>确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本</li>
+<li>按照官方说明，下载substrate框架apk并安装，重启设备</li>
+<li>下载sdk到本地并解压，官方提供了两种方式
+<ul>
+<li><a href="http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip">直接下载</a></li>
+<li>通过Android SDK Manager管理下载：<a href="http://www.cydiasubstrate.com/id/73e45fe5-4525-4de7-ac14-6016652cc1b8/">说明页面</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="0x3-substrate-with-android-studio">0x3 Substrate with Android Studio</h2>
+<p>首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。
+言归正传：</p>
+<ul>
+<li>新建一个工程，名字随意，比如HelloSubstrate</li>
+<li>由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要</li>
+<li>在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去</li>
+<li>在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;<a href="http://www.cydiasubstrate.com/inject/android/">文档</a></li>
+<li>在manifest文件里加上权限声明，否则无法正常工作
+<ul>
+<li><em><strong><code>&lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;</code></strong></em></li>
+</ul>
+</li>
+</ul>
+<h3 id="额外的准备工作">额外的准备工作</h3>
+<p>又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：</p>
+<ul>
+<li>确保你的gradle是最新的</li>
+<li>修改./Project/build.gradle的classpath为
+<ul>
+<li><em><strong><code>classpath 'com.android.tools.build:gradle-experimental:0.2.0'</code></strong></em></li>
+</ul>
+</li>
+<li>修改./Project/app/build.gradle为如下样式：<strong>注意其中的不同</strong>
+<ul>
+<li>apply plugin的模块变了</li>
+<li>所有变量都要用 <em><strong>&ldquo;=&rdquo;</strong></em> 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-XML" data-lang="XML">apply plugin: &#39;com.android.model.application&#39;
+
+model {
+    android {
+        compileSdkVersion = 23
+        buildToolsVersion = &#34;23.0.2&#34;
+        defaultConfig.with {
+            applicationId = &#34;com.exiahan.hellosubstrate&#34;
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 23
+            versionCode = 1
+            versionName = &#34;1.0&#34;
+        }
+        tasks.withType(JavaCompile) {
+            //指定编译JDK版本
+            sourceCompatibility = JavaVersion.VERSION_1_7
+            targetCompatibility = JavaVersion.VERSION_1_7
+        }
+    }
+    android.buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles += file(&#39;proguard-rules.pro&#39;)
+        }
+    }
+
+    android.ndk {
+        moduleName = &#34;cydiaSubstrateHook.cy&#34;
+        ldFlags += &#34;-L./lib/armeabi&#34;
+        ldLibs += &#34;log&#34;
+        ldLibs += &#34;substrate&#34;
+        ldLibs += &#34;substrate-dvm&#34;
+        abiFilters += &#34;armeabi&#34;
+    }
+}
+dependencies {
+    compile fileTree(include: [&#39;*.jar&#39;], dir: &#39;libs&#39;)
+    compile &#39;com.android.support:appcompat-v7:23.0.0&#39;
+}
+
+</code></pre></div><p>由于我们生成的hook用apk会在运行时使用substrate框架提供的库函数和log相关函数，所以需要加上动态链接的一些选项，同时按照sdk要求，生成的modulename必须是.cy.so结尾</p>
+<p>一切就绪，就可以开始编写小例子了。</p>
+<p>在刚刚的jni文件夹里创建cydiaSubstrateHook.cy.cpp文件，内容如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"><span style="color:#75715e">//
+</span><span style="color:#75715e">// Created by exiahan on 15-10-5.
+</span><span style="color:#75715e">//
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;android/log.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;substrate.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#define TAG &#34;CydiaSubstrate&#34;
+</span><span style="color:#75715e">#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)</span><span style="color:#75715e">//define LOGI Marco
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#define GETLR(store_lr)  \
+</span><span style="color:#75715e">  __asm__ __volatile__(  \
+</span><span style="color:#75715e">    &#34;mov %0, lr\n\t&#34;  \
+</span><span style="color:#75715e">    :  &#34;=r&#34;(store_lr)  \
+</span><span style="color:#75715e">  )
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">//Specify the lib to hook
+</span><span style="color:#75715e"></span>MSConfig(MSFilterLibrary, <span style="color:#e6db74">&#34;/system/lib/libc.so&#34;</span>)
+
+<span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span> oldfopen)(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> path, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> mode);
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">newfopen</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> path, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> mode) {
+	<span style="color:#66d9ef">unsigned</span> lr;
+    LOGI(<span style="color:#e6db74">&#34;[I]:newfopen called! -- [%d]&#34;</span>, getpid());
+    GETLR(lr);
+    LOGI(<span style="color:#e6db74">&#34;[I]:BackTrace -- [0x%x]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, lr);
+    LOGI(<span style="color:#e6db74">&#34;[I]:File Path -- [%s]&#34;</span>, path);
+    <span style="color:#66d9ef">return</span> oldfopen(path, mode);
+}
+
+<span style="color:#75715e">/*
+</span><span style="color:#75715e"> * Substrate entry point
+</span><span style="color:#75715e"> */</span>
+MSInitialize
+{
+    <span style="color:#75715e">// Let the user know that the extension has been
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// extension has been registered
+</span><span style="color:#75715e"></span>    LOGI( <span style="color:#e6db74">&#34;Substrate initialized.&#34;</span>);
+    MSImageRef image;
+
+    image <span style="color:#f92672">=</span> MSGetImageByName(<span style="color:#e6db74">&#34;/system/lib/libc.so&#34;</span>);
+
+    <span style="color:#66d9ef">if</span> (image <span style="color:#f92672">!=</span> NULL)
+    {
+        <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span> hookfopen<span style="color:#f92672">=</span>MSFindSymbol(image,<span style="color:#e6db74">&#34;fopen&#34;</span>);
+        <span style="color:#66d9ef">if</span>(hookfopen<span style="color:#f92672">==</span>NULL)
+        {
+            LOGI(<span style="color:#e6db74">&#34;error find fopen &#34;</span>);
+        }
+        <span style="color:#66d9ef">else</span> {
+            MSHookFunction(hookfopen,(<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>newfopen,(<span style="color:#66d9ef">void</span> <span style="color:#f92672">**</span>)<span style="color:#f92672">&amp;</span>oldfopen);
+        }
+    }
+    <span style="color:#66d9ef">else</span> {
+        LOGI(<span style="color:#e6db74">&#34;ERROR FIND LIBC&#34;</span>);
+    }
+
+}
+</code></pre></div><p>阅读源码，可知Hook过程如下：</p>
+<ul>
+<li>确定我们要Hook的函数，为其重写一个我们自己的版本，这里选择的是fopen，也是脱壳时通常会注意的函数</li>
+<li>使用MSConfig宏指定fopen所在的库libc.so为要hook的库</li>
+<li>在MSInitialize初始化函数里执行如下流程：
+<ul>
+<li>MSGetImageByName得到libc.so句柄</li>
+<li>MSFindSymbol找到即将被hook的函数fopen的函数指针并存储，以保证在hook后依旧可以正常完成相关功能</li>
+<li>MSHookFunction开始hook函数，这时会把原本的fopen的调用地址放到oldopen里，这样在newfopen里调用oldfopen完成真正的fopen功能</li>
+</ul>
+</li>
+</ul>
+<p>运行结果如图：</p>
+<p><img src="/images/SubsTrateWithAndroidStudio/result.jpg" alt="result"></p>
+<h2 id="0x4-总结">0x4 总结</h2>
+<ul>
+<li>到现在为止接触了两种用于Hook的框架，相对于Xposed，Substrate在代码注入上更容易操作，而且提供了native层的注入选项，但是相对于xposed现在已经支持Lolipop而言，substrate还停留在dalvik的时代，期待支持lollipop的substrate尽快出现</li>
+<li>框架为我们提供了方便，但是阅读他们的文档就能发现归根结底的话都是在对rom做动态修改，最近看到了看雪上的**<a href="http://bbs.pediy.com/showthread.php?p=1389779#post1389779">DexHunter</a>**，十分厉害，大概思路是定制ROM实现脱壳，这样apk做的一些反调试和防注入而言（*一些加固方案会自己通过.init方法在本地hook一些libc关键函数*）基本上都是小儿科了，准备下个月有空了买个Nexus好好研究下。</li>
+</ul>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

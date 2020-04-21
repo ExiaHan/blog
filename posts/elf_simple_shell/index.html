@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>ELF_Simple_Shell // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="http://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ELF_Simple_Shell"/>
+<meta name="twitter:description" content="0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
+大概流程如下：
+ 核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  0x01 准备工作 要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（真的很渣，英语老师已气死），这里对需要用到的地方再进行一次说明：
+ELF文件格式 ELF文件组织结构如下：
+   Linker View Execution View     ELF Header ELF Header   &hellip;&hellip; &hellip;&hellip;   Section Header Table Section Header Table[Optional]   &hellip;&hellip; &hellip;&hellip;   Program Header Table[Optional] Program Header Table   &hellip;&hellip; &hellip;&hellip;   Sections Segments   &hellip;&hellip; &hellip;&hellip;    ELF文件ELF Header结构如下："/>
+
+    <meta property="og:title" content="ELF_Simple_Shell" />
+<meta property="og:description" content="0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
+大概流程如下：
+ 核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  0x01 准备工作 要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（真的很渣，英语老师已气死），这里对需要用到的地方再进行一次说明：
+ELF文件格式 ELF文件组织结构如下：
+   Linker View Execution View     ELF Header ELF Header   &hellip;&hellip; &hellip;&hellip;   Section Header Table Section Header Table[Optional]   &hellip;&hellip; &hellip;&hellip;   Program Header Table[Optional] Program Header Table   &hellip;&hellip; &hellip;&hellip;   Sections Segments   &hellip;&hellip; &hellip;&hellip;    ELF文件ELF Header结构如下：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://blog.exiahan.com/posts/elf_simple_shell/" />
+<meta property="article:published_time" content="2015-08-18T12:48:57+08:00" />
+<meta property="article:modified_time" content="2015-08-18T12:48:57+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="http://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">ELF_Simple_Shell</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Aug 18, 2015
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="http://blog.exiahan.com/tags/linux/">Linux</a><a class="tag" href="http://blog.exiahan.com/tags/elf/">ELF</a><a class="tag" href="http://blog.exiahan.com/tags/shell/">Shell</a></div></div>
+    </header>
+    <div class="post-content">
+      <h2 id="0x00-前言">0x00 前言</h2>
+<p>之前看了ELF文件的文件格式PDF<a href="http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf">文档</a>，又从<a href="http://bbs.pediy.com/showthread.php?t=191649">看雪论坛</a>和<a href="http://www.burningcodes.net/">光哥</a>那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。</p>
+<p>大概流程如下：</p>
+<ul>
+<li>核心代码放到指定节</li>
+<li>.init section 加入解密函数decryptFunc</li>
+<li>加密程序读取编译好的elf文件，加密指定节</li>
+<li>运行时decryptFunc函数解密核心代码</li>
+<li>正确执行</li>
+</ul>
+<h2 id="0x01-准备工作">0x01 准备工作</h2>
+<p>要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（<strong>真的很渣，英语老师已气死</strong>），这里对需要用到的地方再进行一次说明：</p>
+<h3 id="elf文件格式">ELF文件格式</h3>
+<p>ELF文件组织结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Linker View</th>
+<th align="center">Execution View</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">ELF Header</td>
+<td align="center">ELF Header</td>
+</tr>
+<tr>
+<td align="center">&hellip;&hellip;</td>
+<td align="center">&hellip;&hellip;</td>
+</tr>
+<tr>
+<td align="center">Section Header Table</td>
+<td align="center">Section Header Table[Optional]</td>
+</tr>
+<tr>
+<td align="center">&hellip;&hellip;</td>
+<td align="center">&hellip;&hellip;</td>
+</tr>
+<tr>
+<td align="center">Program Header Table[Optional]</td>
+<td align="center">Program Header Table</td>
+</tr>
+<tr>
+<td align="center">&hellip;&hellip;</td>
+<td align="center">&hellip;&hellip;</td>
+</tr>
+<tr>
+<td align="center">Sections</td>
+<td align="center">Segments</td>
+</tr>
+<tr>
+<td align="center">&hellip;&hellip;</td>
+<td align="center">&hellip;&hellip;</td>
+</tr>
+</tbody>
+</table>
+<p>ELF文件ELF Header结构如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">......
+<span style="color:#75715e">#define EI_NIDENT 16
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">typedef</span> u_int8_t u1;
+<span style="color:#66d9ef">typedef</span> u_int16_t u2;
+<span style="color:#66d9ef">typedef</span> u_int32_t u4;
+
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">int8_t</span> i1;
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">int16_t</span> i2;
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">int32_t</span> i4;
+
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+    u1 e_ident[EI_NIDENT];
+    u2 e_type;
+    u2 e_machine;
+    u4 e_version;
+    u4 e_entry;
+    u4 e_phoff;
+    u4 e_shoff;
+    u4 e_flags;
+    u2 e_ehsize;
+    u2 e_phentsize;
+    u2 e_phnum;
+    u2 e_shentsize;
+    u2 e_shnum;
+    u2 e_shstrndx;
+}elf32_Header, <span style="color:#f92672">*</span>pElf32_Header;
+
+<span style="color:#75715e">#endif
+</span><span style="color:#75715e"></span>
+</code></pre></div><p>根据文档，对于Linker，其对Section进行操作，而在装入内存执行时，进程内部数据是按照段(Segment)进行组织，所以对于非可执行的ELF文件，如gcc -c xxx.o生成的 xxx.o文件，其内部可以没有Program Header Table，但必须有Section Header Table；对于可执行文件(gcc -o xxx)，其内部可以没有Section Header Table，但是必须有Program Header Table。</p>
+<p>因此，我们可以利用ELF Header中与section有关的字段，如e_shoff和e_shentsize，用来存放我们加解密需要的数据来供decryptFunc函数使用，如此不仅方便，还能有效避免可执行文件被IDA等静态工具分析。</p>
+<p>##0x02 开工</p>
+<hr>
+<h4 id="a准备一个简单的c源程序">A、准备一个简单的C源程序：</h4>
+<ul>
+<li>头文件elf32.h，包含对elf header结构的定义</li>
+<li>example.c 示例文件，包含解密函数等定义</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;elf32.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#define MAXLEN 1000
+</span><span style="color:#75715e">#define PAGESIZE 4096
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">//The function to decrypt the segment
+</span><span style="color:#75715e"></span>__attribute__((constructor)) <span style="color:#66d9ef">void</span> mydecrypt();
+
+<span style="color:#75715e">//The section that will be encrypted
+</span><span style="color:#75715e"></span>__attribute((section(<span style="color:#e6db74">&#34;mysection&#34;</span>))) <span style="color:#66d9ef">void</span> mysecFunction();
+
+__attribute((section(<span style="color:#e6db74">&#34;mysection_data&#34;</span>))) <span style="color:#66d9ef">char</span> strMySec[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;NzTfdujpo&#34;</span>;
+
+<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">getAddress</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>strName);
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
+{
+    printf(<span style="color:#e6db74">&#34;hello world</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+    mysecFunction();
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">mysecFunction</span>()
+{
+    ......
+	<span style="color:#75715e">//deal data in section mysection_data
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">//then print it
+</span><span style="color:#75715e"></span>	......
+    <span style="color:#66d9ef">return</span>;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">mydecrypt</span>()
+{
+	......
+	<span style="color:#75715e">//code will decrypt data in section: mysection
+</span><span style="color:#75715e"></span>	......
+}
+
+<span style="color:#75715e">/****************************************************
+</span><span style="color:#75715e">* find a module&#39;s base via /proc/[pid]/maps,
+</span><span style="color:#75715e">* in this scenario, it will be the base addr of the
+</span><span style="color:#75715e">* executable elf file&#39;s base address
+</span><span style="color:#75715e">****************************************************/</span>
+<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">getAddress</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>strName);
+{
+    <span style="color:#66d9ef">char</span> buf[MAXLEN] <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>sAddr <span style="color:#f92672">=</span> NULL;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> uRet <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    FILE <span style="color:#f92672">*</span>fp <span style="color:#f92672">=</span> NULL;
+
+    sprintf(buf, <span style="color:#e6db74">&#34;/proc/%d/maps&#34;</span>, getpid());
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(fp <span style="color:#f92672">=</span> fopen(buf, <span style="color:#e6db74">&#34;r&#34;</span>))) {
+        perror(<span style="color:#e6db74">&#34;Error when open file</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        <span style="color:#66d9ef">return</span> uRet;
+    }
+
+    <span style="color:#66d9ef">while</span>(fgets(buf, <span style="color:#66d9ef">sizeof</span>(buf), fp)) {
+        <span style="color:#66d9ef">if</span> (strstr(buf, strName)) {
+            sAddr <span style="color:#f92672">=</span> strtok(buf, <span style="color:#e6db74">&#34;-&#34;</span>);
+            uRet <span style="color:#f92672">=</span> strtol(sAddr, NULL, <span style="color:#ae81ff">16</span>);
+            <span style="color:#66d9ef">break</span>;
+        }
+    }
+
+    <span style="color:#66d9ef">return</span> uRet;
+}
+
+</code></pre></div><p>代码大概内容如下：</p>
+<ul>
+<li>一个mysection节，包含一个会被加密的函数mysecFunction()，函数会把mysectin_data里的字符数组进行处理（其实是加），打印出真正的字符串</li>
+<li>一个mysection_data节，包含一个字符数组，用于打印</li>
+<li>一个会在程序加载到内存后init阶段执行的解密函数mydecrypt()，函数</li>
+<li>一个getAddress函数，用来获取程序加载基地址(<strong>其实这个函数在这里可以看成是多余的，因为和shared object不一样，可执行文件的程序地址是写死的，写这里是作为备忘，总归会碰到加密so的</strong>)</li>
+</ul>
+<p>对源码进行编译生成目标文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc -m32 -c -o example.o example.c
+$ gcc -m32 -o example example.o -Wl,--section-start<span style="color:#f92672">=</span>mysection<span style="color:#f92672">=</span>0x08881000
+</code></pre></div><p>这里需要注意的是加了编译选项-Wl,&ndash;section-start=mysection=0x08881000，原因在于：</p>
+<ul>
+<li>so被加载进来后，通常其起始地址是按页对齐的，不同于so，elf可执行文件里代码位置是写死的，而且通常每个section里的代码在segment里并不会按页对齐，所以我们的mysection通常不会在一个页的起始处</li>
+<li>加密函数使用了mprotect活的相关内存区域的写入权限，mprotect函数修改内存权限是按页修改，所以如果不强制到某个页上，函数调用会失败</li>
+</ul>
+<p>所以，指定对应节的起始地址为一个按4K对齐的地址。</p>
+<h4 id="b加密生成的elf可执行文件的指定区域">B、加密生成的ELF可执行文件的指定区域</h4>
+<p>这里使用python脚本自动搜索完成</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./elfshell.py example
+</code></pre></div><p>思路如下：</p>
+<ul>
+<li>读取ELF Header，取得Section Table，Section String Name Table</li>
+<li>遍历Section Table和Section Stringg Name Table，找到mysection节的offset[<strong>磁盘上文件中位置</strong>]，addr[<strong>加载到内存后的位置</strong>]，size等信息</li>
+<li>利用offset和size，加密mysection的内容</li>
+<li>把mysection的addr，size填入elf-header结构的e_shoff,e_shentsize中，供解密函数mydecrypt()使用[<strong>前面已经说过，elf-header结构里与section相关的信息在执行时是不会是用的</strong>]</li>
+</ul>
+<h4 id="c执行">C、执行</h4>
+<p>完成上述步骤后，使用IDA静态逆向elf文件example，会提示无法正确解析，但是可以正常执行，执行流程：</p>
+<ul>
+<li>首先，constructor属性的mydecrypt()会执行，调用getAddress得到example基址</li>
+<li>mydecrypt()读取elf-header结构的e_shoff和e_shentsize，找到mysection</li>
+<li>解密mysection</li>
+<li>程序开始执行</li>
+</ul>
+<p>代码：<a href="https://github.com/ExiaHan/ELF_Shell">github</a></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

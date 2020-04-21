@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Java on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/java/</link>
+    <description>Recent content in Java on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Feb 2020 10:19:20 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Debug Java via VSCode</title>
+      <link>http://blog.exiahan.com/posts/debug_java_via_vscode/</link>
+      <pubDate>Sat, 15 Feb 2020 10:19:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/debug_java_via_vscode/</guid>
+      <description>This is place holder.</description>
+    </item>
+    
+  </channel>
+</rss>

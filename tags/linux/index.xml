@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/linux/</link>
+    <description>Recent content in Linux on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Build SQLITE For Android</title>
+      <link>http://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
+    </item>
+    
+    <item>
+      <title>Expand A Logical Volume In LVM</title>
+      <link>http://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</link>
+      <pubDate>Sun, 29 Jan 2017 03:29:32 +0000</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</guid>
+      <description>Abstract This blog is used to record the instructions about how to expand a logic volume in lvm.
+CAUTION!
+ What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD. Resize volume may cause data lost, so be carefully. Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</description>
+    </item>
+    
+    <item>
+      <title>ELF_Simple_Shell</title>
+      <link>http://blog.exiahan.com/posts/elf_simple_shell/</link>
+      <pubDate>Tue, 18 Aug 2015 12:48:57 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/elf_simple_shell/</guid>
+      <description>0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
+大概流程如下：
+ 核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  0x01 准备工作 要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（真的很渣，英语老师已气死），这里对需要用到的地方再进行一次说明：
+ELF文件格式 ELF文件组织结构如下：
+   Linker View Execution View     ELF Header ELF Header   &amp;hellip;&amp;hellip; &amp;hellip;&amp;hellip;   Section Header Table Section Header Table[Optional]   &amp;hellip;&amp;hellip; &amp;hellip;&amp;hellip;   Program Header Table[Optional] Program Header Table   &amp;hellip;&amp;hellip; &amp;hellip;&amp;hellip;   Sections Segments   &amp;hellip;&amp;hellip; &amp;hellip;&amp;hellip;    ELF文件ELF Header结构如下：</description>
+    </item>
+    
+    <item>
+      <title>Linux Hook Notes</title>
+      <link>http://blog.exiahan.com/posts/linux_hook_notes/</link>
+      <pubDate>Wed, 29 Jul 2015 09:59:25 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/linux_hook_notes/</guid>
+      <description>Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
+Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
+//file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif //file mylib.c #include &amp;lt;stdio.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;unistd.h&amp;gt;#include &amp;#34;mylib.h&amp;#34; void myprint() { static unsigned counter = 0; counter++; printf(&amp;#34;%d, pid (%d)&amp;#34;, counter, getpid()); return; } //mymain.</description>
+    </item>
+    
+  </channel>
+</rss>

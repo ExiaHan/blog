@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>published on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/published/</link>
+    <description>Recent content in published on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Feb 2020 10:09:00 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/published/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Play With RFiD For Fun And Convenient</title>
+      <link>http://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</link>
+      <pubDate>Sat, 15 Feb 2020 10:09:00 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

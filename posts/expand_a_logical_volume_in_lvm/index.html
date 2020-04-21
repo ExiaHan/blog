@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Expand A Logical Volume In LVM // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="http://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Expand A Logical Volume In LVM"/>
+<meta name="twitter:description" content="Abstract This blog is used to record the instructions about how to expand a logic volume in lvm.
+CAUTION!
+ What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD. Resize volume may cause data lost, so be carefully. Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors."/>
+
+    <meta property="og:title" content="Expand A Logical Volume In LVM" />
+<meta property="og:description" content="Abstract This blog is used to record the instructions about how to expand a logic volume in lvm.
+CAUTION!
+ What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD. Resize volume may cause data lost, so be carefully. Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/" />
+<meta property="article:published_time" content="2017-01-29T03:29:32+00:00" />
+<meta property="article:modified_time" content="2017-01-29T03:29:32+00:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="http://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Expand A Logical Volume In LVM</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Jan 29, 2017
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          4 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="http://blog.exiahan.com/tags/lvm/">LVM</a><a class="tag" href="http://blog.exiahan.com/tags/archlinux/">ArchLinux</a><a class="tag" href="http://blog.exiahan.com/tags/linux/">Linux</a></div></div>
+    </header>
+    <div class="post-content">
+      <h2 id="abstract">Abstract</h2>
+<p>This blog is used to record the instructions about how to expand a logic volume in lvm.</p>
+<p><strong>CAUTION!</strong></p>
+<ul>
+<li><em>What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD.</em></li>
+<li><em>Resize volume may cause data lost, so be carefully.</em></li>
+<li><strong>Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</strong></li>
+<li><strong>Do some research before you do this.</strong></li>
+</ul>
+<h2 id="start">Start</h2>
+<p>To imporve my notebook&rsquo;s performance, I bought a <a href="https://detail.tmall.com/item.htm?id=45106254084&amp;skuId=3277249424238&amp;areaId=320500&amp;standard=1&amp;user_id=2468908634&amp;cat_id=2&amp;is_b=1&amp;rn=f6d7634bd5d938d82ef5291775194c5c">SSD</a> to speed up my notebook&rsquo;s response speed. Before I start to usd the new inserted SSD to my notebook. The device mapper is like what below picture shows.</p>
+<p><img src="/images/ExpandALogicalVolumeInLVM/before.png" alt="device mapper before"></p>
+<p>As the pic shows, <strong>sda</strong> is the new <em>SSD</em>, <strong>sdb</strong> is the old hdd, it set <em>sdb3</em> as boot, set the <em>sdb5</em> as the lvm physical volume, and create a volume group named <em>archlvm</em>, in the <em>archlvm</em> volume, there four logical volumes:</p>
+<ul>
+<li>root. Mounted to the &ldquo;root&rdquo; point.</li>
+<li>var. Mounted to the &ldquo;/var&rdquo; point.</li>
+<li>swap. Used as the SWAP File.</li>
+<li>home. The largest logical volume, used to store all of my files.</li>
+</ul>
+<p>Now what I want to do is:</p>
+<ol>
+<li>Let <strong>sda1</strong> be mounted to &ldquo;/boot&rdquo; point.</li>
+<li>Migrate contents in <em>archlvm-root</em> to <em>sda2</em>, and then let <strong>sda2</strong> be mounted to &ldquo;/&rdquo; point.</li>
+<li>Delete logical volume <em>archlvm-root</em>, and then expand <strong>archlvm-home</strong> to use all the free space we get after delete <em>archlvm-root</em>.</li>
+</ol>
+<p>The following content will show you how to do this.</p>
+<h2 id="preparing">Preparing</h2>
+<p>To complete all the missions, we need a archlinux-live-usb.</p>
+<ul>
+<li>Download a <a href="http://mirrors.ustc.edu.cn/archlinux/iso/">archlinux iso</a> here. If you are not in China, choose other mirrors :).</li>
+<li>Create a live-USB.
+<ul>
+<li>For UEFI Support, it&rsquo;s highly recommended to use <a href="https://rufus.akeo.ie/?locale=en_US">Rufus</a> to create the Live-USB.</li>
+</ul>
+</li>
+</ul>
+<h2 id="migrate-boot-and-root">Migrate &ldquo;/Boot&rdquo; and &ldquo;Root&rdquo;</h2>
+<ul>
+<li>Mount the partions like below:</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">|--sda
+   |--sda2 /mnt/
+</code></pre></div><p>Then run this command in shell:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># rsync -SPAaXxr --exclude={/boot,/home,/var}  ./ /mnt/</span>
+</code></pre></div><p>wait the command complete. Then reboot into Live-USB.</p>
+<ul>
+<li>Mount the partions like below:</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">|--sda
+   |--sda2 /mnt/
+   |--sda1 /mnt/boot
+|--sdb
+   |--sdb5
+      |--archlvm-var /mnt/var
+	  |--archlvm-home /mnt/home
+</code></pre></div><ul>
+<li>turn on the swap</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># swapon /dev/archlvm/swap</span>
+</code></pre></div><ul>
+<li>Regenerate the fstab(<strong>Remember to check it, it there is something wrong in it, you may can&rsquo;t boot after reboot without Live-USB</strong>)</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">genfstab -U -p /mnt &gt; /mnt/etc/fstab
+</code></pre></div><p>A classic fstab can be found in <a href="https://wiki.archlinux.org/index.php/Fstab">ArchLinux WIKI</a>, the UUID you may need can be get by command <strong>blkid</strong></p>
+<ul>
+<li><strong>arch-chroot</strong> to &ldquo;/mnt&rdquo;</li>
+<li>Reinstall Grub to <strong>sda</strong></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub</span>
+</code></pre></div><p>After do this, we should not run <strong>grub-mkconfig</strong> immediately, because we haven&rsquo;t expand the &ldquo;archlvm-home&rdquo;.</p>
+<h2 id="expand-logical-volume">Expand Logical Volume</h2>
+<p>As I said, what I want is deleting archlvm-root, and expand archlvm-home with the space the being deleted archlvm-root has. Now let&rsquo;s follow below step to reach this goal.</p>
+<ul>
+<li>Exit the <strong>arch-chroot</strong></li>
+<li>Unmount all the logical volumes in group <strong>archlvm</strong>.(<strong>CAUTION: This must be done, or you may get error.</strong>)</li>
+<li>Delete <strong>archlvm-root</strong></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># lvremove /dev/archlvm/root</span>
+</code></pre></div><ul>
+<li>expand <strong>archlvm-home</strong></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># lvresize -l +100%FREE /dev/archlvm/home</span>
+</code></pre></div><p>After do this, the <strong>archlvm-home</strong> will take all the free space freed by delete <em>archlvm-root</em>.</p>
+<ul>
+<li>resizefs(<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)
+After we execute <em>lvresize</em>, we need to <strong>resize filesystem</strong> to let system know the change.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># resize2fs /dev/archlvm/home</span>
+</code></pre></div><p>In somecase, the <strong>resize2fs</strong> may say that you should run command <strong>e2fsck</strong> first. If you get this, run it. (<strong>CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.</strong>)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># e2fsck -f /dev/archlvm/home</span>
+</code></pre></div><p>After this complete, you can run command <strong>resize2fs</strong>.</p>
+<h2 id="complete">Complete</h2>
+<p>If all the steps are completed successfully, there is only one instruction we need to do&mdash;&mdash;<em>grub-mkconfig</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># grub-mkconfig \-o /boot/grub/grub.cfg</span>
+</code></pre></div><p>Reboot your computer, now we should migrate our data to SSD and expand logical volume <strong>archlvm-home</strong> successfully.</p>
+<p><img src="/images/ExpandALogicalVolumeInLVM/after.png" alt="after"></p>
+<p><strong>Tips:</strong></p>
+<ul>
+<li>Some device may have a legacy entry in EFI loader table. You can delete it in UEFI safely.</li>
+<li>If you found anything wrong about device mapper, check your fstab, it is in &ldquo;/etc/fstab&rdquo;, to modifiy it, you&rsquo;d better reboot into the Live-USB again.</li>
+<li></li>
+</ul>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>idf.cn on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/idf.cn/</link>
+    <description>Recent content in idf.cn on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 30 Dec 2015 22:12:08 +0800</lastBuildDate>
+    
+	<atom:link href="http://blog.exiahan.com/tags/idf.cn/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>IDF.CN Practice 01</title>
+      <link>http://blog.exiahan.com/posts/idf_cn_practice_01/</link>
+      <pubDate>Wed, 30 Dec 2015 22:12:08 +0800</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
+      <description>0x1 Preparation 既然决定要做，那就加油，写在开头，打好基础，加油吧。 Exia，斩获未来。。
+0x2 Start 一、牛刀小试 被改错的密码 从前有一个熊孩子入侵了一个网站的数据库，找到了管理员密码，手一抖在数据库中修改了一下，现在的密码变成了 cca9cc444e64c8116a30la00559c042b4，那个熊孩子其实就是我！肿么办求解！在线等，挺急的。。
+看起来挺像md5,直接拿去在线破，结果提示有问题，再一看，长度有问题，md5是32位哈希，这玩意33位，用python生成去掉其中某个字符的序列，然后再一个个在线破，发现是cca9cc444e64c8116a30a00559c042b4，解出来是idf，所以flag是wctf{idf}
+ 啥 题目就是一张图片，bless打开看hex，在底部找到flag：wctf{mianwubiaoqing__}
+ ASCII码而已 明显一看是unicode，找个在线转换，flag为wctf{moremore_weibo_fans}
+ 摩斯密码 一段morsecode &amp;ndash; &amp;mdash; .-. &amp;hellip; . -.-. &amp;mdash; -.. . 在线解一下，flag为wctf{morsecode}
+ 聪明的小羊 一只小羊跳过了栅栏，两只小样跳过了栅栏，一坨小羊跳过了栅栏&amp;hellip; tn c0afsiwal kes,hwit1r g,npt ttessfu}ua u hmqik e {m, n huiouosarwCniibecesnren.
+看题目就想到古典加密，既然是栅栏，那就栅栏密码吧，正好带学一下栅栏密码，就写了个python的加解码脚本，跑一下看到flag:wctf{C01umnar}
+二、包罗万象 MISC 图片里的英语 给了一张小李，binwalk一下。看到有个rar，dd提取出来，解压，得到一长flag，恩，没错，就是那张赵本山的图片，may the force be with you，然后首字母大写，wctf{Mtfbwy}
+ 抓到一只苍蝇 给了一个pcapng网络dump包，根据他说的内容，和包名带有fly，搜索包内容，找下字符串fly，成功找到，发现是上传了一个附件fly.rar,分成了5个包上传，第一个post指出fly.rar大小为525701，接着5个包都是传向ftn开头服务器，所以猜测是附件内容，前个都是131436大小，最后一个1777，（131436×4 + 1777 - 525701） / 5 = 364，所以每个包开头364部分为分包后的包头，dd导出内容，skip掉头364字节，然后cat成fly.rar，比较下post里给的md5,一样。
+解压工具打开，提示文件损坏，看上去因该不是正常的加密，而且也根本没有其他密码的信息，推测可能改了文件头，bless修改加密位（第24个字节改为0x80）：
+解压得到一个flag.txt，打开发现不行，binwalk一看是个pe。。。不过里面有png，而且很多60x60的，但有一个280x280的，dd解出来，打开是一张二维码，扫一下，flag为:flag{m1Sc_oxO2_Fly}，不过说没改格式，额，所以应该是wctf{m1Sc_oxO2_Fly}
+三、初探乾坤 PPC 简单编程-字符统计 给了一串字符串，让统计个数，妥妥的python，count函数直接搞定。直接提交，发现有坑，仔细看了下题目是要求2秒内搞定，那就只能自动接受内容然后发送post请求了</description>
+    </item>
+    
+  </channel>
+</rss>

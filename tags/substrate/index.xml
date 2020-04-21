@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SubsTrate on ExiaHan&#39;s Blog</title>
+    <link>http://blog.exiahan.com/tags/substrate/</link>
+    <description>Recent content in SubsTrate on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="http://blog.exiahan.com/tags/substrate/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>SubsTrate with AndroidStudio</title>
+      <link>http://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
+      <description>参考文档： 看雪，光哥博客，乌云知识库
+0x1 介绍 在家木事，学了下substrate用法，这里记录下～
+*Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
+0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
+ 新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&amp;mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &amp;lt;uses-permission android:name=&amp;quot;cydia.permission.SUBSTRATE&amp;quot;/&amp;gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &amp;ldquo;=&amp;rdquo; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式    apply plugin: &amp;#39;com.android.model.application&amp;#39; model { android { compileSdkVersion = 23 buildToolsVersion = &amp;#34;23.</description>
+    </item>
+    
+  </channel>
+</rss>
