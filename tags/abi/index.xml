@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ABI on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/abi/</link>
+    <link>https://blog.exiahan.com/tags/abi/</link>
     <description>Recent content in ABI on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 01 Jun 2018 22:10:20 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/abi/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/abi/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>x64 and arm64 ABI in Linux</title>
-      <link>http://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</link>
+      <link>https://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</link>
       <pubDate>Fri, 01 Jun 2018 22:10:20 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</guid>
+      <guid>https://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</guid>
       <description>x64 and arm64 ABI in Linux TL;DR Ok, it has been a few months since Arch Linux announced that it will only provide x64 image in the future. Android also has been support x64 and arm64 for a long time. Seems that it&amp;rsquo;s true that x86 is on the way of out of time. So it&amp;rsquo;s time to learn some thing about the ABI in x64 and arm64.
 PS: If you&amp;rsquo;ve read the ABI manual about Linux on X64/Arm64, there is no need to read this article.</description>
     </item>

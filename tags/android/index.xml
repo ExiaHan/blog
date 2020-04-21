@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Android on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/android/</link>
+    <link>https://blog.exiahan.com/tags/android/</link>
     <description>Recent content in Android on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/android/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/android/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Build SQLITE For Android</title>
-      <link>http://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <link>https://blog.exiahan.com/posts/build_sqlite_for_android/</link>
       <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <guid>https://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
       <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
     </item>
     
     <item>
       <title>Dump Dex From IJiaMi</title>
-      <link>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
+      <link>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
       <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
+      <guid>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
       <description>内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
 0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
 0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp;amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
@@ -41,10 +41,10 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
     
     <item>
       <title>Xposed with Android Studio</title>
-      <link>http://blog.exiahan.com/posts/xposed_with_android_studio/</link>
+      <link>https://blog.exiahan.com/posts/xposed_with_android_studio/</link>
       <pubDate>Wed, 02 Sep 2015 16:06:55 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
+      <guid>https://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
       <description>0x1 介绍 Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。 本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
 0x2 开工 这篇文章也是作为Xposed插桩的练习记录
 引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
@@ -57,10 +57,10 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
     
     <item>
       <title>SubsTrate with AndroidStudio</title>
-      <link>http://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
+      <link>https://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
+      <guid>https://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
       <description>参考文档： 看雪，光哥博客，乌云知识库
 0x1 介绍 在家木事，学了下substrate用法，这里记录下～
 *Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。

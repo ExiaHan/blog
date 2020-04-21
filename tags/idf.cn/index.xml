@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>idf.cn on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/idf.cn/</link>
+    <link>https://blog.exiahan.com/tags/idf.cn/</link>
     <description>Recent content in idf.cn on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 30 Dec 2015 22:12:08 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/idf.cn/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/idf.cn/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>IDF.CN Practice 01</title>
-      <link>http://blog.exiahan.com/posts/idf_cn_practice_01/</link>
+      <link>https://blog.exiahan.com/posts/idf_cn_practice_01/</link>
       <pubDate>Wed, 30 Dec 2015 22:12:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
+      <guid>https://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
       <description>0x1 Preparation 既然决定要做，那就加油，写在开头，打好基础，加油吧。 Exia，斩获未来。。
 0x2 Start 一、牛刀小试 被改错的密码 从前有一个熊孩子入侵了一个网站的数据库，找到了管理员密码，手一抖在数据库中修改了一下，现在的密码变成了 cca9cc444e64c8116a30la00559c042b4，那个熊孩子其实就是我！肿么办求解！在线等，挺急的。。
 看起来挺像md5,直接拿去在线破，结果提示有问题，再一看，长度有问题，md5是32位哈希，这玩意33位，用python生成去掉其中某个字符的序列，然后再一个个在线破，发现是cca9cc444e64c8116a30a00559c042b4，解出来是idf，所以flag是wctf{idf}

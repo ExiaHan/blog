@@ -2,39 +2,39 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/posts/</link>
+    <link>https://blog.exiahan.com/posts/</link>
     <description>Recent content in Posts on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 15 Feb 2020 10:19:20 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Debug Java via VSCode</title>
-      <link>http://blog.exiahan.com/posts/debug_java_via_vscode/</link>
+      <link>https://blog.exiahan.com/posts/debug_java_via_vscode/</link>
       <pubDate>Sat, 15 Feb 2020 10:19:20 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/debug_java_via_vscode/</guid>
+      <guid>https://blog.exiahan.com/posts/debug_java_via_vscode/</guid>
       <description>This is place holder.</description>
     </item>
     
     <item>
       <title>Play With RFiD For Fun And Convenient</title>
-      <link>http://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</link>
+      <link>https://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</link>
       <pubDate>Sat, 15 Feb 2020 10:09:00 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</guid>
+      <guid>https://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Happy_New_Year_2020</title>
-      <link>http://blog.exiahan.com/posts/happy_new_year_2020/</link>
+      <link>https://blog.exiahan.com/posts/happy_new_year_2020/</link>
       <pubDate>Wed, 01 Jan 2020 03:35:24 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/happy_new_year_2020/</guid>
+      <guid>https://blog.exiahan.com/posts/happy_new_year_2020/</guid>
       <description>2019就像一枚装了火箭发动机但是燃料管线时好时坏的宇宙飞船，刺激无边的把我送到2020的家门口。刺激归刺激，沿途的经历对我来说都是可以吸取到经验，所以懒惰如我最终还是在19年尾和20开头的这几天，趁我对19年的记忆还没被时间抹去，记录下来，好好封存，说不定经年历月后也会变成一坛醇酒。ExiaHan, 2019 Concert， 现在开始:)
 花花世界 &amp;ndash; 樱，一出世便由命
 一直相信你生命中遇到的每一个人都会教会你一些道理，而遇到他们也是命中注定，但是当然，不见得所有人都会用你能接受的方式向你传递你宿命中应该得到的经验教训，所以伤痛也就在所难免，喜怒哀乐，悲欢离合，所有所有的一切，都有意义。&amp;ndash; 丁香丹桂茉莉都可爱 清楚笑望 活每一秒亦流丽潇洒
@@ -56,10 +56,10 @@
     
     <item>
       <title>Summary of 2018</title>
-      <link>http://blog.exiahan.com/posts/summary_of_2018/</link>
+      <link>https://blog.exiahan.com/posts/summary_of_2018/</link>
       <pubDate>Mon, 04 Feb 2019 23:26:27 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/summary_of_2018/</guid>
+      <guid>https://blog.exiahan.com/posts/summary_of_2018/</guid>
       <description>2018 2018年对咱来说是结束也是开始 ———— 四月份的毕业证意味着相对无忧无虑的学生时代的终结，同时签下的工作合同也表示作为”社会人“的开始(可惜咱不是佩奇:))。咱在学校是幸运的，不仅有厉害的室友，还有厉害的各位老师，还有各路非常非常厉害的学长学弟，多谢各路大佬一路带咱平地起飞，咱这几年学到的东西确实不少，当然咱这几年学到的学习方法会帮助咱一路前行。 工作方面，拿大彪哥的说法是咱们终于都做了”社畜“，很幸运的进到了现在的公司，进到了非常好的Team，遇到了无敌强的老大和无敌强的同事们。多谢各路大佬不吝赐教带咱继续前行，让咱有幸抱着大腿去了两趟霓虹(必须要跪谢Team，跪谢公司)，学到了在学校不知道的东西，同时也扭转了部分不适用于工业的学院思维。 生活方面，作为YoungHo Lee 歌词里的”连头款也凑不到“的”无为青年“，压力肯定是有的，但是就像很早以前的一个”酱油“(没错，真的是酱油广告，但是我不打酱油:))说的，”生活是道菜“，酸甜苦辣总归都会尝到，所以咱会自然对待(毕竟作为Eason Chan的Fan，”黑暗过会是晨曦“是时不时就会唱出来的)。
 2019 对于2019年，咱不能说一定要怎么怎么样，但是咱总会尽力让2019好于2018，不然也太对不起2019 &amp;gt; 2018这个不等式了2333333。 其实鸭，还有好多没学，再把2018年没干完的计划累到2019年，咱现在只能对自己说不管什么时候都尽量让自己能够”百尺竿头，更进一步“啦～(真要说的话，借用大佬的话，希望咱新的一年可以Bug多多，Paper多多，当然最好能有个不嫌弃咱的妹子哈哈哈哈哈～)
 就这样，祝大家己亥年新年快乐，万事如意，想长个的长个，想变壮的变壮，想变强的变强(当然头发还是要有的，不能做埼玉老师啊哈哈哈哈)，想变大胸的立马大胸(逃～～～～～)
@@ -69,39 +69,39 @@
     
     <item>
       <title>Build SQLITE For Android</title>
-      <link>http://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <link>https://blog.exiahan.com/posts/build_sqlite_for_android/</link>
       <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <guid>https://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
       <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
     </item>
     
     <item>
       <title>x64 and arm64 ABI in Linux</title>
-      <link>http://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</link>
+      <link>https://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</link>
       <pubDate>Fri, 01 Jun 2018 22:10:20 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</guid>
+      <guid>https://blog.exiahan.com/posts/x64_and_arm64_abi_in_linux/</guid>
       <description>x64 and arm64 ABI in Linux TL;DR Ok, it has been a few months since Arch Linux announced that it will only provide x64 image in the future. Android also has been support x64 and arm64 for a long time. Seems that it&amp;rsquo;s true that x86 is on the way of out of time. So it&amp;rsquo;s time to learn some thing about the ABI in x64 and arm64.
 PS: If you&amp;rsquo;ve read the ABI manual about Linux on X64/Arm64, there is no need to read this article.</description>
     </item>
     
     <item>
       <title>Start To Use Nginx Hexo and Let&#39;s Encrypt</title>
-      <link>http://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</link>
+      <link>https://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</link>
       <pubDate>Mon, 30 Jan 2017 03:51:33 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</guid>
+      <guid>https://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</guid>
       <description>TL;DR It&amp;rsquo;s just a record for myself. It may contain errors. But it still can help you if you don&amp;rsquo;t know how to start the config. For a Offical instruction, you may try this in Digital Ocean. And what I think is that: The tutorials in DigitalOcean is much better that what is written in some linux distribution&amp;rsquo;s wikipage like ubuntu&amp;hellip;.
 Abstract It is time to embrace https since chrome begin to mark website which use http as unsafe.</description>
     </item>
     
     <item>
       <title>Expand A Logical Volume In LVM</title>
-      <link>http://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</link>
+      <link>https://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</link>
       <pubDate>Sun, 29 Jan 2017 03:29:32 +0000</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</guid>
+      <guid>https://blog.exiahan.com/posts/expand_a_logical_volume_in_lvm/</guid>
       <description>Abstract This blog is used to record the instructions about how to expand a logic volume in lvm.
 CAUTION!
  What I write here may not completely right because there have been one month passed since I complete migrate my data to SSD. Resize volume may cause data lost, so be carefully. Your warranty is now void. I am not responsible for bricked devices, dead SD cards, thermonuclear war, or you getting fired because the alarm app failed and anyother errors.</description>
@@ -109,30 +109,30 @@ CAUTION!
     
     <item>
       <title>Happy_Chinese_New_Year_In_2017</title>
-      <link>http://blog.exiahan.com/posts/happy_chinese_new_year_in_2017/</link>
+      <link>https://blog.exiahan.com/posts/happy_chinese_new_year_in_2017/</link>
       <pubDate>Sun, 29 Jan 2017 02:16:22 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/happy_chinese_new_year_in_2017/</guid>
+      <guid>https://blog.exiahan.com/posts/happy_chinese_new_year_in_2017/</guid>
       <description>TL;DR Below is written by a man that with poor English skills. Read carefully if you really want to read.(But I will say thank you if you really read all the contents below. :) )
 Happy Chinese new year! In China, all the Chinese now say goodbye to the &amp;ldquo;Monkey Year&amp;rdquo; and step into the &amp;ldquo;year of Chicken&amp;rdquo;. Watching the Spring Festival Gala Evening provided by CCTV is a tradition for almost every Chinese.</description>
     </item>
     
     <item>
       <title>Android AntiDebug and Signature Verify Example</title>
-      <link>http://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</link>
+      <link>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</link>
       <pubDate>Sat, 09 Jan 2016 21:44:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</guid>
+      <guid>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</guid>
       <description>Reference:grafx, IT Dreamer
 Introduction We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C++ code) because the arm-assembly language or C pseudo code are more difficult to read than java. But others can still read the native code if they really want, they can use IDA to read .</description>
     </item>
     
     <item>
       <title>IDF.CN Practice 01</title>
-      <link>http://blog.exiahan.com/posts/idf_cn_practice_01/</link>
+      <link>https://blog.exiahan.com/posts/idf_cn_practice_01/</link>
       <pubDate>Wed, 30 Dec 2015 22:12:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
+      <guid>https://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
       <description>0x1 Preparation 既然决定要做，那就加油，写在开头，打好基础，加油吧。 Exia，斩获未来。。
 0x2 Start 一、牛刀小试 被改错的密码 从前有一个熊孩子入侵了一个网站的数据库，找到了管理员密码，手一抖在数据库中修改了一下，现在的密码变成了 cca9cc444e64c8116a30la00559c042b4，那个熊孩子其实就是我！肿么办求解！在线等，挺急的。。
 看起来挺像md5,直接拿去在线破，结果提示有问题，再一看，长度有问题，md5是32位哈希，这玩意33位，用python生成去掉其中某个字符的序列，然后再一个个在线破，发现是cca9cc444e64c8116a30a00559c042b4，解出来是idf，所以flag是wctf{idf}
@@ -150,10 +150,10 @@ Introduction We can use lots of tools like apktool, baksmali, dex2jar to convert
     
     <item>
       <title>MSC2015 WriteUp</title>
-      <link>http://blog.exiahan.com/posts/msc2015_writeup/</link>
+      <link>https://blog.exiahan.com/posts/msc2015_writeup/</link>
       <pubDate>Thu, 22 Oct 2015 17:45:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/msc2015_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/msc2015_writeup/</guid>
       <description>第一题 和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。
 把程序丢到jeb里查看，发现关键函数check无法被解析
 使用apktool d -d反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用apktool b -d重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。
@@ -174,10 +174,10 @@ sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有
     
     <item>
       <title>Dump Dex From IJiaMi</title>
-      <link>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
+      <link>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
       <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
+      <guid>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
       <description>内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
 0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
 0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp;amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
@@ -193,10 +193,10 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
     
     <item>
       <title>XDCTF2015 WRITEUP(我才不会说我就做出来一题)</title>
-      <link>http://blog.exiahan.com/posts/xdctf_writeup/</link>
+      <link>https://blog.exiahan.com/posts/xdctf_writeup/</link>
       <pubDate>Fri, 02 Oct 2015 23:12:46 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/xdctf_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/xdctf_writeup/</guid>
       <description>0x1 给大黑阔们跪了 本来准备出去玩的，结果到家后发现要过两天才有人回来，就趁机做了把XDCTF的线上，结果被虐的北都找不到了，看着6星和Sigma一路突突突，只能膜了。。有思路的一共三题，结果最后只做出来1题。。。另外两题做到一大半怎么也进行不下去了。 总体来说虽然没做出来多少，但是感觉XDCTF水平是很高的了，题目也都很虐人（Pia!&amp;lt;(=ｏ ‵-′)ノ☆ 这里写个备忘，毕竟是一次经历。
 0x2 没写出来但有思路的的 Reverse 01 一个linux 的elf x64程序，还是挺有意思的，可惜没做出来，逆向功力不够，大概思路：
  入口函数是函数0x4008e1，里面会有ptrace反调试，然后获取输入  这里的输入从分析看应该是要解密后面说到的加密方法的   后面的坑就来了，如果顺着0x4008e1走，最后会打印出来&amp;quot;Congratulations? Key is XDCTF{Input}&amp;quot;，一看就不对 继续看，发现有个函数在0x400787,最后也会打印出来一个flag，而且会吧上面的string的“？”换成“！”，所以这个函数才是真正会吐出flag的过程 解体思路应该是修改执行流到这里，但是问题有三个：  逆向出加密算法 给出能通过的输入 在什么时刻强制从0x4008e1跳到0x400787   因为没搞定上面三个问题，所以没写出来  最后说下里面加密会用到字符串ZzAwZF9DcjRrM3JfZzBfb24=，不过加密算法，我就真不想看了。
@@ -213,10 +213,10 @@ pkcrack -c &amp;ldquo;readme.txt&amp;rdquo; -p raedme.txt -C flag.zip -P x.zip -
     
     <item>
       <title>NSCTF2015 WriteUp</title>
-      <link>http://blog.exiahan.com/posts/nsctf2015_writeup/</link>
+      <link>https://blog.exiahan.com/posts/nsctf2015_writeup/</link>
       <pubDate>Fri, 25 Sep 2015 20:56:06 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/nsctf2015_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/nsctf2015_writeup/</guid>
       <description>参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
 Reverse 0x1 简单的逆向 题目地址：Reverse01
  运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以dump出来后查看源码] 回到od，查找字符串，找到提示的那句**&amp;ldquo;please input ns-ctf password&amp;rdquo;**，跳转到引用文字，发现有strcmp比较，比较字符串固定，为**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 输入上面的字符串**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理 修改jle跳转为改为**&amp;ldquo;jmp short Reverse0.00401150&amp;rdquo;**，即调用其本来会通过jle跳过的函数，如图：   继续F9运行，程序吐出flag，如图：  0x2 较简单的逆向 题目地址：Reverse02
@@ -234,10 +234,10 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&amp;lt;strlen($_o);$_0+
     
     <item>
       <title>Dice Write Up</title>
-      <link>http://blog.exiahan.com/posts/dice_write_up/</link>
+      <link>https://blog.exiahan.com/posts/dice_write_up/</link>
       <pubDate>Fri, 18 Sep 2015 20:01:27 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dice_write_up/</guid>
+      <guid>https://blog.exiahan.com/posts/dice_write_up/</guid>
       <description>0x1 题目链接：Simple-Reverse-Dice
 0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
@@ -250,10 +250,10 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&amp;lt;strlen($_o);$_0+
     
     <item>
       <title>Xposed with Android Studio</title>
-      <link>http://blog.exiahan.com/posts/xposed_with_android_studio/</link>
+      <link>https://blog.exiahan.com/posts/xposed_with_android_studio/</link>
       <pubDate>Wed, 02 Sep 2015 16:06:55 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
+      <guid>https://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
       <description>0x1 介绍 Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。 本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
 0x2 开工 这篇文章也是作为Xposed插桩的练习记录
 引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
@@ -266,10 +266,10 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&amp;lt;strlen($_o);$_0+
     
     <item>
       <title>ELF_Simple_Shell</title>
-      <link>http://blog.exiahan.com/posts/elf_simple_shell/</link>
+      <link>https://blog.exiahan.com/posts/elf_simple_shell/</link>
       <pubDate>Tue, 18 Aug 2015 12:48:57 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/elf_simple_shell/</guid>
+      <guid>https://blog.exiahan.com/posts/elf_simple_shell/</guid>
       <description>0x00 前言 之前看了ELF文件的文件格式PDF文档，又从看雪论坛和光哥那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。
 大概流程如下：
  核心代码放到指定节 .init section 加入解密函数decryptFunc 加密程序读取编译好的elf文件，加密指定节 运行时decryptFunc函数解密核心代码 正确执行  0x01 准备工作 要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（真的很渣，英语老师已气死），这里对需要用到的地方再进行一次说明：
@@ -279,10 +279,10 @@ ELF文件格式 ELF文件组织结构如下：
     
     <item>
       <title>Study ELF File Format</title>
-      <link>http://blog.exiahan.com/posts/study_elf_file_format/</link>
+      <link>https://blog.exiahan.com/posts/study_elf_file_format/</link>
       <pubDate>Fri, 31 Jul 2015 16:30:21 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/study_elf_file_format/</guid>
+      <guid>https://blog.exiahan.com/posts/study_elf_file_format/</guid>
       <description>前言 为了对Hook， Relocation， 以及一些程序保护技术有更深的了解，正在学习Linux ELF文件格式，所以找到了ELF_Format的文档，这里把里面的一些内容做一下翻译同时记录下。如有错误还请指出，共同学习一起进步啊鲁～ლ(╹◡╹ლ)
 正文 简介 ELF是Executable and Linking Format的简称，作为Application Binary Interface(ABI)的一部分，是Unix System Laboratories(USL)推出和制定的，是Unix、Linux以及一些类Unix系统使用的一套可执行文件结构标准，Linux下常见的.o,.so以及可执行文件都是ELF文件格式。
 ELF文件格式出现的目的是为不同架构的机器提供一个较为统一的规范，减少重新编码、编译的工作量。
@@ -293,10 +293,10 @@ ELF文件在Linux中有三种类型：
     
     <item>
       <title>Linux Hook Notes</title>
-      <link>http://blog.exiahan.com/posts/linux_hook_notes/</link>
+      <link>https://blog.exiahan.com/posts/linux_hook_notes/</link>
       <pubDate>Wed, 29 Jul 2015 09:59:25 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/linux_hook_notes/</guid>
+      <guid>https://blog.exiahan.com/posts/linux_hook_notes/</guid>
       <description>Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
 Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
 //file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif //file mylib.c #include &amp;lt;stdio.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;unistd.h&amp;gt;#include &amp;#34;mylib.h&amp;#34; void myprint() { static unsigned counter = 0; counter++; printf(&amp;#34;%d, pid (%d)&amp;#34;, counter, getpid()); return; } //mymain.</description>
@@ -304,10 +304,10 @@ Start First we will make some file for the lab.So we need three file, a .h file,
     
     <item>
       <title>SubsTrate with AndroidStudio</title>
-      <link>http://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
+      <link>https://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
+      <guid>https://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
       <description>参考文档： 看雪，光哥博客，乌云知识库
 0x1 介绍 在家木事，学了下substrate用法，这里记录下～
 *Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。

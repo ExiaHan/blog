@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>SimpleXue on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/simplexue/</link>
+    <link>https://blog.exiahan.com/tags/simplexue/</link>
     <description>Recent content in SimpleXue on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 18 Sep 2015 20:01:27 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/simplexue/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/simplexue/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Dice Write Up</title>
-      <link>http://blog.exiahan.com/posts/dice_write_up/</link>
+      <link>https://blog.exiahan.com/posts/dice_write_up/</link>
       <pubDate>Fri, 18 Sep 2015 20:01:27 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dice_write_up/</guid>
+      <guid>https://blog.exiahan.com/posts/dice_write_up/</guid>
       <description>0x1 题目链接：Simple-Reverse-Dice
 0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。

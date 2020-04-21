@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="ExiaHan" />
     <meta name="description" content="" />
-    <link rel="stylesheet" href="http://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="stylesheet" href="https://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
     
@@ -28,14 +28,14 @@
  新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
  确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &ldquo;=&rdquo; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    apply plugin: &#39;com.android.model.application&#39; model { android { compileSdkVersion = 23 buildToolsVersion = &#34;23." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://blog.exiahan.com/posts/substrate_with_androidstudio/" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/substrate_with_androidstudio/" />
 
 
 
   </head>
   <body>
     <header class="app-header">
-      <a href="http://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <a href="https://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
       <h1>ExiaHan&#39;s Blog</h1>
       <p>Record everything, day by day.. 记录岁月，记录一切。</p>
       <div class="app-header-social">
@@ -81,7 +81,7 @@
   <title>tag</title>
   <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
 </svg>
-          <a class="tag" href="http://blog.exiahan.com/tags/android/">Android</a><a class="tag" href="http://blog.exiahan.com/tags/android-studio/">Android-Studio</a><a class="tag" href="http://blog.exiahan.com/tags/substrate/">SubsTrate</a></div></div>
+          <a class="tag" href="https://blog.exiahan.com/tags/android/">Android</a><a class="tag" href="https://blog.exiahan.com/tags/android-studio/">Android-Studio</a><a class="tag" href="https://blog.exiahan.com/tags/substrate/">SubsTrate</a></div></div>
     </header>
     <div class="post-content">
       <p><strong>参考文档：</strong> <em><a href="http://bbs.pediy.com/showthread.php?t=199671">看雪</a>，<a href="http://burningcodes.net/cydia-substrate-android-so-hook/">光哥博客</a>，<a href="http://drops.wooyun.org/tips/8084">乌云知识库</a></em></p>

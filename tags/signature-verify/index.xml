@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Signature Verify on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/signature-verify/</link>
+    <link>https://blog.exiahan.com/tags/signature-verify/</link>
     <description>Recent content in Signature Verify on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 09 Jan 2016 21:44:08 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/signature-verify/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/signature-verify/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Android AntiDebug and Signature Verify Example</title>
-      <link>http://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</link>
+      <link>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</link>
       <pubDate>Sat, 09 Jan 2016 21:44:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</guid>
+      <guid>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</guid>
       <description>Reference:grafx, IT Dreamer
 Introduction We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C++ code) because the arm-assembly language or C pseudo code are more difficult to read than java. But others can still read the native code if they really want, they can use IDA to read .</description>
     </item>

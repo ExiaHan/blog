@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>CTF on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/categories/ctf/</link>
+    <link>https://blog.exiahan.com/categories/ctf/</link>
     <description>Recent content in CTF on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 30 Dec 2015 22:12:08 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/categories/ctf/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/categories/ctf/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>IDF.CN Practice 01</title>
-      <link>http://blog.exiahan.com/posts/idf_cn_practice_01/</link>
+      <link>https://blog.exiahan.com/posts/idf_cn_practice_01/</link>
       <pubDate>Wed, 30 Dec 2015 22:12:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
+      <guid>https://blog.exiahan.com/posts/idf_cn_practice_01/</guid>
       <description>0x1 Preparation 既然决定要做，那就加油，写在开头，打好基础，加油吧。 Exia，斩获未来。。
 0x2 Start 一、牛刀小试 被改错的密码 从前有一个熊孩子入侵了一个网站的数据库，找到了管理员密码，手一抖在数据库中修改了一下，现在的密码变成了 cca9cc444e64c8116a30la00559c042b4，那个熊孩子其实就是我！肿么办求解！在线等，挺急的。。
 看起来挺像md5,直接拿去在线破，结果提示有问题，再一看，长度有问题，md5是32位哈希，这玩意33位，用python生成去掉其中某个字符的序列，然后再一个个在线破，发现是cca9cc444e64c8116a30a00559c042b4，解出来是idf，所以flag是wctf{idf}
@@ -34,10 +34,10 @@
     
     <item>
       <title>MSC2015 WriteUp</title>
-      <link>http://blog.exiahan.com/posts/msc2015_writeup/</link>
+      <link>https://blog.exiahan.com/posts/msc2015_writeup/</link>
       <pubDate>Thu, 22 Oct 2015 17:45:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/msc2015_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/msc2015_writeup/</guid>
       <description>第一题 和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。
 把程序丢到jeb里查看，发现关键函数check无法被解析
 使用apktool d -d反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用apktool b -d重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。
@@ -58,10 +58,10 @@ sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有
     
     <item>
       <title>XDCTF2015 WRITEUP(我才不会说我就做出来一题)</title>
-      <link>http://blog.exiahan.com/posts/xdctf_writeup/</link>
+      <link>https://blog.exiahan.com/posts/xdctf_writeup/</link>
       <pubDate>Fri, 02 Oct 2015 23:12:46 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/xdctf_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/xdctf_writeup/</guid>
       <description>0x1 给大黑阔们跪了 本来准备出去玩的，结果到家后发现要过两天才有人回来，就趁机做了把XDCTF的线上，结果被虐的北都找不到了，看着6星和Sigma一路突突突，只能膜了。。有思路的一共三题，结果最后只做出来1题。。。另外两题做到一大半怎么也进行不下去了。 总体来说虽然没做出来多少，但是感觉XDCTF水平是很高的了，题目也都很虐人（Pia!&amp;lt;(=ｏ ‵-′)ノ☆ 这里写个备忘，毕竟是一次经历。
 0x2 没写出来但有思路的的 Reverse 01 一个linux 的elf x64程序，还是挺有意思的，可惜没做出来，逆向功力不够，大概思路：
  入口函数是函数0x4008e1，里面会有ptrace反调试，然后获取输入  这里的输入从分析看应该是要解密后面说到的加密方法的   后面的坑就来了，如果顺着0x4008e1走，最后会打印出来&amp;quot;Congratulations? Key is XDCTF{Input}&amp;quot;，一看就不对 继续看，发现有个函数在0x400787,最后也会打印出来一个flag，而且会吧上面的string的“？”换成“！”，所以这个函数才是真正会吐出flag的过程 解体思路应该是修改执行流到这里，但是问题有三个：  逆向出加密算法 给出能通过的输入 在什么时刻强制从0x4008e1跳到0x400787   因为没搞定上面三个问题，所以没写出来  最后说下里面加密会用到字符串ZzAwZF9DcjRrM3JfZzBfb24=，不过加密算法，我就真不想看了。
@@ -78,10 +78,10 @@ pkcrack -c &amp;ldquo;readme.txt&amp;rdquo; -p raedme.txt -C flag.zip -P x.zip -
     
     <item>
       <title>NSCTF2015 WriteUp</title>
-      <link>http://blog.exiahan.com/posts/nsctf2015_writeup/</link>
+      <link>https://blog.exiahan.com/posts/nsctf2015_writeup/</link>
       <pubDate>Fri, 25 Sep 2015 20:56:06 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/nsctf2015_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/nsctf2015_writeup/</guid>
       <description>参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
 Reverse 0x1 简单的逆向 题目地址：Reverse01
  运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以dump出来后查看源码] 回到od，查找字符串，找到提示的那句**&amp;ldquo;please input ns-ctf password&amp;rdquo;**，跳转到引用文字，发现有strcmp比较，比较字符串固定，为**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 输入上面的字符串**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理 修改jle跳转为改为**&amp;ldquo;jmp short Reverse0.00401150&amp;rdquo;**，即调用其本来会通过jle跳过的函数，如图：   继续F9运行，程序吐出flag，如图：  0x2 较简单的逆向 题目地址：Reverse02
@@ -99,10 +99,10 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&amp;lt;strlen($_o);$_0+
     
     <item>
       <title>Dice Write Up</title>
-      <link>http://blog.exiahan.com/posts/dice_write_up/</link>
+      <link>https://blog.exiahan.com/posts/dice_write_up/</link>
       <pubDate>Fri, 18 Sep 2015 20:01:27 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dice_write_up/</guid>
+      <guid>https://blog.exiahan.com/posts/dice_write_up/</guid>
       <description>0x1 题目链接：Simple-Reverse-Dice
 0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。

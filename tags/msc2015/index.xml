@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>MSC2015 on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/msc2015/</link>
+    <link>https://blog.exiahan.com/tags/msc2015/</link>
     <description>Recent content in MSC2015 on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 22 Oct 2015 17:45:08 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/msc2015/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/msc2015/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>MSC2015 WriteUp</title>
-      <link>http://blog.exiahan.com/posts/msc2015_writeup/</link>
+      <link>https://blog.exiahan.com/posts/msc2015_writeup/</link>
       <pubDate>Thu, 22 Oct 2015 17:45:08 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/msc2015_writeup/</guid>
+      <guid>https://blog.exiahan.com/posts/msc2015_writeup/</guid>
       <description>第一题 和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。
 把程序丢到jeb里查看，发现关键函数check无法被解析
 使用apktool d -d反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用apktool b -d重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。

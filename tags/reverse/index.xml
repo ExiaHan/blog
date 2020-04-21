@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Reverse on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/reverse/</link>
+    <link>https://blog.exiahan.com/tags/reverse/</link>
     <description>Recent content in Reverse on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 07 Oct 2015 23:20:29 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/reverse/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/reverse/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Dump Dex From IJiaMi</title>
-      <link>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
+      <link>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
       <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
+      <guid>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
       <description>内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
 0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
 0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp;amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
@@ -32,10 +32,10 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
     
     <item>
       <title>Dice Write Up</title>
-      <link>http://blog.exiahan.com/posts/dice_write_up/</link>
+      <link>https://blog.exiahan.com/posts/dice_write_up/</link>
       <pubDate>Fri, 18 Sep 2015 20:01:27 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/dice_write_up/</guid>
+      <guid>https://blog.exiahan.com/posts/dice_write_up/</guid>
       <description>0x1 题目链接：Simple-Reverse-Dice
 0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
 运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。

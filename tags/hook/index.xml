@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hook on ExiaHan&#39;s Blog</title>
-    <link>http://blog.exiahan.com/tags/hook/</link>
+    <link>https://blog.exiahan.com/tags/hook/</link>
     <description>Recent content in Hook on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 29 Jul 2015 09:59:25 +0800</lastBuildDate>
     
-	<atom:link href="http://blog.exiahan.com/tags/hook/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://blog.exiahan.com/tags/hook/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Linux Hook Notes</title>
-      <link>http://blog.exiahan.com/posts/linux_hook_notes/</link>
+      <link>https://blog.exiahan.com/posts/linux_hook_notes/</link>
       <pubDate>Wed, 29 Jul 2015 09:59:25 +0800</pubDate>
       
-      <guid>http://blog.exiahan.com/posts/linux_hook_notes/</guid>
+      <guid>https://blog.exiahan.com/posts/linux_hook_notes/</guid>
       <description>Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
 Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
 //file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif //file mylib.c #include &amp;lt;stdio.h&amp;gt;#include &amp;lt;stdlib.h&amp;gt;#include &amp;lt;sys/types.h&amp;gt;#include &amp;lt;unistd.h&amp;gt;#include &amp;#34;mylib.h&amp;#34; void myprint() { static unsigned counter = 0; counter++; printf(&amp;#34;%d, pid (%d)&amp;#34;, counter, getpid()); return; } //mymain.</description>
