@@ -17,22 +17,103 @@
       <pubDate>Thu, 22 Oct 2015 17:45:08 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/msc2015_writeup/</guid>
-      <description>第一题 和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。
-把程序丢到jeb里查看，发现关键函数check无法被解析
-使用apktool d -d反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用apktool b -d重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。
-多次运行，输入不同的数字，发现v10会变化，但是v4是定值，520676，说明v10应该和输入有关，向上找会修改v10的地方，找到第36111行，在此处下断，运行。
-输入123456789，发现第一次断在此处v20值是123456790,继续运行会再次断在此处，如此循环，循环结束后继续运行会跳到关键的比较行，在比较行上有把v6和v4相加存入v4的操作。查找循环的比较条件，可以看到15983行有个v0和v5的比较，其中v5是定值1001,直接修改v0为1001,则最终v4的值不再是520676,同时v10的值也不再是之前输入123456789的值，所以36111行处应该和计算过程相关，是核心过程，继续向上找36111行v20的相关行，找到10832行。
-重新运行程序，输入123456789，程序断在此处是，v10是输入值，v8的值从v0处取得，v0的值变化规律为从1开始递加4,一直到1001,然后15983行的比较生效，跳转，最终运行到关键比较点。 使用python脚本计算1到1001的递增为4的累加值，为124750，让程序一直运行到比较点，观察v10的值为123581539，减去124750,刚好为输入。
-用v4的值减去124750,得到395926，即为key
-第二题 首先丢到jeb里分析，Ch函数里有个Morse码，解码后是WOJIUSHIDAAN，输入后不对，猜测是个坑。。 同时Ch里有做签名校验，重打包时需要patch掉。 apktool d -d 反编译，同时修改Ch的smali代码
-116 a=0;// #v2=(Reference,Ljava/lang/String;); 117 a=0;// const-string v1, &amp;quot;WJmkxxkkGnYbExi3dqzeaA&amp;quot; ...... 120 a=0;// 121 a=0;// move-result v1 122 a=0;// 123 a=0;// #v1=(Boolean); 124 a=0;// if-eqz v1, :cond_0 //需要修改的行 同时发现有native方法ch用来check，使用ida动态调试，直接闪退，有反调试。静态分析，导出表还有mprotect，同时猜测可能有动态修改执行代码。 最终在init_array里找到两个反调试的入口点,1424和3160
-1424和3160里分别有调用到sub_1284和sub_3400，前者很明显去调用fopen读取 proc/pid/status的tracerpid，后者在运行时会被多次调用，包括在动态释放的代码里也会调用，如果返回一个小于0的值，那么会尝试像不可写内存里写值，导致程序崩溃。
-使用bless打patch，把1284里的kill调用改为返回0,3400里的返回值改成0,使用的opcode是00 00 A0 E3 mov R0, #0，修改后如图：
-重新附加调试器，可以正常调试，在Java_k2015_a2_Ch_ch处下断点，让程序继续运行，输入abcdefg，成功断在native函数ch处，运行到sub_1DE0[0x3CBAFDE0]时单步进入，此时可以看到传入参数为输入
-sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有动态修改程序代码），后调用了函数loc_24C8[0x3CBB04C8]，步入前先使用idc脚本dump出来libwbox.so,此时的so里含有24C8的代码，可以用来静态分析，然后步入函数，查看其代码，对输入的字符串做了如下变换：
-变换后依然有动态修改代码的过程，然后调用loc_14A4[0x3CBAF4A4]，同样调用前dump出来so库，用于静态分析代码算法，在调用前会对输入进行变换，方法是输入的第i个元素的ASCII码加上i再存回数组，此时输入已经变为如下所示：
-在loc_14A4中会对输入再次变换，最终生成下面提到的16字节数组，计算方式如图：
-如图，用于计算的数组是[1F BC DA FF E6 4C BC 44 F5 B8 13 C8 EC A8 CD BD],计算方式是第i个元素的ASCII码加上上面对应的第i个数，结果保存为一个16字节数组。</description>
+      <description>&lt;h2 id=&#34;第一题&#34;&gt;第一题&lt;/h2&gt;
+&lt;p&gt;和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/int.jpg&#34; alt=&#34;int&#34;&gt;&lt;/p&gt;
+&lt;p&gt;把程序丢到jeb里查看，发现关键函数check无法被解析&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check1.jpg&#34; alt=&#34;check1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;使用&lt;code&gt;apktool d -d&lt;/code&gt;反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用&lt;code&gt;apktool b -d&lt;/code&gt;重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check2.jpg&#34; alt=&#34;check2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;多次运行，输入不同的数字，发现v10会变化，但是v4是定值，520676，说明v10应该和输入有关，向上找会修改v10的地方，找到第36111行，在此处下断，运行。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check3.jpg&#34; alt=&#34;check3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;输入123456789，发现第一次断在此处v20值是123456790,继续运行会再次断在此处，如此循环，循环结束后继续运行会跳到关键的比较行，在比较行上有把v6和v4相加存入v4的操作。查找循环的比较条件，可以看到15983行有个v0和v5的比较，其中v5是定值1001,直接修改v0为1001,则最终v4的值不再是520676,同时v10的值也不再是之前输入123456789的值，所以36111行处应该和计算过程相关，是核心过程，继续向上找36111行v20的相关行，找到10832行。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check4.jpg&#34; alt=&#34;check4&#34;&gt;&lt;/p&gt;
+&lt;p&gt;重新运行程序，输入123456789，程序断在此处是，v10是输入值，v8的值从v0处取得，v0的值变化规律为从1开始递加4,一直到1001,然后15983行的比较生效，跳转，最终运行到关键比较点。
+使用python脚本计算1到1001的递增为4的累加值，为124750，让程序一直运行到比较点，观察v10的值为123581539，减去124750,刚好为输入。&lt;/p&gt;
+&lt;p&gt;用v4的值减去124750,得到395926，即为key&lt;/p&gt;
+&lt;h2 id=&#34;第二题&#34;&gt;第二题&lt;/h2&gt;
+&lt;p&gt;首先丢到jeb里分析，Ch函数里有个Morse码，解码后是WOJIUSHIDAAN，输入后不对，猜测是个坑。。
+同时Ch里有做签名校验，重打包时需要patch掉。
+apktool d -d 反编译，同时修改Ch的smali代码&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-smali&#34; data-lang=&#34;smali&#34;&gt;116 a=0;//     #v2=(Reference,Ljava/lang/String;);
+117 a=0;//     const-string v1, &amp;quot;WJmkxxkkGnYbExi3dqzeaA&amp;quot;
+......
+120 a=0;//
+121 a=0;//     move-result v1
+122 a=0;//
+123 a=0;//     #v1=(Boolean);
+124 a=0;//     if-eqz v1, :cond_0 //需要修改的行
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;同时发现有native方法ch用来check，使用ida动态调试，直接闪退，有反调试。静态分析，导出表还有mprotect，同时猜测可能有动态修改执行代码。
+最终在init_array里找到两个反调试的入口点,1424和3160&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug1.jpg&#34; alt=&#34;ddebug1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;1424和3160里分别有调用到sub_1284和sub_3400，前者很明显去调用fopen读取 proc/pid/status的tracerpid，后者在运行时会被多次调用，包括在动态释放的代码里也会调用，如果返回一个小于0的值，那么会尝试像不可写内存里写值，导致程序崩溃。&lt;/p&gt;
+&lt;p&gt;使用bless打patch，把1284里的kill调用改为返回0,3400里的返回值改成0,使用的opcode是&lt;strong&gt;00 00 A0 E3 mov R0, #0&lt;/strong&gt;，修改后如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug2.jpg&#34; alt=&#34;ddebug2&#34;&gt;
+&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug3.jpg&#34; alt=&#34;ddebug3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;重新附加调试器，可以正常调试，在&lt;strong&gt;Java_k2015_a2_Ch_ch&lt;/strong&gt;处下断点，让程序继续运行，输入abcdefg，成功断在native函数ch处，运行到sub_1DE0[0x3CBAFDE0]时单步进入，此时可以看到传入参数为输入&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd1.jpg&#34; alt=&#34;dyd1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有动态修改程序代码），后调用了函数loc_24C8[0x3CBB04C8]，步入前先使用idc脚本dump出来libwbox.so,此时的so里含有24C8的代码，可以用来静态分析，然后步入函数，查看其代码，对输入的字符串做了如下变换：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd2.jpg&#34; alt=&#34;dyd2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;变换后依然有动态修改代码的过程，然后调用loc_14A4[0x3CBAF4A4]，同样调用前dump出来so库，用于静态分析代码算法，在调用前会对输入进行变换，方法是输入的第i个元素的ASCII码加上i再存回数组，此时输入已经变为如下所示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd3.jpg&#34; alt=&#34;dyd3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;在loc_14A4中会对输入再次变换，最终生成下面提到的16字节数组，计算方式如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd4.jpg&#34; alt=&#34;dyd4&#34;&gt;&lt;/p&gt;
+&lt;p&gt;如图，用于计算的数组是[1F BC DA FF E6 4C BC 44  F5 B8 13 C8 EC A8 CD BD],计算方式是第i个元素的ASCII码加上上面对应的第i个数，结果保存为一个16字节数组。&lt;/p&gt;
+&lt;p&gt;最终在14A4中调用最终的一个动态生成的函数如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd5.jpg&#34; alt=&#34;dyd5&#34;&gt;&lt;/p&gt;
+&lt;p&gt;传入的参数是[80 1F 3F 66 4F B7 29 52  05 CA 27 DE 04 C2 E9 DB]&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd6.jpg&#34; alt=&#34;dyd6&#34;&gt;&lt;/p&gt;
+&lt;p&gt;同样在调用前dump出来so库，用于分析&lt;/p&gt;
+&lt;p&gt;分析最终的函数，发现其做了10轮加密，且输入和输出都是16直接数组，根据经验，猜测是AES，问题在于序找密钥，分析代码，发现代码下面有16个字节被引用&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd7.jpg&#34; alt=&#34;dyd7&#34;&gt;&lt;/p&gt;
+&lt;p&gt;且参与了运算，所以猜测key是
+&lt;strong&gt;6BCDC67A6B2B7C9D8DA459B1AB9D0680&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;使用此key，对下面说到的返回的结果进行解密结果相同，这里用到了一个在线解密网站，很好用，推荐一下http://testprotect.com/appendix/AEScalc&lt;/p&gt;
+&lt;p&gt;调用后函数会返回，返回结果是[0A BF F7 F6 C3 52 F1 21  6C 1E F5 A3 45 DB 32 29]
+调用返回后再接着会对结果，v56，一个16字节数组进行比较，参与比较的数值是一个硬编码好的16字节数组，值为[5C DA 77 2F A3 C6 3E 39  B6 F0 F3 ED 51 5A 99 86]，如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd8.jpg&#34; alt=&#34;dyd8&#34;&gt;&lt;/p&gt;
+&lt;p&gt;对此数组逆向算法，过程如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;AES解密&lt;/li&gt;
+&lt;li&gt;反向loc_14A4的算法&lt;/li&gt;
+&lt;li&gt;反向loc_24C8的算法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#!/bin/env python3&lt;/span&gt;
+
+&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Crack1 Calc&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+n &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1001&lt;/span&gt;):
+    n &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; i
+    i &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(n)
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;123581539&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; n)
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;520676&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; n)
+
+&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Crack2 Calc&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+src &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;0x8a&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x4b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x6e&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x59&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xca&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xf2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x52&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x05&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xca&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x27&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xde&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x04&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xc2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xe9&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xdb&lt;/span&gt;]
+srcPuls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1F&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xDA&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xFF&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xE6&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x4C&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x44&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xF5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xB8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x13&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xC8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xEC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xA8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xCD&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBD&lt;/span&gt;]
+out1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
+out2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(src)):
+    out1&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append((src[i] &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; srcPuls[i]) &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;256&lt;/span&gt;)
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(out1)):
+    out2&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append((out1[i] &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; i))
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(out2)):
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(chr(out2[i]), end&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;)
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最终结果是kboloy0&lt;/p&gt;
+&lt;h2 id=&#34;第三题&#34;&gt;第三题&lt;/h2&gt;
+&lt;p&gt;唔，给bin爷爷跪了。。。&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -41,18 +122,67 @@ sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有
       <pubDate>Fri, 02 Oct 2015 23:12:46 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/xdctf_writeup/</guid>
-      <description>0x1 给大黑阔们跪了 本来准备出去玩的，结果到家后发现要过两天才有人回来，就趁机做了把XDCTF的线上，结果被虐的北都找不到了，看着6星和Sigma一路突突突，只能膜了。。有思路的一共三题，结果最后只做出来1题。。。另外两题做到一大半怎么也进行不下去了。 总体来说虽然没做出来多少，但是感觉XDCTF水平是很高的了，题目也都很虐人（Pia!&amp;lt;(=ｏ ‵-′)ノ☆ 这里写个备忘，毕竟是一次经历。
-0x2 没写出来但有思路的的 Reverse 01 一个linux 的elf x64程序，还是挺有意思的，可惜没做出来，逆向功力不够，大概思路：
- 入口函数是函数0x4008e1，里面会有ptrace反调试，然后获取输入  这里的输入从分析看应该是要解密后面说到的加密方法的   后面的坑就来了，如果顺着0x4008e1走，最后会打印出来&amp;quot;Congratulations? Key is XDCTF{Input}&amp;quot;，一看就不对 继续看，发现有个函数在0x400787,最后也会打印出来一个flag，而且会吧上面的string的“？”换成“！”，所以这个函数才是真正会吐出flag的过程 解体思路应该是修改执行流到这里，但是问题有三个：  逆向出加密算法 给出能通过的输入 在什么时刻强制从0x4008e1跳到0x400787   因为没搞定上面三个问题，所以没写出来  最后说下里面加密会用到字符串ZzAwZF9DcjRrM3JfZzBfb24=，不过加密算法，我就真不想看了。
-Misc 01 这题后来给了tips，也就是org原图。
- 先用stegsolv打开zzzzzzyu.png，跳几个plane后可以看到顶部有个条，原图org.png是没的 用stegsolve两张combine一下，然后sub后发现顶部会出现两像素宽的条状区，里面零星分布一些黑色像素点 导出成bmp，去色成黑白 用python 的PIL库把顶部两行的按照像素输出，白色是0,黑色是1,可以得到如下字符串：  11111111111111111111111111111110111111111111111111101011111111111111110111111111111111111011111111111111111111111110111111111111111101011111111111111111111111111111110111111110101110111111111111111111111111111011101110111111111111111111111111110111111111111111111111011111110111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111101111111111111111110101111111011111010111111011111111111111111111111111111111111111111110111111111111111111010111111101111101011111101111111111111111111111111111111101110111111111111111 但是接下来用jpk处理的时候，4bit格式format，然后处理完实在找不到什么特征了。。作罢。。。（o&amp;laquo;(≧口≦)&amp;raquo;o
-0x3 解出来的 嘛，怎么着还是做出来一题的，至少不是鸭蛋，咩哈哈哈哈&amp;lt;(=￣_￣)σ…&amp;lt;( ＿ ＿)ノ｜
-给了一个数据文件，file一下识别不了格式，strings也没啥有用信息，bless看的时候发现开头几个字符是VIMG&amp;hellip;.fat12&amp;hellip;.VMWare Visual什么的，搜了下，唯独fat12有点信息，但是挂载的话还是会失败。
-换用binwalk，可以看到里面有很多东西，但是有两个zip文件，而且最后那个里面有flag.txt，于是把两个都dd出来 不过要说的是dd中间那个的时候，如何能精确的dd出来还是听麻烦的，试了好久，dd出来了一个没有多余附加尾部的zip，如果有更好的方法还希望有人留言说下哈
-dd出来后有flag的那个，姑且命名为flag.zip有密码，试着去掉密码位后一样不行，说明不是伪加密，再看没加密的那个，姑且命名为x.zip，发现两个都有个readme.txt
-用unzip -v查看了下两个的内容，结果两个readme.txt相同诶，于是想到明文破解，把x.zip里除readme.txt外的文件全部删掉，然后用pkcrack大法，大概用法是
-pkcrack -c &amp;ldquo;readme.txt&amp;rdquo; -p raedme.txt -C flag.zip -P x.zip -d ok.zip
- -c是指出加密zip里readme.</description>
+      <description>&lt;h2 id=&#34;0x1-给大黑阔们跪了&#34;&gt;0x1 给大黑阔们跪了&lt;/h2&gt;
+&lt;p&gt;本来准备出去玩的，结果到家后发现要过两天才有人回来，就趁机做了把XDCTF的线上，结果被虐的北都找不到了，看着6星和Sigma一路突突突，只能膜了。。有思路的一共三题，结果最后只做出来1题。。。另外两题做到一大半怎么也进行不下去了。
+总体来说虽然没做出来多少，但是感觉XDCTF水平是很高的了，题目也都很虐人（Pia!&amp;lt;(=ｏ ‵-′)ノ☆
+这里写个备忘，毕竟是一次经历。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-没写出来但有思路的的&#34;&gt;0x2 没写出来但有思路的的&lt;/h2&gt;
+&lt;h3 id=&#34;reverse-01&#34;&gt;Reverse 01&lt;/h3&gt;
+&lt;p&gt;一个linux 的elf x64程序，还是挺有意思的，可惜没做出来，逆向功力不够，大概思路：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;入口函数是函数0x4008e1，里面会有ptrace反调试，然后获取输入
+&lt;ul&gt;
+&lt;li&gt;这里的输入从分析看应该是要解密后面说到的加密方法的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;后面的坑就来了，如果顺着0x4008e1走，最后会打印出来&amp;quot;Congratulations? Key is XDCTF{Input}&amp;quot;，一看就不对&lt;/li&gt;
+&lt;li&gt;继续看，发现有个函数在0x400787,最后也会打印出来一个flag，而且会吧上面的string的“？”换成“！”，所以这个函数才是真正会吐出flag的过程&lt;/li&gt;
+&lt;li&gt;解体思路应该是修改执行流到这里，但是问题有三个：
+&lt;ul&gt;
+&lt;li&gt;逆向出加密算法&lt;/li&gt;
+&lt;li&gt;给出能通过的输入&lt;/li&gt;
+&lt;li&gt;在什么时刻强制从0x4008e1跳到0x400787&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;因为没搞定上面三个问题，所以没写出来&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;最后说下里面加密会用到字符串&lt;/strong&gt;&lt;em&gt;ZzAwZF9DcjRrM3JfZzBfb24=&lt;/em&gt;，不过加密算法，我就真不想看了。&lt;/p&gt;
+&lt;h3 id=&#34;misc-01&#34;&gt;Misc 01&lt;/h3&gt;
+&lt;p&gt;这题后来给了tips，也就是org原图。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;先用stegsolv打开zzzzzzyu.png，跳几个plane后可以看到顶部有个条，原图org.png是没的&lt;/li&gt;
+&lt;li&gt;用stegsolve两张combine一下，然后sub后发现顶部会出现两像素宽的条状区，里面零星分布一些黑色像素点&lt;/li&gt;
+&lt;li&gt;导出成bmp，去色成黑白&lt;/li&gt;
+&lt;li&gt;用python 的PIL库把顶部两行的按照像素输出，白色是0,黑色是1,可以得到如下字符串：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;11111111111111111111111111111110111111111111111111101011111111111111110111111111111111111011111111111111111111111110111111111111111101011111111111111111111111111111110111111110101110111111111111111111111111111011101110111111111111111111111111110111111111111111111111011111110111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111101111111111111111110101111111011111010111111011111111111111111111111111111111111111111110111111111111111111010111111101111101011111101111111111111111111111111111111101110111111111111111
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;但是接下来用jpk处理的时候，4bit格式format，然后处理完实在找不到什么特征了。。作罢。。。（o&amp;laquo;(≧口≦)&amp;raquo;o&lt;/p&gt;
+&lt;h2 id=&#34;0x3-解出来的&#34;&gt;0x3 解出来的&lt;/h2&gt;
+&lt;p&gt;嘛，怎么着还是做出来一题的，至少不是鸭蛋，咩哈哈哈哈&amp;lt;(=￣_￣)σ…&amp;lt;( ＿ ＿)ノ｜&lt;/p&gt;
+&lt;p&gt;给了一个数据文件，file一下识别不了格式，strings也没啥有用信息，bless看的时候发现开头几个字符是VIMG&amp;hellip;.fat12&amp;hellip;.VMWare Visual什么的，搜了下，唯独fat12有点信息，但是挂载的话还是会失败。&lt;/p&gt;
+&lt;p&gt;换用binwalk，可以看到里面有很多东西，但是有两个zip文件，而且最后那个里面有flag.txt，于是把两个都dd出来
+&lt;strong&gt;不过要说的是dd中间那个的时候，如何能精确的dd出来还是听麻烦的，试了好久，dd出来了一个没有多余附加尾部的zip，如果有更好的方法还希望有人留言说下哈&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;dd出来后有flag的那个，姑且命名为flag.zip有密码，试着去掉密码位后一样不行，说明不是伪加密，再看没加密的那个，姑且命名为x.zip，发现两个都有个readme.txt&lt;/p&gt;
+&lt;p&gt;用unzip -v查看了下两个的内容，结果两个readme.txt相同诶，于是想到明文破解，把x.zip里除readme.txt外的文件全部删掉，然后用pkcrack大法，大概用法是&lt;/p&gt;
+&lt;p&gt;pkcrack -c &amp;ldquo;readme.txt&amp;rdquo; -p raedme.txt -C flag.zip -P x.zip -d ok.zip&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;-c是指出加密zip里readme.txt的文件结构，从顶层文件夹开始&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;flag.zip
+	|---readme.txt
+	|---flag.txt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里flag.zip文件结构如图&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;-p是明文的readme.txt所在位置，防止麻烦都放一块，当前目录下&lt;/li&gt;
+&lt;li&gt;-C是待破解加密包flag.zip&lt;/li&gt;
+&lt;li&gt;-P是包含明文readme.txt的无密码zip包x.zip&lt;/li&gt;
+&lt;li&gt;-d指明破解成功后的明文包输出为ok.zip&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;然后后开跑，大概10分钟搞定，得到无密码包，拿到flag&lt;/p&gt;
+&lt;p&gt;如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/XDCTFWRITEUP/misc21.jpg&#34; alt=&#34;misc02.0&#34;&gt;
+&lt;img src=&#34;https://blog.exiahan.com/images/XDCTFWRITEUP/misc22.jpg&#34; alt=&#34;misc02.1&#34;&gt;&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -61,19 +191,95 @@ pkcrack -c &amp;ldquo;readme.txt&amp;rdquo; -p raedme.txt -C flag.zip -P x.zip -
       <pubDate>Fri, 25 Sep 2015 20:56:06 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/nsctf2015_writeup/</guid>
-      <description>参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
-Reverse 0x1 简单的逆向 题目地址：Reverse01
- 运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。 使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳 不需要完整脱壳，在壳程序运行完，dump程序[此步不是必须，但是可以dump出来后查看源码] 回到od，查找字符串，找到提示的那句**&amp;ldquo;please input ns-ctf password&amp;rdquo;**，跳转到引用文字，发现有strcmp比较，比较字符串固定，为**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 输入上面的字符串**&amp;ldquo;nsF0cuS!x01&amp;rdquo;** 单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理 修改jle跳转为改为**&amp;ldquo;jmp short Reverse0.00401150&amp;rdquo;**，即调用其本来会通过jle跳过的函数，如图：   继续F9运行，程序吐出flag，如图：  0x2 较简单的逆向 题目地址：Reverse02
-本题和第一题类似，只不过改成了窗口程序
- 运行，发现窗口程序 使用OD或者IDA打开 尝试搜索&amp;quot;Flag&amp;rdquo;，发现有好几个匹配，记下，同时猜测可能和第一题一样有对flag处理 查看导入表，发现是个dialogbox，查找调用，找到0x00401240处的DialogBoxParamA调用，从其参数里找到对应回调处理函数入口为0x00401180 转到0x00401180处，发现有个GetDlgItemTextA的调用，在其下有个call 0x00401070，猜测会在其中处理Flag，修改程序执行流，让其可以执行，跟踪进入此函数，如图：   进入0x00401070后，可以看到上面有个0x00401000的函数，可以看到内部有调用MessageBoxA显示Flag，同时在0x00401070内发现有此函数调用，修改执行流让其可以执行，跟踪进入0x00401000，在MessageBoxA调用前下断，看到真正的flag，如图：  0x3 逆向 题目地址：Reverse03
-分析：使用python生成的程序，运行时在本地Temp文件夹里释放文件，通过CreateProcessA运行一个新进程来执行，没搞定。。。。。。。。囧。。
-MISC 0x1 Twitter 这题，额。。。啧啧。。一个md5,100块钱，不过有人抖了答案出来
-0x2 Wireshark 题目地址：sniffer.pcapng
-从题目可以看出来是个抓包题，wireshark打开文件[也可以用Dshell，或者binwalk]
- 题目说是下载，猜测在http里，表达式过滤http 看到有个key.rar，服务器为192.168.52.1 dump出key.rar，解压，需要密码 继续查找发现获取rar之前还有个从服务器获取的页面，dump内容保存成html文件，内容有提示密码为nsfocus+5个数字 生成字典，爆破，解压密码为nsfocus56317,打开后获得flag  WEB 0x1 Be Careful 使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。
-###0x2 Decode
-题目里给了个php的函数，接受传入的字符串
-function encode($str){ $_o = strrev($str); for($_0=0;$_0&amp;lt;strlen($_o);$_0++){ $_c = substr($_o,$_0,1); $__ = ord($_c)+1; $_c = chr($__); $_= $_.</description>
+      <description>&lt;p&gt;&lt;strong&gt;参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;reverse&#34;&gt;Reverse&lt;/h2&gt;
+&lt;h3 id=&#34;0x1-简单的逆向&#34;&gt;0x1 简单的逆向&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/74ec9621ac5f8573abc90b3fb9199e38/Reverse01.exe&#34;&gt;Reverse01&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;运行程序，出现CLI程序窗口，提示输入密码，随意输入，提示错误。&lt;/li&gt;
+&lt;li&gt;使用PEID查看，发现加了ASPACK2.12的壳，使用od加载，看到有pushad操作，使用esp方法脱壳&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;不需要完整脱壳，在壳程序运行完，dump程序&lt;/del&gt;[此步不是必须，但是可以dump出来后查看源码]&lt;/li&gt;
+&lt;li&gt;回到od，查找字符串，找到提示的那句**&amp;ldquo;please input ns-ctf password&amp;rdquo;**，跳转到引用文字，发现有strcmp比较，比较字符串固定，为**&amp;ldquo;nsF0cuS!x01&amp;rdquo;**&lt;/li&gt;
+&lt;li&gt;输入上面的字符串**&amp;ldquo;nsF0cuS!x01&amp;rdquo;**&lt;/li&gt;
+&lt;li&gt;单步跟踪，发现有个jle跳转，如果条件满足会跳过一个函数调用，直接printf出来一个有乱码的flag，推测可能之前还有处理&lt;/li&gt;
+&lt;li&gt;修改jle跳转为改为**&amp;ldquo;jmp short Reverse0.00401150&amp;rdquo;**，即调用其本来会通过jle跳过的函数，如图：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/re11.jpg&#34; alt=&#34;reverse01.0&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;继续F9运行，程序吐出flag，如图：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/re12.jpg&#34; alt=&#34;reverse01.1&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;0x2-较简单的逆向&#34;&gt;0x2 较简单的逆向&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/806b95d9497584c4a9d89118c8944424/Reverse02.exe&#34;&gt;Reverse02&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;本题和第一题类似，只不过改成了窗口程序&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;运行，发现窗口程序&lt;/li&gt;
+&lt;li&gt;使用OD或者IDA打开&lt;/li&gt;
+&lt;li&gt;尝试搜索&amp;quot;Flag&amp;rdquo;，发现有好几个匹配，记下，同时猜测可能和第一题一样有对flag处理&lt;/li&gt;
+&lt;li&gt;查看导入表，发现是个dialogbox，查找调用，找到&lt;strong&gt;0x00401240&lt;/strong&gt;处的DialogBoxParamA调用，从其参数里找到对应回调处理函数入口为&lt;strong&gt;0x00401180&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;转到&lt;strong&gt;0x00401180&lt;/strong&gt;处，发现有个GetDlgItemTextA的调用，在其下有个&lt;strong&gt;call 0x00401070&lt;/strong&gt;，猜测会在其中处理Flag，修改程序执行流，让其可以执行，跟踪进入此函数，如图：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/re21.jpg&#34; alt=&#34;reverse02.0&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;进入0x00401070后，可以看到上面有个0x00401000的函数，可以看到内部有调用MessageBoxA显示Flag，同时在0x00401070内发现有此函数调用，修改执行流让其可以执行，跟踪进入0x00401000，在MessageBoxA调用前下断，看到真正的flag，如图：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/re22.jpg&#34; alt=&#34;reverse02.1&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;0x3-逆向&#34;&gt;0x3 逆向&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/877afdad88a2340eaefe8c1a87bb391e/Revesre03.exe&#34;&gt;Reverse03&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;分析：使用python生成的程序，运行时在本地Temp文件夹里释放文件，通过CreateProcessA运行一个新进程来执行，没搞定。。。。。。。。囧。。&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;misc&#34;&gt;MISC&lt;/h2&gt;
+&lt;h3 id=&#34;0x1-twitter&#34;&gt;0x1 Twitter&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;这题，额。。。啧啧。。一个md5,100块钱，不过有人抖了答案出来&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;0x2-wireshark&#34;&gt;0x2 Wireshark&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/16d8a763795dd8cc3cf5f599fbb5e5af/sniffer.pcapng&#34;&gt;sniffer.pcapng&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;从题目可以看出来是个抓包题，wireshark打开文件[也可以用Dshell，或者binwalk]&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/misc1.jpg&#34; alt=&#34;misc02&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;题目说是下载，猜测在http里，表达式过滤http&lt;/li&gt;
+&lt;li&gt;看到有个key.rar，服务器为192.168.52.1&lt;/li&gt;
+&lt;li&gt;dump出key.rar，解压，需要密码&lt;/li&gt;
+&lt;li&gt;继续查找发现获取rar之前还有个从服务器获取的页面，dump内容保存成html文件，内容有提示密码为nsfocus+5个数字&lt;/li&gt;
+&lt;li&gt;生成字典，爆破，解压密码为nsfocus56317,打开后获得flag&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;web&#34;&gt;WEB&lt;/h2&gt;
+&lt;h3 id=&#34;0x1-be-careful&#34;&gt;0x1 Be Careful&lt;/h3&gt;
+&lt;p&gt;使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/web1.jpg&#34; alt=&#34;web01&#34;&gt;&lt;/p&gt;
+&lt;p&gt;###0x2 Decode&lt;/p&gt;
+&lt;p&gt;题目里给了个php的函数，接受传入的字符串&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;function encode($str){
+	$_o = strrev($str);
+	for($_0=0;$_0&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;strlen&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;($&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_o&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;);$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_0&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;++){&lt;/span&gt;
+		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_c &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;substr($_o,$_0,1);&lt;/span&gt;
+		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;__ &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;ord($_c)+1;&lt;/span&gt;
+		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_c &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;chr($__);&lt;/span&gt;
+		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;$_.$_c;&lt;/span&gt;
+	&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;}&lt;/span&gt;
+	&lt;span style=&#34;color:#a6e22e&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;str_rot13&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;strrev&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;base64_encode&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;($&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;)));&lt;/span&gt;
+&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;其作用如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;反转字符串&lt;/li&gt;
+&lt;li&gt;每个字符对应值加1再转回字符串，即每个字符都变成其后一个字符&lt;/li&gt;
+&lt;li&gt;得到的新字符串base64编码&lt;/li&gt;
+&lt;li&gt;编码后再反转&lt;/li&gt;
+&lt;li&gt;反转后rot13编码得到最终字符串，即题目的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;根据上面的分析逆向一次即可得到flag&lt;/p&gt;
+&lt;h2 id=&#34;crypto&#34;&gt;CRYPTO&lt;/h2&gt;
+&lt;h3 id=&#34;0x1-神秘的字符串&#34;&gt;0x1 神秘的字符串&lt;/h3&gt;
+&lt;p&gt;给了一串字符串（写在比赛结束后，已经看不到了。。），感觉像base64，解一下，发现有Salted_字样的玩意，应该是AES加密，到网上找了个网站解密了一下，结果解出来是flag{字符串}的形式，因为字符串不是NSCTF开头，感觉还有加密，在密码机器网上跑了一下，发现是凯撒移位加密，得到最终flag是NSCTF_Rot_Encryption&lt;/p&gt;
+&lt;h3 id=&#34;0x2-神奇的图片&#34;&gt;0x2 神奇的图片&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/8041661a723dcc82a8a088163e2cd9ac/oddpic.jpg&#34;&gt;oddpic.jpg&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;binwalk走一遍，里面有其他的jpeg，dd出来，得到flag&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/crypto2.jpg&#34; alt=&#34;crypt02&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;0x3-神秘的图片10086&#34;&gt;0x3 神秘的图片+10086&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;题目地址：&lt;/strong&gt;&lt;a href=&#34;http://www.nsctf.net/static/uploads/50cf3d7ee75c2bbb7a91808dc811aa24/newnewnew.jpg&#34;&gt;newnewnew.jpg&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;binwalk走一下没结果，用stegsolv分析下，在blue plane 0通道看到一个颜色反转的二维码，保存出来，用ps等工具反转下颜色，手机扫描，得到flag&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/NSCTF2015WriteUp/crypto3.jpg&#34; alt=&#34;crypt03&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Update:附上官方博客资料，里面有WriteUp，&lt;a href=&#34;http://blog.nsfocus.net/nsctf-network-attack-defence-game-download/&#34;&gt;绿盟博客&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+</description>
     </item>
     
   </channel>

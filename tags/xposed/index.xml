@@ -17,14 +17,122 @@
       <pubDate>Wed, 02 Sep 2015 16:06:55 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
-      <description>0x1 介绍 Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。 本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
-0x2 开工 这篇文章也是作为Xposed插桩的练习记录
-引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
- 下载xposed框架jar包 创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;rdquo; 在app/src下创建文件夹xposedLib   之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含
- 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    apply plugin: &amp;#39;java&amp;#39; dependencies { compile project(&amp;#34;:lib&amp;#34;) provided fileTree(dir: &amp;#39;lib&amp;#39;, include: [&amp;#39;*.jar&amp;#39;]) }  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
- 到这里xposed框架的引入即可成功
-创建你的Xposed Module  修改AndroidManifest.xml，加入xposed的meta元素（具体如何参见rovo89的Tutorial）  如下所示：
-&amp;lt;application android:allowBackup=&amp;#34;true&amp;#34; android:icon=&amp;#34;@mipmap/ic_launcher&amp;#34; android:label=&amp;#34;@string/app_name&amp;#34; android:theme=&amp;#34;@style/AppTheme&amp;#34; &amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposedmodule&amp;#34; android:value=&amp;#34;true&amp;#34; /&amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposeddescription&amp;#34; android:value=&amp;#34;My First Xposed Module for Hook&amp;#34; /&amp;gt; &amp;lt;meta-data android:name=&amp;#34;xposedminversion&amp;#34; android:value=&amp;#34;30&amp;#34; /&amp;gt; &amp;lt;activity android:name=&amp;#34;.</description>
+      <description>&lt;h2 id=&#34;0x1-介绍&#34;&gt;0x1 介绍&lt;/h2&gt;
+&lt;p&gt;Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。
+本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-开工&#34;&gt;0x2 开工&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;这篇文章也是作为Xposed插桩的练习记录&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;引入xposed框架&#34;&gt;引入Xposed框架&lt;/h3&gt;
+&lt;p&gt;不得不说，即使有&lt;a href=&#34;https://github.com/rovo89&#34;&gt;rovo89&lt;/a&gt;的&lt;a href=&#34;https://github.com/rovo89/XposedBridge/wiki/Development-tutorial&#34;&gt;Xposed Tutorial&lt;/a&gt;，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;下载xposed框架jar包&lt;/li&gt;
+&lt;li&gt;创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;在app/src下创建文件夹xposedLib&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;方法一：&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library&lt;/li&gt;
+&lt;li&gt;在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如图：
+&lt;img src=&#34;https://blog.exiahan.com/images/XposedWithAndroidStudio/xposedprovide.jpg&#34; alt=&#34;xposed provide&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;方法二：&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;把下载好的xposed-bridgeAPI.jar包拖进去&lt;/li&gt;
+&lt;li&gt;在app/xposedLib/路径里创建build.gradle文件，内容如下&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;apply plugin: &amp;#39;java&amp;#39;
+dependencies {
+    compile project(&amp;#34;:lib&amp;#34;)
+    provided fileTree(dir: &amp;#39;lib&amp;#39;, include: [&amp;#39;*.jar&amp;#39;])
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;blockquote&gt;
+&lt;p&gt;根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含
+xposed的jar包要求仅被引用，而不能包含
+所以放xposedLib
+并且在module settings里把相关项改成provide&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;到这里xposed框架的引入即可成功&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;创建你的xposed-module&#34;&gt;创建你的Xposed Module&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;修改AndroidManifest.xml，加入xposed的meta元素（&lt;strong&gt;具体如何参见rovo89的Tutorial&lt;/strong&gt;）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如下所示：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;application&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:allowBackup=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;true&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:icon=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@mipmap/ic_launcher&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:label=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@string/app_name&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:theme=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@style/AppTheme&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposedmodule&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;true&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposeddescription&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;My First Xposed Module for Hook&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposedminversion&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;30&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;activity&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;.MainActivity&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:label=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@string/app_name&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+......
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;创建你的使用xposed插件的函数，如MyXposedModule&lt;/li&gt;
+&lt;li&gt;添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名
+&lt;ul&gt;
+&lt;li&gt;如&lt;strong&gt;com.xxx.helloxposedhook.MyXposedModule&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数&lt;/p&gt;
+&lt;p&gt;功能代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MyXposedModule&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;implements&lt;/span&gt; IXposedHookLoadPackage&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handleLoadPackage&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;XC_LoadPackage&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;LoadPackageParam&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+        &lt;span style=&#34;color:#75715e&#34;&gt;//TODO Auto-generated method stub
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//filter the package
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(!&lt;/span&gt;lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;packageName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;equals&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;com.xxx.remotecontrol&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+
+        Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Package&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\n&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;packageName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\n&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;//if has a custom class param, use reflact to get the class as type
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//Class&amp;lt;?&amp;gt; XXXJni = null;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//XXXJni = lpparam.classLoader.loadClass(&amp;#34;com.xxx.remotecontrol&amp;#34;);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        findAndHookMethod&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;com.xxx.remotecontrol.mainActivity&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;classLoader&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;forHook&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; String&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; XC_MethodHook&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;protected&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;beforeHookedMethod&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;MethodHookParam param&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                &lt;span style=&#34;color:#75715e&#34;&gt;// this will be called before the clock was updated by the original method
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                String parg &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;String&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; param&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;args&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;0&lt;span style=&#34;color:#f92672&#34;&gt;];&lt;/span&gt;
+                Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Result:&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\nHi\n&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+                Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CMD:&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; parg&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;protected&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;afterHookedMethod&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;MethodHookParam param&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                &lt;span style=&#34;color:#75715e&#34;&gt;// this will be called after the clock was updated by the original method
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;});&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Hook成功后首先打印Hi，然后打印参数，即CMD后的parg&lt;/p&gt;
+&lt;p&gt;结果如图：
+&lt;img src=&#34;https://blog.exiahan.com/images/XposedWithAndroidStudio/result.jpg&#34; alt=&#34;result&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;到这里也即完成了xposed module的创建&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x3-结束&#34;&gt;0x3 结束&lt;/h2&gt;
+&lt;p&gt;这里仅仅作为一个例子. 想继续深入研究的朋友可以去github找一些较大的xposed插件工程源码阅读:).&lt;/p&gt;
+</description>
     </item>
     
   </channel>

@@ -17,22 +17,103 @@
       <pubDate>Thu, 22 Oct 2015 17:45:08 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/msc2015_writeup/</guid>
-      <description>第一题 和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。
-把程序丢到jeb里查看，发现关键函数check无法被解析
-使用apktool d -d反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用apktool b -d重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。
-多次运行，输入不同的数字，发现v10会变化，但是v4是定值，520676，说明v10应该和输入有关，向上找会修改v10的地方，找到第36111行，在此处下断，运行。
-输入123456789，发现第一次断在此处v20值是123456790,继续运行会再次断在此处，如此循环，循环结束后继续运行会跳到关键的比较行，在比较行上有把v6和v4相加存入v4的操作。查找循环的比较条件，可以看到15983行有个v0和v5的比较，其中v5是定值1001,直接修改v0为1001,则最终v4的值不再是520676,同时v10的值也不再是之前输入123456789的值，所以36111行处应该和计算过程相关，是核心过程，继续向上找36111行v20的相关行，找到10832行。
-重新运行程序，输入123456789，程序断在此处是，v10是输入值，v8的值从v0处取得，v0的值变化规律为从1开始递加4,一直到1001,然后15983行的比较生效，跳转，最终运行到关键比较点。 使用python脚本计算1到1001的递增为4的累加值，为124750，让程序一直运行到比较点，观察v10的值为123581539，减去124750,刚好为输入。
-用v4的值减去124750,得到395926，即为key
-第二题 首先丢到jeb里分析，Ch函数里有个Morse码，解码后是WOJIUSHIDAAN，输入后不对，猜测是个坑。。 同时Ch里有做签名校验，重打包时需要patch掉。 apktool d -d 反编译，同时修改Ch的smali代码
-116 a=0;// #v2=(Reference,Ljava/lang/String;); 117 a=0;// const-string v1, &amp;quot;WJmkxxkkGnYbExi3dqzeaA&amp;quot; ...... 120 a=0;// 121 a=0;// move-result v1 122 a=0;// 123 a=0;// #v1=(Boolean); 124 a=0;// if-eqz v1, :cond_0 //需要修改的行 同时发现有native方法ch用来check，使用ida动态调试，直接闪退，有反调试。静态分析，导出表还有mprotect，同时猜测可能有动态修改执行代码。 最终在init_array里找到两个反调试的入口点,1424和3160
-1424和3160里分别有调用到sub_1284和sub_3400，前者很明显去调用fopen读取 proc/pid/status的tracerpid，后者在运行时会被多次调用，包括在动态释放的代码里也会调用，如果返回一个小于0的值，那么会尝试像不可写内存里写值，导致程序崩溃。
-使用bless打patch，把1284里的kill调用改为返回0,3400里的返回值改成0,使用的opcode是00 00 A0 E3 mov R0, #0，修改后如图：
-重新附加调试器，可以正常调试，在Java_k2015_a2_Ch_ch处下断点，让程序继续运行，输入abcdefg，成功断在native函数ch处，运行到sub_1DE0[0x3CBAFDE0]时单步进入，此时可以看到传入参数为输入
-sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有动态修改程序代码），后调用了函数loc_24C8[0x3CBB04C8]，步入前先使用idc脚本dump出来libwbox.so,此时的so里含有24C8的代码，可以用来静态分析，然后步入函数，查看其代码，对输入的字符串做了如下变换：
-变换后依然有动态修改代码的过程，然后调用loc_14A4[0x3CBAF4A4]，同样调用前dump出来so库，用于静态分析代码算法，在调用前会对输入进行变换，方法是输入的第i个元素的ASCII码加上i再存回数组，此时输入已经变为如下所示：
-在loc_14A4中会对输入再次变换，最终生成下面提到的16字节数组，计算方式如图：
-如图，用于计算的数组是[1F BC DA FF E6 4C BC 44 F5 B8 13 C8 EC A8 CD BD],计算方式是第i个元素的ASCII码加上上面对应的第i个数，结果保存为一个16字节数组。</description>
+      <description>&lt;h2 id=&#34;第一题&#34;&gt;第一题&lt;/h2&gt;
+&lt;p&gt;和去年类似，程序运行后要求输入，输入正确的值才能得到答案，打开DDMS监控，尝试输入字符串查看log并观察其行为，Log里有提示invalid int，说明要求输入的是个int范围内的数。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/int.jpg&#34; alt=&#34;int&#34;&gt;&lt;/p&gt;
+&lt;p&gt;把程序丢到jeb里查看，发现关键函数check无法被解析&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check1.jpg&#34; alt=&#34;check1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;使用&lt;code&gt;apktool d -d&lt;/code&gt;反编译查看smali代码，看到反编译出了5万行代码，其中有大量通过动态反射调用的函数，但是调用的都是java库函数，函数名硬编码成Reverse字符串，运行时逆转成真正的函数名。但是猜测既然是输入的数字，应该会有比较，使用&lt;code&gt;apktool b -d&lt;/code&gt;重打包，真机运行，使用netbeans动态调试，并且在check方法的所有cmp处下断点，最终在45540行的比较处发现，如果比较结果是不等，那么返回false，如果是true，则通过校验，程序显示蓝色字。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check2.jpg&#34; alt=&#34;check2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;多次运行，输入不同的数字，发现v10会变化，但是v4是定值，520676，说明v10应该和输入有关，向上找会修改v10的地方，找到第36111行，在此处下断，运行。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check3.jpg&#34; alt=&#34;check3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;输入123456789，发现第一次断在此处v20值是123456790,继续运行会再次断在此处，如此循环，循环结束后继续运行会跳到关键的比较行，在比较行上有把v6和v4相加存入v4的操作。查找循环的比较条件，可以看到15983行有个v0和v5的比较，其中v5是定值1001,直接修改v0为1001,则最终v4的值不再是520676,同时v10的值也不再是之前输入123456789的值，所以36111行处应该和计算过程相关，是核心过程，继续向上找36111行v20的相关行，找到10832行。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/check4.jpg&#34; alt=&#34;check4&#34;&gt;&lt;/p&gt;
+&lt;p&gt;重新运行程序，输入123456789，程序断在此处是，v10是输入值，v8的值从v0处取得，v0的值变化规律为从1开始递加4,一直到1001,然后15983行的比较生效，跳转，最终运行到关键比较点。
+使用python脚本计算1到1001的递增为4的累加值，为124750，让程序一直运行到比较点，观察v10的值为123581539，减去124750,刚好为输入。&lt;/p&gt;
+&lt;p&gt;用v4的值减去124750,得到395926，即为key&lt;/p&gt;
+&lt;h2 id=&#34;第二题&#34;&gt;第二题&lt;/h2&gt;
+&lt;p&gt;首先丢到jeb里分析，Ch函数里有个Morse码，解码后是WOJIUSHIDAAN，输入后不对，猜测是个坑。。
+同时Ch里有做签名校验，重打包时需要patch掉。
+apktool d -d 反编译，同时修改Ch的smali代码&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-smali&#34; data-lang=&#34;smali&#34;&gt;116 a=0;//     #v2=(Reference,Ljava/lang/String;);
+117 a=0;//     const-string v1, &amp;quot;WJmkxxkkGnYbExi3dqzeaA&amp;quot;
+......
+120 a=0;//
+121 a=0;//     move-result v1
+122 a=0;//
+123 a=0;//     #v1=(Boolean);
+124 a=0;//     if-eqz v1, :cond_0 //需要修改的行
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;同时发现有native方法ch用来check，使用ida动态调试，直接闪退，有反调试。静态分析，导出表还有mprotect，同时猜测可能有动态修改执行代码。
+最终在init_array里找到两个反调试的入口点,1424和3160&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug1.jpg&#34; alt=&#34;ddebug1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;1424和3160里分别有调用到sub_1284和sub_3400，前者很明显去调用fopen读取 proc/pid/status的tracerpid，后者在运行时会被多次调用，包括在动态释放的代码里也会调用，如果返回一个小于0的值，那么会尝试像不可写内存里写值，导致程序崩溃。&lt;/p&gt;
+&lt;p&gt;使用bless打patch，把1284里的kill调用改为返回0,3400里的返回值改成0,使用的opcode是&lt;strong&gt;00 00 A0 E3 mov R0, #0&lt;/strong&gt;，修改后如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug2.jpg&#34; alt=&#34;ddebug2&#34;&gt;
+&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/ddebug3.jpg&#34; alt=&#34;ddebug3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;重新附加调试器，可以正常调试，在&lt;strong&gt;Java_k2015_a2_Ch_ch&lt;/strong&gt;处下断点，让程序继续运行，输入abcdefg，成功断在native函数ch处，运行到sub_1DE0[0x3CBAFDE0]时单步进入，此时可以看到传入参数为输入&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd1.jpg&#34; alt=&#34;dyd1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;sub_1DE0中输入给了v1,然后mcpy到v43，最终在两个mprotect（其中有动态修改程序代码），后调用了函数loc_24C8[0x3CBB04C8]，步入前先使用idc脚本dump出来libwbox.so,此时的so里含有24C8的代码，可以用来静态分析，然后步入函数，查看其代码，对输入的字符串做了如下变换：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd2.jpg&#34; alt=&#34;dyd2&#34;&gt;&lt;/p&gt;
+&lt;p&gt;变换后依然有动态修改代码的过程，然后调用loc_14A4[0x3CBAF4A4]，同样调用前dump出来so库，用于静态分析代码算法，在调用前会对输入进行变换，方法是输入的第i个元素的ASCII码加上i再存回数组，此时输入已经变为如下所示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd3.jpg&#34; alt=&#34;dyd3&#34;&gt;&lt;/p&gt;
+&lt;p&gt;在loc_14A4中会对输入再次变换，最终生成下面提到的16字节数组，计算方式如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd4.jpg&#34; alt=&#34;dyd4&#34;&gt;&lt;/p&gt;
+&lt;p&gt;如图，用于计算的数组是[1F BC DA FF E6 4C BC 44  F5 B8 13 C8 EC A8 CD BD],计算方式是第i个元素的ASCII码加上上面对应的第i个数，结果保存为一个16字节数组。&lt;/p&gt;
+&lt;p&gt;最终在14A4中调用最终的一个动态生成的函数如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd5.jpg&#34; alt=&#34;dyd5&#34;&gt;&lt;/p&gt;
+&lt;p&gt;传入的参数是[80 1F 3F 66 4F B7 29 52  05 CA 27 DE 04 C2 E9 DB]&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd6.jpg&#34; alt=&#34;dyd6&#34;&gt;&lt;/p&gt;
+&lt;p&gt;同样在调用前dump出来so库，用于分析&lt;/p&gt;
+&lt;p&gt;分析最终的函数，发现其做了10轮加密，且输入和输出都是16直接数组，根据经验，猜测是AES，问题在于序找密钥，分析代码，发现代码下面有16个字节被引用&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd7.jpg&#34; alt=&#34;dyd7&#34;&gt;&lt;/p&gt;
+&lt;p&gt;且参与了运算，所以猜测key是
+&lt;strong&gt;6BCDC67A6B2B7C9D8DA459B1AB9D0680&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;使用此key，对下面说到的返回的结果进行解密结果相同，这里用到了一个在线解密网站，很好用，推荐一下http://testprotect.com/appendix/AEScalc&lt;/p&gt;
+&lt;p&gt;调用后函数会返回，返回结果是[0A BF F7 F6 C3 52 F1 21  6C 1E F5 A3 45 DB 32 29]
+调用返回后再接着会对结果，v56，一个16字节数组进行比较，参与比较的数值是一个硬编码好的16字节数组，值为[5C DA 77 2F A3 C6 3E 39  B6 F0 F3 ED 51 5A 99 86]，如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/MSC2015WriteUp/dyd8.jpg&#34; alt=&#34;dyd8&#34;&gt;&lt;/p&gt;
+&lt;p&gt;对此数组逆向算法，过程如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;AES解密&lt;/li&gt;
+&lt;li&gt;反向loc_14A4的算法&lt;/li&gt;
+&lt;li&gt;反向loc_24C8的算法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#!/bin/env python3&lt;/span&gt;
+
+&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Crack1 Calc&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+n &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1001&lt;/span&gt;):
+    n &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; i
+    i &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(n)
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;123581539&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; n)
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;520676&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; n)
+
+&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Crack2 Calc&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+src &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;0x8a&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x4b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x6e&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x59&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xca&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xf2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x52&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x05&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xca&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x27&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xde&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x04&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xc2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xe9&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xdb&lt;/span&gt;]
+srcPuls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1F&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xDA&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xFF&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xE6&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x4C&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x44&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xF5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xB8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x13&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xC8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xEC&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xA8&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xCD&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0xBD&lt;/span&gt;]
+out1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
+out2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(src)):
+    out1&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append((src[i] &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; srcPuls[i]) &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;256&lt;/span&gt;)
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(out1)):
+    out2&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append((out1[i] &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; i))
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(len(out2)):
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(chr(out2[i]), end&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;)
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最终结果是kboloy0&lt;/p&gt;
+&lt;h2 id=&#34;第三题&#34;&gt;第三题&lt;/h2&gt;
+&lt;p&gt;唔，给bin爷爷跪了。。。&lt;/p&gt;
+</description>
     </item>
     
   </channel>

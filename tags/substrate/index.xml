@@ -16,12 +16,173 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
-      <description>参考文档： 看雪，光哥博客，乌云知识库
-0x1 介绍 在家木事，学了下substrate用法，这里记录下～
-*Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
-0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
- 新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&amp;mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &amp;lt;uses-permission android:name=&amp;quot;cydia.permission.SUBSTRATE&amp;quot;/&amp;gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
- 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &amp;ldquo;=&amp;rdquo; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式    apply plugin: &amp;#39;com.android.model.application&amp;#39; model { android { compileSdkVersion = 23 buildToolsVersion = &amp;#34;23.</description>
+      <description>&lt;p&gt;&lt;strong&gt;参考文档：&lt;/strong&gt; &lt;em&gt;&lt;a href=&#34;http://bbs.pediy.com/showthread.php?t=199671&#34;&gt;看雪&lt;/a&gt;，&lt;a href=&#34;http://burningcodes.net/cydia-substrate-android-so-hook/&#34;&gt;光哥博客&lt;/a&gt;，&lt;a href=&#34;http://drops.wooyun.org/tips/8084&#34;&gt;乌云知识库&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x1-介绍&#34;&gt;0x1 介绍&lt;/h2&gt;
+&lt;p&gt;在家木事，学了下substrate用法，这里记录下～&lt;/p&gt;
+&lt;p&gt;*&lt;em&gt;&lt;a href=&#34;http://www.cydiasubstrate.com/&#34;&gt;Substrate&lt;/a&gt;&lt;strong&gt;是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的&lt;/strong&gt;&lt;/em&gt;&lt;a href=&#34;http://www.cydiasubstrate.com/api/c/&#34;&gt;文档&lt;/a&gt;***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-准备工作&#34;&gt;0x2 准备工作&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本&lt;/li&gt;
+&lt;li&gt;按照官方说明，下载substrate框架apk并安装，重启设备&lt;/li&gt;
+&lt;li&gt;下载sdk到本地并解压，官方提供了两种方式
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip&#34;&gt;直接下载&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;通过Android SDK Manager管理下载：&lt;a href=&#34;http://www.cydiasubstrate.com/id/73e45fe5-4525-4de7-ac14-6016652cc1b8/&#34;&gt;说明页面&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;0x3-substrate-with-android-studio&#34;&gt;0x3 Substrate with Android Studio&lt;/h2&gt;
+&lt;p&gt;首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。
+言归正传：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;新建一个工程，名字随意，比如HelloSubstrate&lt;/li&gt;
+&lt;li&gt;由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要&lt;/li&gt;
+&lt;li&gt;在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去&lt;/li&gt;
+&lt;li&gt;在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&amp;mdash;&lt;a href=&#34;http://www.cydiasubstrate.com/inject/android/&#34;&gt;文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;在manifest文件里加上权限声明，否则无法正常工作
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;&lt;code&gt;&amp;lt;uses-permission android:name=&amp;quot;cydia.permission.SUBSTRATE&amp;quot;/&amp;gt;&lt;/code&gt;&lt;/strong&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;额外的准备工作&#34;&gt;额外的准备工作&lt;/h3&gt;
+&lt;p&gt;又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确保你的gradle是最新的&lt;/li&gt;
+&lt;li&gt;修改./Project/build.gradle的classpath为
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;&lt;code&gt;classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;&lt;/code&gt;&lt;/strong&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;修改./Project/app/build.gradle为如下样式：&lt;strong&gt;注意其中的不同&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;apply plugin的模块变了&lt;/li&gt;
+&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;ldquo;=&amp;rdquo;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-XML&#34; data-lang=&#34;XML&#34;&gt;apply plugin: &amp;#39;com.android.model.application&amp;#39;
+
+model {
+    android {
+        compileSdkVersion = 23
+        buildToolsVersion = &amp;#34;23.0.2&amp;#34;
+        defaultConfig.with {
+            applicationId = &amp;#34;com.exiahan.hellosubstrate&amp;#34;
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 23
+            versionCode = 1
+            versionName = &amp;#34;1.0&amp;#34;
+        }
+        tasks.withType(JavaCompile) {
+            //指定编译JDK版本
+            sourceCompatibility = JavaVersion.VERSION_1_7
+            targetCompatibility = JavaVersion.VERSION_1_7
+        }
+    }
+    android.buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles += file(&amp;#39;proguard-rules.pro&amp;#39;)
+        }
+    }
+
+    android.ndk {
+        moduleName = &amp;#34;cydiaSubstrateHook.cy&amp;#34;
+        ldFlags += &amp;#34;-L./lib/armeabi&amp;#34;
+        ldLibs += &amp;#34;log&amp;#34;
+        ldLibs += &amp;#34;substrate&amp;#34;
+        ldLibs += &amp;#34;substrate-dvm&amp;#34;
+        abiFilters += &amp;#34;armeabi&amp;#34;
+    }
+}
+dependencies {
+    compile fileTree(include: [&amp;#39;*.jar&amp;#39;], dir: &amp;#39;libs&amp;#39;)
+    compile &amp;#39;com.android.support:appcompat-v7:23.0.0&amp;#39;
+}
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;由于我们生成的hook用apk会在运行时使用substrate框架提供的库函数和log相关函数，所以需要加上动态链接的一些选项，同时按照sdk要求，生成的modulename必须是.cy.so结尾&lt;/p&gt;
+&lt;p&gt;一切就绪，就可以开始编写小例子了。&lt;/p&gt;
+&lt;p&gt;在刚刚的jni文件夹里创建cydiaSubstrateHook.cy.cpp文件，内容如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Created by exiahan on 15-10-5.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;android/log.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;substrate.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define TAG &amp;#34;CydiaSubstrate&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//define LOGI Marco
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#define GETLR(store_lr)  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;  __asm__ __volatile__(  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    &amp;#34;mov %0, lr\n\t&amp;#34;  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    :  &amp;#34;=r&amp;#34;(store_lr)  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;  )
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;//Specify the lib to hook
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;MSConfig(MSFilterLibrary, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/system/lib/libc.so&amp;#34;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; oldfopen)(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; path, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; mode);
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;newfopen&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; path, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; mode) {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; lr;
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:newfopen called! -- [%d]&amp;#34;&lt;/span&gt;, getpid());
+    GETLR(lr);
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:BackTrace -- [0x%x]&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, lr);
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:File Path -- [%s]&amp;#34;&lt;/span&gt;, path);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; oldfopen(path, mode);
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * Substrate entry point
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; */&lt;/span&gt;
+MSInitialize
+{
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Let the user know that the extension has been
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// extension has been registered
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    LOGI( &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Substrate initialized.&amp;#34;&lt;/span&gt;);
+    MSImageRef image;
+
+    image &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; MSGetImageByName(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/system/lib/libc.so&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (image &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; NULL)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hookfopen&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;MSFindSymbol(image,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fopen&amp;#34;&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(hookfopen&lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt;NULL)
+        {
+            LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;error find fopen &amp;#34;&lt;/span&gt;);
+        }
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+            MSHookFunction(hookfopen,(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;newfopen,(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;oldfopen);
+        }
+    }
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+        LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ERROR FIND LIBC&amp;#34;&lt;/span&gt;);
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;阅读源码，可知Hook过程如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确定我们要Hook的函数，为其重写一个我们自己的版本，这里选择的是fopen，也是脱壳时通常会注意的函数&lt;/li&gt;
+&lt;li&gt;使用MSConfig宏指定fopen所在的库libc.so为要hook的库&lt;/li&gt;
+&lt;li&gt;在MSInitialize初始化函数里执行如下流程：
+&lt;ul&gt;
+&lt;li&gt;MSGetImageByName得到libc.so句柄&lt;/li&gt;
+&lt;li&gt;MSFindSymbol找到即将被hook的函数fopen的函数指针并存储，以保证在hook后依旧可以正常完成相关功能&lt;/li&gt;
+&lt;li&gt;MSHookFunction开始hook函数，这时会把原本的fopen的调用地址放到oldopen里，这样在newfopen里调用oldfopen完成真正的fopen功能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;运行结果如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/SubsTrateWithAndroidStudio/result.jpg&#34; alt=&#34;result&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x4-总结&#34;&gt;0x4 总结&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;到现在为止接触了两种用于Hook的框架，相对于Xposed，Substrate在代码注入上更容易操作，而且提供了native层的注入选项，但是相对于xposed现在已经支持Lolipop而言，substrate还停留在dalvik的时代，期待支持lollipop的substrate尽快出现&lt;/li&gt;
+&lt;li&gt;框架为我们提供了方便，但是阅读他们的文档就能发现归根结底的话都是在对rom做动态修改，最近看到了看雪上的**&lt;a href=&#34;http://bbs.pediy.com/showthread.php?p=1389779#post1389779&#34;&gt;DexHunter&lt;/a&gt;**，十分厉害，大概思路是定制ROM实现脱壳，这样apk做的一些反调试和防注入而言（*一些加固方案会自己通过.init方法在本地hook一些libc关键函数*）基本上都是小儿科了，准备下个月有空了买个Nexus好好研究下。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
     </item>
     
   </channel>

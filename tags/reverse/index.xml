@@ -17,17 +17,58 @@
       <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
-      <description>内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
-0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
-0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp;amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
- libc.so fgets fopen libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex  这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取
-|---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
-文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID 所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试
-真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&amp;lt;(=｀o′=)&amp;gt;┓哼 ┏&amp;lt;(=｀○′=)&amp;gt;┛哼┏&amp;lt;(=｀o′=)&amp;gt;┓哈┗&amp;lt;(=｀O′=)&amp;gt;┛兮！！
-再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？
-去源码dalvik文件夹下执行
-grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
-72 /* 73 * Given a file descriptor for an open &amp;#34;optimized&amp;#34; DEX file, map it into 74 * memory and parse the contents. 75 * 76 * On success, returns 0 and sets &amp;#34;*ppDvmDex&amp;#34; to a newly-allocated DvmDex.</description>
+      <description>&lt;p&gt;&lt;strong&gt;内容仅供学习讨论&lt;/strong&gt;
+&lt;strong&gt;参考文档：&lt;/strong&gt; &lt;em&gt;&lt;a href=&#34;http://www.sycode.cn/2015/06/27/%E7%88%B1%E5%8A%A0%E5%AF%86-%E5%8A%A8%E6%80%81%E8%84%B1%E5%A3%B3%E4%B9%8B%E3%80%90%E6%99%BA%E8%83%BD%E8%A7%86%E7%AA%97app%E3%80%91%E8%84%B1%E5%A3%B3%E4%BF%AE%E5%A4%8D/#0x001&#34;&gt;爱加密动态脱壳&lt;/a&gt;，&lt;a href=&#34;http://www.cnblogs.com/2014asm/p/4112116.html&#34;&gt;爱加密动态脱壳法&lt;/a&gt;，&lt;a href=&#34;http://www.9hao.info/pages/2014/07/qian-tan-androidni-xiang-fen-xi-na-xie-lan-lu-hu&#34;&gt;浅谈android逆向分析那些拦路虎&lt;/a&gt;，&lt;a href=&#34;http://burningcodes.net/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%B8%AD%E8%B7%9F%E8%B8%AAdex%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B/&#34;&gt;光哥博客&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x1-说在开头&#34;&gt;0x1 说在开头&lt;/h2&gt;
+&lt;p&gt;现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-实验环境&#34;&gt;0x2 实验环境&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Android 真机，Version 4.1.2， with &lt;strong&gt;ROOT &amp;amp; Xposed&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;某被IJiaMi加固的App&lt;/li&gt;
+&lt;li&gt;IDA调试器&lt;/li&gt;
+&lt;li&gt;adb&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;0x3-过程&#34;&gt;0x3 过程&lt;/h2&gt;
+&lt;p&gt;下断点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;libc.so fgets fopen&lt;/li&gt;
+&lt;li&gt;libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt; |---/proc/&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;pid&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;/status
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;对于这个我也写了个，大概实现可以看这里：&lt;a href=&#34;https://github.com/ExiaHan/exiahanLib/blob/master/exiahanLib.c&#34;&gt;getTracerPid&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID
+所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&amp;lt;(=｀o′=)&amp;gt;┓哼 ┏&amp;lt;(=｀○′=)&amp;gt;┛哼┏&amp;lt;(=｀o′=)&amp;gt;┓哈┗&amp;lt;(=｀O′=)&amp;gt;┛兮！！&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？&lt;/p&gt;
+&lt;p&gt;去源码dalvik文件夹下执行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;grep -rn dvmDexFileOpen
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;72&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 73  * Given a file descriptor for an open &amp;#34;optimized&amp;#34; DEX file, map it into
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 74  * memory and parse the contents.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 75  *
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 76  * On success, returns 0 and sets &amp;#34;*ppDvmDex&amp;#34; to a newly-allocated DvmDex.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 77  * On failure, returns a meaningful error code [currently just -1].
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 78  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;79&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; dvmDexFileOpenFromFd(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; fd, DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt; ppDvmDex);
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;81&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 82  * Open a partial DEX file.  Only useful as part of the optimization process.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 83  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;84&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; dvmDexFileOpenPartial(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; addr, &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; len, DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt; ppDvmDex);
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;85&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;86&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 87  * Free a DvmDex structure, along with any associated structures.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 88  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;89&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; dvmDexFileFree(DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; pDvmDex);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可以看到三个和加载dex（包括odex）的函数都在这里，就像注释说明的，dvmDexFileOpenPartial函数是加载dex文件必须用到的一步，其前两个参数分别是dex文件在内存中的地址和其长度，知道这些后就可以尝试现在这里下断然后尝试dump出来dex文件啦。所以在其中下断，就能找到运行时所加载的真正dex文件，然后使用IDC脚本dump出来即可.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; fp, dexAddress;
+fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;xx.dex&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;wb&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (dexAddress &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x3D4AE72C&lt;/span&gt;; dexAddress &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x3DB9C098&lt;/span&gt;; dexAddress&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;)
+   fputc(Byte(dexAddress), fp)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;del&gt;脱掉后dex2jar转成jar用jd-gui看下真正的入口Activity，然后baksmali一下，把manifest.xml里的入口改掉，改成真正入口Activity。&lt;/del&gt;&lt;/p&gt;
+</description>
     </item>
     
     <item>
@@ -36,14 +77,33 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
       <pubDate>Fri, 18 Sep 2015 20:01:27 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/dice_write_up/</guid>
-      <description>0x1 题目链接：Simple-Reverse-Dice
-0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
-运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
-0x3 使用IDA和Ollydbg进行分析
- 在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个time类型，推测可能每次摇骰子是随机生成数值。 继续向下，可以看到程序有判断是否有附加调试器：  isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测   继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7 再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch 仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2 最后发现上面最好patch后，加了横线的描述应该不会发生  #0x4 上述步骤完成，拿到flag，如图：
-#0x5
-昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&amp;laquo;(≧口≦)&amp;raquo;o，炸裂了。。我好蠢。。汪，就这样
-顺便把我的暴力方法打的断点图备忘一下：</description>
+      <description>&lt;h2 id=&#34;0x1&#34;&gt;0x1&lt;/h2&gt;
+&lt;p&gt;题目链接：&lt;a href=&#34;http://ctf5.simplexue.com/re/Dice.exe&#34;&gt;Simple-Reverse-Dice&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x2&#34;&gt;0x2&lt;/h2&gt;
+&lt;p&gt;拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。&lt;/p&gt;
+&lt;p&gt;运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。&lt;/p&gt;
+&lt;h2 id=&#34;0x3&#34;&gt;0x3&lt;/h2&gt;
+&lt;p&gt;使用IDA和Ollydbg进行分析&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个&lt;strong&gt;time类型&lt;/strong&gt;，推测可能每次摇骰子是随机生成数值。&lt;/li&gt;
+&lt;li&gt;继续向下，可以看到程序有判断是否有附加调试器：
+&lt;ul&gt;
+&lt;li&gt;isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch&lt;/del&gt;&lt;/li&gt;
+&lt;li&gt;仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2&lt;/li&gt;
+&lt;li&gt;最后发现上面最好patch后，加了横线的描述应该不会发生&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;#0x4
+上述步骤完成，拿到flag，如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/DiceWriteUp/flag.jpg&#34; alt=&#34;flag&#34;&gt;&lt;/p&gt;
+&lt;p&gt;#0x5&lt;/p&gt;
+&lt;p&gt;昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&amp;laquo;(≧口≦)&amp;raquo;o，炸裂了。。我好蠢。。汪，就这样&lt;/p&gt;
+&lt;p&gt;顺便把我的暴力方法打的断点图备忘一下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/DiceWriteUp/breaklist.jpg&#34; alt=&#34;break list&#34;&gt;&lt;/p&gt;
+</description>
     </item>
     
   </channel>

@@ -17,7 +17,52 @@
       <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
-      <description>Describe Recently I need to use sqlite3 to quickly modify values in a db file located in an android device. Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products.</description>
+      <description>&lt;h2 id=&#34;describe&#34;&gt;Describe&lt;/h2&gt;
+&lt;p&gt;Recently I need to use sqlite3 to quickly modify values in a db file located in an android device.  Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products. So it will be  fine to build sqlite3 from sqlite3 source file directly. This article will tell you how to build a usable sqlite3 from sqlite&amp;rsquo;s source file via android-ndk.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;I Assume you are using Linux.&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;prepare&#34;&gt;Prepare&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ANDROID NDK: Because we are going to build ELF file for android, so you must have &lt;a href=&#34;https://developer.android.com/ndk/&#34;&gt;Android-NDK&lt;/a&gt; installed. If you don&amp;rsquo;t have it, install it via distribution&amp;rsquo;s package manager(If you are using Linux) or directly download from official site.&lt;/li&gt;
+&lt;li&gt;The Source File: Then we should download the source file of sqlite. The source file can be downloaded easily from its &lt;a href=&#34;https://www.sqlite.org/download.html&#34;&gt;Official Site&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Essential Building Components: Also make sure your system has essential building components installed. If it alerts any missing when building, just install them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;build&#34;&gt;Build&lt;/h3&gt;
+&lt;p&gt;Now everything is ok. We can start our building action. To avoid any not errors when building. Here I recommend you use the &lt;a href=&#34;https://developer.android.com/ndk/guides/standalone_toolchain&#34;&gt;Standalone ToolChain&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A standalone toolchain can be easily setup via do what the tutorial says.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Create an arm64 API 26 libc++ toolchain.&lt;/span&gt;
+export NDK&lt;span style=&#34;color:#f92672&#34;&gt;={&lt;/span&gt;path to ndk&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+$NDK/build/tools/make_standalone_toolchain.py &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --arch arm64 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --api &lt;span style=&#34;color:#ae81ff&#34;&gt;26&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --stl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;libc++ &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --install-dir&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Add the standalone toolchain to the search path.&lt;/span&gt;
+export PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$PATH:/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/bin
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what tools to use.&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# If you want armeabi, just change target_host to&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# target_host=arm-linux-androideabi&lt;/span&gt;
+target_host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;aarch64-linux-android
+export AR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ar
+export AS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+export CC&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+export CXX&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang++
+export LD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ld
+export STRIP&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-strip
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what flags Android requires.&lt;/span&gt;
+export CFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-fPIE -fPIC&amp;#34;&lt;/span&gt;
+export LDFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-pie&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now everything is ok. Extract the source file to some place you want, then use configure and make like below shows, the sqlite ELF file will be generated successfully.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$tar -xzvf sqlite-snapshot-201807272333.tar.gz
+$./configure --host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;arm-linux-androideabi
+$make
+...
+$file sqlite3
+sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SYSV&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All done.&lt;/p&gt;
+</description>
     </item>
     
   </channel>
