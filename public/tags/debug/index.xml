@@ -17,7 +17,33 @@
       <pubDate>Sat, 15 Feb 2020 10:19:20 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/debug_java_via_vscode/</guid>
-      <description>&lt;p&gt;This is place holder.&lt;/p&gt;
+      <description>&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
+&lt;p&gt;Since last year I moved to vscode from emacs(yeah u r right, I betray my belief cause vscode have emacs keymap.) for some big project written in python, java and C/C++. The reason why I didn&amp;rsquo;t use IDEA is because it&amp;rsquo;s just a new f**king resource monster just like myeclipse in year 2009(I have to say that without SSD IDEA is a bullshit.).&lt;/p&gt;
+&lt;p&gt;With the remote server plugin, it&amp;rsquo;s very convenient to develop and debug projects that host on remote server.
+It works very well for python or C/C++ project cause usually you can easily start your project in debug mode from the entry point. But java, things are different cause java project usually have many different build system like maven, ant, gradle. For me I&amp;rsquo;m not very familiar with them, and the reason I begin to write java is to enhance a static java analysis project based on flowdroid.&lt;/p&gt;
+&lt;p&gt;Now the problem comes, flowdroid use maven to build, so usually it&amp;rsquo;s very hard for me to directly debug it via press &lt;strong&gt;F5&lt;/strong&gt;. So I searched a lot in Google and have solution finally.&lt;/p&gt;
+&lt;h2 id=&#34;debug-remote-java-project-via-attach&#34;&gt;Debug remote java project via attach&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;F&lt;/strong&gt;irst make sure you&amp;rsquo;ve already build your project successfully in to a jar file with all dependencies. If you build a jar without the dependencies, you may have to specify &lt;strong&gt;classpath&lt;/strong&gt; to let Java can find them.&lt;/p&gt;
+&lt;p&gt;Then here is the way to start them in debug mode.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;java -agentlib:jdwp&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;transport&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dt_socket&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;,server&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;y,suspend&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;y,address&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;127.0.0.1:6666 -jar &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;YOUR JAR FILE&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If the jar file have all dependencies satisfied. It will be launch but wait for debugger to attach.&lt;/p&gt;
+&lt;p&gt;Then in your vscode workspace, add below entry to launch.json in your workspace&amp;rsquo;s .vscode folder. If there is no launch.json, create it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;{
+    &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;Use&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;IntelliSense&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;to&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;learn&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;about&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;possible&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;attributes.&lt;/span&gt;
+    &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;Hover&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;to&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;view&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;descriptions&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;of&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;existing&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;attributes.&lt;/span&gt;
+    &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;For&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;more&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;information,&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;visit:&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;https://go.microsoft.com/fwlink/?linkid=830387&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;version&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.2.0&amp;#34;&lt;/span&gt;,
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;configurations&amp;#34;&lt;/span&gt;: [
+        {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;java&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Debug (Attach) - Remote&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;request&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;attach&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;hostName&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;127.0.0.1&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;port&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;6666&lt;/span&gt;
+        }
+&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now feel free to debug your project with any breakpoints on your source files. :)&lt;/p&gt;
 </description>
     </item>
     

@@ -13,10 +13,12 @@
     
     <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Debug Java via VSCode"/>
-<meta name="twitter:description" content="This is place holder."/>
+<meta name="twitter:description" content="Background Since last year I moved to vscode from emacs(yeah u r right, I betray my belief cause vscode have emacs keymap.) for some big project written in python, java and C/C&#43;&#43;. The reason why I didn&rsquo;t use IDEA is because it&rsquo;s just a new f**king resource monster just like myeclipse in year 2009(I have to say that without SSD IDEA is a bullshit.).
+With the remote server plugin, it&rsquo;s very convenient to develop and debug projects that host on remote server."/>
 
     <meta property="og:title" content="Debug Java via VSCode" />
-<meta property="og:description" content="This is place holder." />
+<meta property="og:description" content="Background Since last year I moved to vscode from emacs(yeah u r right, I betray my belief cause vscode have emacs keymap.) for some big project written in python, java and C/C&#43;&#43;. The reason why I didn&rsquo;t use IDEA is because it&rsquo;s just a new f**king resource monster just like myeclipse in year 2009(I have to say that without SSD IDEA is a bullshit.).
+With the remote server plugin, it&rsquo;s very convenient to develop and debug projects that host on remote server." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://blog.exiahan.com/posts/debug_java_via_vscode/" />
 <meta property="article:published_time" content="2020-02-15T10:19:20+08:00" />
@@ -88,7 +90,7 @@
   <title>clock</title>
   <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
 </svg>
-          1 min read
+          2 min read
         </div><div>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
   <title>tag</title>
@@ -97,7 +99,33 @@
           <a class="tag" href="https://blog.exiahan.com/tags/debug/">Debug</a><a class="tag" href="https://blog.exiahan.com/tags/java/">Java</a></div></div>
     </header>
     <div class="post-content">
-      <p>This is place holder.</p>
+      <h2 id="background">Background</h2>
+<p>Since last year I moved to vscode from emacs(yeah u r right, I betray my belief cause vscode have emacs keymap.) for some big project written in python, java and C/C++. The reason why I didn&rsquo;t use IDEA is because it&rsquo;s just a new f**king resource monster just like myeclipse in year 2009(I have to say that without SSD IDEA is a bullshit.).</p>
+<p>With the remote server plugin, it&rsquo;s very convenient to develop and debug projects that host on remote server.
+It works very well for python or C/C++ project cause usually you can easily start your project in debug mode from the entry point. But java, things are different cause java project usually have many different build system like maven, ant, gradle. For me I&rsquo;m not very familiar with them, and the reason I begin to write java is to enhance a static java analysis project based on flowdroid.</p>
+<p>Now the problem comes, flowdroid use maven to build, so usually it&rsquo;s very hard for me to directly debug it via press <strong>F5</strong>. So I searched a lot in Google and have solution finally.</p>
+<h2 id="debug-remote-java-project-via-attach">Debug remote java project via attach</h2>
+<p><strong>F</strong>irst make sure you&rsquo;ve already build your project successfully in to a jar file with all dependencies. If you build a jar without the dependencies, you may have to specify <strong>classpath</strong> to let Java can find them.</p>
+<p>Then here is the way to start them in debug mode.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">java -agentlib:jdwp<span style="color:#f92672">=</span>transport<span style="color:#f92672">=</span>dt_socket<span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>,server<span style="color:#f92672">=</span>y,suspend<span style="color:#f92672">=</span>y,address<span style="color:#f92672">=</span>127.0.0.1:6666 -jar <span style="color:#f92672">[</span>YOUR JAR FILE<span style="color:#f92672">]</span>
+</code></pre></div><p>If the jar file have all dependencies satisfied. It will be launch but wait for debugger to attach.</p>
+<p>Then in your vscode workspace, add below entry to launch.json in your workspace&rsquo;s .vscode folder. If there is no launch.json, create it.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Use</span> <span style="color:#960050;background-color:#1e0010">IntelliSense</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">learn</span> <span style="color:#960050;background-color:#1e0010">about</span> <span style="color:#960050;background-color:#1e0010">possible</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Hover</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">view</span> <span style="color:#960050;background-color:#1e0010">descriptions</span> <span style="color:#960050;background-color:#1e0010">of</span> <span style="color:#960050;background-color:#1e0010">existing</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">For</span> <span style="color:#960050;background-color:#1e0010">more</span> <span style="color:#960050;background-color:#1e0010">information,</span> <span style="color:#960050;background-color:#1e0010">visit:</span> <span style="color:#960050;background-color:#1e0010">https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;0.2.0&#34;</span>,
+    <span style="color:#f92672">&#34;configurations&#34;</span>: [
+        {
+            <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;java&#34;</span>,
+            <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Debug (Attach) - Remote&#34;</span>,
+            <span style="color:#f92672">&#34;request&#34;</span>: <span style="color:#e6db74">&#34;attach&#34;</span>,
+            <span style="color:#f92672">&#34;hostName&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
+            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">6666</span>
+        }
+<span style="color:#960050;background-color:#1e0010">}</span>
+</code></pre></div><p>Now feel free to debug your project with any breakpoints on your source files. :)</p>
 
     </div>
     <div class="post-footer">
