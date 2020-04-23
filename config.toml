@@ -38,7 +38,3 @@ theme = "m10c"
     [[params.exchange]]
         name = "光哥"
         url = "https://burningcodes.net/"
-    [[params.exchange]]
-        name = "eric1iu"
-        url = "https://erik1iu.github.io/"
-
