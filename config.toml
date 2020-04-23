@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "ExiaHan's Blog"
 theme = "m10c"
 
-pygmentsOptions = "linenos=inline"
+pygmentsOptions = "linenos=table"
 
 [params]
     author = "ExiaHan"

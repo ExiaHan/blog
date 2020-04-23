@@ -15,12 +15,12 @@
 <meta name="twitter:title" content="Linux Hook Notes"/>
 <meta name="twitter:description" content="Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
 Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
-1//file mylib.h 2#ifndef _MYLIB_H_ 3#define _MYLIB_H_ 4 5extern void myprint(const char *str); 6#endif 1//file mylib.c 2#include &lt;stdio.h&gt;3#include &lt;stdlib.h&gt;4#include &lt;sys/types.h&gt;5#include &lt;unistd.h&gt;6#include &#34;mylib.h&#34;7 8void myprint() 9{ 10 static unsigned counter = 0; 11 counter&#43;&#43;; 12 printf(&#34;%d, pid (%d)&#34;, counter, getpid()); 13 return; 14} 1//mymain."/>
+1 2 3 4 5 6  //file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif   1 2 3 4 5 6 7 8 9 10 11 12 13 14  //file mylib."/>
 
     <meta property="og:title" content="Linux Hook Notes" />
 <meta property="og:description" content="Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
 Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
-1//file mylib.h 2#ifndef _MYLIB_H_ 3#define _MYLIB_H_ 4 5extern void myprint(const char *str); 6#endif 1//file mylib.c 2#include &lt;stdio.h&gt;3#include &lt;stdlib.h&gt;4#include &lt;sys/types.h&gt;5#include &lt;unistd.h&gt;6#include &#34;mylib.h&#34;7 8void myprint() 9{ 10 static unsigned counter = 0; 11 counter&#43;&#43;; 12 printf(&#34;%d, pid (%d)&#34;, counter, getpid()); 13 return; 14} 1//mymain." />
+1 2 3 4 5 6  //file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif   1 2 3 4 5 6 7 8 9 10 11 12 13 14  //file mylib." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://blog.exiahan.com/posts/linux_hook_notes/" />
 <meta property="article:published_time" content="2015-07-29T09:59:25+08:00" />
@@ -105,181 +105,444 @@ Start First we will make some file for the lab.So we need three file, a .h file,
 <p>For have read a article in WebSite <a href="http://www.codeproject.com/Articles/33340/Code-Injection-into-Running-Linux-Application">code project</a>, and learned lots of from it. So make a memo for later consulting.</p>
 <h2 id="start">Start</h2>
 <p>First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#75715e">//file mylib.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#75715e"></span><span style="color:#75715e">#ifndef _MYLIB_H_
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#75715e">#define _MYLIB_H_
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#75715e"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>str);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#75715e">#endif
-</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#75715e">//file mylib.c
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#75715e"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>   <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">unsigned</span> counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>   counter<span style="color:#f92672">++</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>   printf(<span style="color:#e6db74">&#34;%d, pid (%d)&#34;</span>, counter, getpid());
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>   <span style="color:#66d9ef">return</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#75715e">//mymain.c
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#75715e"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#75715e">#define TRUE 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#75715e"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#66d9ef">while</span>(TRUE) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        myprint();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        printf(<span style="color:#e6db74">&#34;Going to sleep</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        sleep(<span style="color:#ae81ff">3</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        printf(<span style="color:#e6db74">&#34;Wake up</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#75715e">//file myinject.c
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#75715e"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injection</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    myprint();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>    system(<span style="color:#e6db74">&#34;date&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
-</code></pre></div><p>For in the above, the file mylib.h, mylib.c is used to generate our test app, and the file myinject.c is used to do our injdect, that is we want hook the myprint function, when myprint is invoke, the function injection will be invoked indeed.</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file mylib.h
+</span><span style="color:#75715e"></span><span style="color:#75715e">#ifndef _MYLIB_H_
+</span><span style="color:#75715e">#define _MYLIB_H_
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>str);
+<span style="color:#75715e">#endif
+</span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file mylib.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>()
+{
+   <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">unsigned</span> counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+   counter<span style="color:#f92672">++</span>;
+   printf(<span style="color:#e6db74">&#34;%d, pid (%d)&#34;</span>, counter, getpid());
+   <span style="color:#66d9ef">return</span>;
+}
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//mymain.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+
+<span style="color:#75715e">#define TRUE 1
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
+{
+    <span style="color:#66d9ef">while</span>(TRUE) {
+        myprint();
+        printf(<span style="color:#e6db74">&#34;Going to sleep</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        sleep(<span style="color:#ae81ff">3</span>);
+        printf(<span style="color:#e6db74">&#34;Wake up</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+    }
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file myinject.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injection</span>()
+{
+    myprint();
+    system(<span style="color:#e6db74">&#34;date&#34;</span>);
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>For in the above, the file mylib.h, mylib.c is used to generate our test app, and the file myinject.c is used to do our injdect, that is we want hook the myprint function, when myprint is invoke, the function injection will be invoked indeed.</p>
 <p>create the three file, and compile like below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>$ gcc -g -lmylib -L ./ mymain.c -o app
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>$ gcc -Wall myinject.c -c -o myinject.o
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>$ export LD_LIBRARY_PATH<span style="color:#f92672">=</span>.:<span style="color:#f92672">[</span>your path where the libmylib.so in<span style="color:#f92672">]</span>
-</code></pre></div><p>For Address-Independent, we add the option -fPIC when build mylib.c to libmylib.so</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so
+$ gcc -g -lmylib -L ./ mymain.c -o app
+$ gcc -Wall myinject.c -c -o myinject.o
+$ export LD_LIBRARY_PATH<span style="color:#f92672">=</span>.:<span style="color:#f92672">[</span>your path where the libmylib.so in<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>For Address-Independent, we add the option -fPIC when build mylib.c to libmylib.so</p>
 <p>what you should care is the -lmylib is fixed to the libmylib, so remember to change it if you name your file another name.</p>
 <h2 id="lets-rock-our-app">Let&rsquo;s Rock Our App</h2>
 <p>Now we can do with the elf file what we just generated.</p>
 <h4 id="1start-our-app">1.Start our app</h4>
 <p>Run our app:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ ./app
-</code></pre></div><p>Now we will see the PID via the output. Then we will use gdb to attach the app, via the pid:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ ./app
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ sudo gdb -p PID<span style="color:#f92672">[</span>5832<span style="color:#f92672">]</span>
-</code></pre></div><p>After do this, we now attached to the app:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ sudo gdb -p <span style="color:#ae81ff">5832</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>GNU gdb <span style="color:#f92672">(</span>GDB<span style="color:#f92672">)</span> 7.9.1
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> <span style="color:#ae81ff">2015</span> Free Software Foundation, Inc.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>License GPLv3+: GNU GPL version <span style="color:#ae81ff">3</span> or later
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>......
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>Attaching to process <span style="color:#ae81ff">6618</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>Reading symbols from ./libmylib.so...done.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>Reading symbols from /usr/lib32/libc.so.6...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>Reading symbols from /lib/ld-linux.so.2...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>0xf7722c10 in __kernel_vsyscall <span style="color:#f92672">()</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
-</code></pre></div><h4 id="2operate-and-analysis-our-appmyinjecto">2.Operate and Analysis our app/myinject.o</h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./app
+</code></pre></td></tr></table>
+</div>
+</div><p>Now we will see the PID via the output. Then we will use gdb to attach the app, via the pid:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./app
+1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo gdb -p PID<span style="color:#f92672">[</span>5832<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>After do this, we now attached to the app:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo gdb -p <span style="color:#ae81ff">5832</span>
+GNU gdb <span style="color:#f92672">(</span>GDB<span style="color:#f92672">)</span> 7.9.1
+Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> <span style="color:#ae81ff">2015</span> Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version <span style="color:#ae81ff">3</span> or later
+......
+Attaching to process <span style="color:#ae81ff">6618</span>
+Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.
+Reading symbols from ./libmylib.so...done.
+Reading symbols from /usr/lib32/libc.so.6...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
+Reading symbols from /lib/ld-linux.so.2...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
+0xf7722c10 in __kernel_vsyscall <span style="color:#f92672">()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="2operate-and-analysis-our-appmyinjecto">2.Operate and Analysis our app/myinject.o</h4>
 <p>First we load our myinject.o into the app&rsquo;s process space.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call open<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myinject.o&#34;</span>, 2<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call mmap<span style="color:#f92672">(</span>0, Size, 1|2|4, 2, ReturnFrom-open, 0<span style="color:#f92672">)</span>
-</code></pre></div><p>In the open ,the value 2 represent the O_RDWR(Read and Write),then we use mmap function, to put the myinject.o in to the app&rsquo;s process space, the first and second specify the size of myinject.o, if first is NULL(0), the os justify the start address of the file, the <strong>Size</strong> can be get via:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ ls -l myinject.o
-</code></pre></div><p>Then the 1|2|4 represent PROT_READ | PROT_WRITE | PROT_EXEC, so we can for we will write and execute it. The follow 1 represent the <strong>MAP_SHARED</strong> <strong>[But caution, we can use 2, means MAP_PRIVATE, it also works, the MAP_SHARED  will cause the myinject.o in the file also be changed if we write something, yes, actually we will.][好吧，重要的地方说中文，flags最好设置成MAP_PRIIVATE，这样mmap文件到内存后，修改不会影响disk文件，按照英文的文档用SHARED的话，下次要重新生成myinject.o，不然文件被改，怎么做都不会对的，对，我就是蠢货，没好好看mmap的文档，倒腾一天]</strong>. Also the ReturnFom-open is the return value after we call the open(), after do the above two steps, what we will see is like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>(gdb) call open(<span style="color:#e6db74">&#34;myinject.o&#34;</span>, <span style="color:#ae81ff">2</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>(gdb) call mmap(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1044</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">|</span><span style="color:#ae81ff">2</span><span style="color:#f92672">|</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">143544320</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>(gdb)
-</code></pre></div><hr>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call open<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myinject.o&#34;</span>, 2<span style="color:#f92672">)</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call mmap<span style="color:#f92672">(</span>0, Size, 1|2|4, 2, ReturnFrom-open, 0<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In the open ,the value 2 represent the O_RDWR(Read and Write),then we use mmap function, to put the myinject.o in to the app&rsquo;s process space, the first and second specify the size of myinject.o, if first is NULL(0), the os justify the start address of the file, the <strong>Size</strong> can be get via:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ls -l myinject.o
+</code></pre></td></tr></table>
+</div>
+</div><p>Then the 1|2|4 represent PROT_READ | PROT_WRITE | PROT_EXEC, so we can for we will write and execute it. The follow 1 represent the <strong>MAP_SHARED</strong> <strong>[But caution, we can use 2, means MAP_PRIVATE, it also works, the MAP_SHARED  will cause the myinject.o in the file also be changed if we write something, yes, actually we will.][好吧，重要的地方说中文，flags最好设置成MAP_PRIIVATE，这样mmap文件到内存后，修改不会影响disk文件，按照英文的文档用SHARED的话，下次要重新生成myinject.o，不然文件被改，怎么做都不会对的，对，我就是蠢货，没好好看mmap的文档，倒腾一天]</strong>. Also the ReturnFom-open is the return value after we call the open(), after do the above two steps, what we will see is like this:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">(gdb) call open(<span style="color:#e6db74">&#34;myinject.o&#34;</span>, <span style="color:#ae81ff">2</span>)
+<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+(gdb) call mmap(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1044</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">|</span><span style="color:#ae81ff">2</span><span style="color:#f92672">|</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>)
+<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">143544320</span>
+(gdb)
+</code></pre></td></tr></table>
+</div>
+</div><hr>
 <p>Then, we will use readelf to analyse our the app and myinject.o</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#f92672">[</span>exiahan@Veda hijack<span style="color:#f92672">]</span>$ readelf -r app
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>重定位节 <span style="color:#e6db74">&#39;.rel.dyn&#39;</span> 位于偏移量 0x3c8 含有 <span style="color:#ae81ff">1</span> 个条目：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span> Offset     Info    Type            Sym.Value  Sym. Name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#ae81ff">08049844</span>  <span style="color:#ae81ff">00000506</span> R_386_GLOB_DAT    <span style="color:#ae81ff">00000000</span>   __gmon_start__
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>重定位节 <span style="color:#e6db74">&#39;.rel.plt&#39;</span> 位于偏移量 0x3d0 含有 <span style="color:#ae81ff">5</span> 个条目：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span> Offset     Info    Type            Sym.Value  Sym. Name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#ae81ff">08049854</span>  <span style="color:#ae81ff">00000207</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#ae81ff">08049858</span>  <span style="color:#ae81ff">00000307</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   myprint
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>0804985c  <span style="color:#ae81ff">00000407</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   puts
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#ae81ff">08049860</span>  <span style="color:#ae81ff">00000507</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __gmon_start__
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#ae81ff">08049864</span>  <span style="color:#ae81ff">00000607</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __libc_start_main
-</code></pre></div><p>we can see that the offset of the function we <strong>myprint</strong> want to hook is <strong>0x08049858</strong>, it is the address where it location in the file. But when app be loaded into memory, the the address will change. So how the app still can invoke myprint via call *0x08049858, it is the plt(Procedure Linker Table) and the GOT(Global Offset Table), when app is going to invoke myprint, it will call the *0x08049858(in fact it&rsquo;s in the GOT), what in the address is a pointer that pointer to some procedure in plt, via the procedure, will found the real address of myprint, then the address will be put in 0x08049858, in the furture, when invoke myprint, simple call *0x08049858 will work.</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>exiahan@Veda hijack<span style="color:#f92672">]</span>$ readelf -r app
+
+重定位节 <span style="color:#e6db74">&#39;.rel.dyn&#39;</span> 位于偏移量 0x3c8 含有 <span style="color:#ae81ff">1</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">08049844</span>  <span style="color:#ae81ff">00000506</span> R_386_GLOB_DAT    <span style="color:#ae81ff">00000000</span>   __gmon_start__
+
+重定位节 <span style="color:#e6db74">&#39;.rel.plt&#39;</span> 位于偏移量 0x3d0 含有 <span style="color:#ae81ff">5</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">08049854</span>  <span style="color:#ae81ff">00000207</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   sleep
+<span style="color:#ae81ff">08049858</span>  <span style="color:#ae81ff">00000307</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   myprint
+0804985c  <span style="color:#ae81ff">00000407</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   puts
+<span style="color:#ae81ff">08049860</span>  <span style="color:#ae81ff">00000507</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __gmon_start__
+<span style="color:#ae81ff">08049864</span>  <span style="color:#ae81ff">00000607</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __libc_start_main
+</code></pre></td></tr></table>
+</div>
+</div><p>we can see that the offset of the function we <strong>myprint</strong> want to hook is <strong>0x08049858</strong>, it is the address where it location in the file. But when app be loaded into memory, the the address will change. So how the app still can invoke myprint via call *0x08049858, it is the plt(Procedure Linker Table) and the GOT(Global Offset Table), when app is going to invoke myprint, it will call the *0x08049858(in fact it&rsquo;s in the GOT), what in the address is a pointer that pointer to some procedure in plt, via the procedure, will found the real address of myprint, then the address will be put in 0x08049858, in the furture, when invoke myprint, simple call *0x08049858 will work.</p>
 <p>So, when the app is running, we can change the value in 0x08049858, then we done the hook operation of the function <strong>myprint</strong>.</p>
 <p>For do this, we first get the Base Address of myinject.o in app&rsquo;s process space:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ cat /proc/5832/maps | grep myinject
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>f771b000-f771c000 rwxp <span style="color:#ae81ff">00000000</span> fe:03 <span style="color:#ae81ff">20342761</span>  <span style="color:#f92672">[</span>path<span style="color:#f92672">]</span>/myinject.o
-</code></pre></div><p>Now we know that the base-addr is 0xf774f000, then use readelf to get other info we need, like the offset of function injection(), and others that need to be relocated.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ readelf -s myinject.o
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>Symbol table <span style="color:#e6db74">&#39;.symtab&#39;</span> contains <span style="color:#ae81ff">12</span> entries:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>   Num:    Value  Size Type    Bind   Vis      Ndx Name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>     0: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  LOCAL  DEFAULT  UND
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>     1: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> FILE    LOCAL  DEFAULT  ABS myinject.c
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>     2: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>     3: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>     4: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>     5: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>     6: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>     7: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>     8: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>     9: <span style="color:#ae81ff">00000000</span>    <span style="color:#ae81ff">30</span> FUNC    GLOBAL DEFAULT    <span style="color:#ae81ff">1</span> injection
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    10: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND myprint
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    11: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND system
-</code></pre></div><p>We see that the offset of function injection() is 0x0(the value).</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ readelf -S myinject.o
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>共有 <span style="color:#ae81ff">13</span> 个节头，从偏移量 0x20c 开始：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>节头：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  <span style="color:#f92672">[</span>Nr<span style="color:#f92672">]</span> Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  <span style="color:#f92672">[</span> 0<span style="color:#f92672">]</span>                   NULL            <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">0</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>  <span style="color:#f92672">[</span> 1<span style="color:#f92672">]</span> .text             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000034</span> 00001e <span style="color:#ae81ff">00</span>  AX  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  <span style="color:#f92672">[</span> 2<span style="color:#f92672">]</span> .rel.text         REL             <span style="color:#ae81ff">00000000</span> 0001ec <span style="color:#ae81ff">000018</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  <span style="color:#f92672">[</span> 3<span style="color:#f92672">]</span> .data             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  <span style="color:#f92672">[</span> 4<span style="color:#f92672">]</span> .bss              NOBITS          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>  <span style="color:#f92672">[</span> 5<span style="color:#f92672">]</span> .rodata           PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000005</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>  <span style="color:#f92672">[</span> 6<span style="color:#f92672">]</span> .comment          PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000057</span> <span style="color:#ae81ff">000012</span> <span style="color:#ae81ff">01</span>  MS  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>  <span style="color:#f92672">[</span> 7<span style="color:#f92672">]</span> .note.GNU-stack   PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000069</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#f92672">[</span> 8<span style="color:#f92672">]</span> .eh_frame         PROGBITS        <span style="color:#ae81ff">00000000</span> 00006c <span style="color:#ae81ff">000038</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>  <span style="color:#f92672">[</span> 9<span style="color:#f92672">]</span> .rel.eh_frame     REL             <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000204</span> <span style="color:#ae81ff">000008</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>  <span style="color:#f92672">[</span>10<span style="color:#f92672">]</span> .shstrtab         STRTAB          <span style="color:#ae81ff">00000000</span> 0000a4 00005f <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>  <span style="color:#f92672">[</span>11<span style="color:#f92672">]</span> .symtab           SYMTAB          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000104</span> 0000c0 <span style="color:#ae81ff">10</span>     <span style="color:#ae81ff">12</span>   <span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>  <span style="color:#f92672">[</span>12<span style="color:#f92672">]</span> .strtab           STRTAB          <span style="color:#ae81ff">00000000</span> 0001c4 <span style="color:#ae81ff">000025</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>Key to Flags:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>  W <span style="color:#f92672">(</span>write<span style="color:#f92672">)</span>, A <span style="color:#f92672">(</span>alloc<span style="color:#f92672">)</span>, X <span style="color:#f92672">(</span>execute<span style="color:#f92672">)</span>, M <span style="color:#f92672">(</span>merge<span style="color:#f92672">)</span>, S <span style="color:#f92672">(</span>strings<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>  I <span style="color:#f92672">(</span>info<span style="color:#f92672">)</span>, L <span style="color:#f92672">(</span>link order<span style="color:#f92672">)</span>, G <span style="color:#f92672">(</span>group<span style="color:#f92672">)</span>, T <span style="color:#f92672">(</span>TLS<span style="color:#f92672">)</span>, E <span style="color:#f92672">(</span>exclude<span style="color:#f92672">)</span>, x <span style="color:#f92672">(</span>unknown<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>  O <span style="color:#f92672">(</span>extra OS processing required<span style="color:#f92672">)</span> o <span style="color:#f92672">(</span>OS specific<span style="color:#f92672">)</span>, p <span style="color:#f92672">(</span>processor specific<span style="color:#f92672">)</span>
-</code></pre></div><p>Now,we know that the offset .text about the file base is 0x34, the .rodata is 0x52, which the string &ldquo;date&rdquo; in.
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /proc/5832/maps | grep myinject
+
+f771b000-f771c000 rwxp <span style="color:#ae81ff">00000000</span> fe:03 <span style="color:#ae81ff">20342761</span>  <span style="color:#f92672">[</span>path<span style="color:#f92672">]</span>/myinject.o
+</code></pre></td></tr></table>
+</div>
+</div><p>Now we know that the base-addr is 0xf774f000, then use readelf to get other info we need, like the offset of function injection(), and others that need to be relocated.</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -s myinject.o
+
+Symbol table <span style="color:#e6db74">&#39;.symtab&#39;</span> contains <span style="color:#ae81ff">12</span> entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  LOCAL  DEFAULT  UND
+     1: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> FILE    LOCAL  DEFAULT  ABS myinject.c
+     2: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">1</span>
+     3: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">3</span>
+     4: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">4</span>
+     5: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">5</span>
+     6: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">7</span>
+     7: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">8</span>
+     8: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">6</span>
+     9: <span style="color:#ae81ff">00000000</span>    <span style="color:#ae81ff">30</span> FUNC    GLOBAL DEFAULT    <span style="color:#ae81ff">1</span> injection
+    10: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND myprint
+    11: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND system
+</code></pre></td></tr></table>
+</div>
+</div><p>We see that the offset of function injection() is 0x0(the value).</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -S myinject.o
+共有 <span style="color:#ae81ff">13</span> 个节头，从偏移量 0x20c 开始：
+
+节头：
+  <span style="color:#f92672">[</span>Nr<span style="color:#f92672">]</span> Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  <span style="color:#f92672">[</span> 0<span style="color:#f92672">]</span>                   NULL            <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">0</span>
+  <span style="color:#f92672">[</span> 1<span style="color:#f92672">]</span> .text             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000034</span> 00001e <span style="color:#ae81ff">00</span>  AX  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 2<span style="color:#f92672">]</span> .rel.text         REL             <span style="color:#ae81ff">00000000</span> 0001ec <span style="color:#ae81ff">000018</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span> 3<span style="color:#f92672">]</span> .data             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 4<span style="color:#f92672">]</span> .bss              NOBITS          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 5<span style="color:#f92672">]</span> .rodata           PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000005</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 6<span style="color:#f92672">]</span> .comment          PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000057</span> <span style="color:#ae81ff">000012</span> <span style="color:#ae81ff">01</span>  MS  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 7<span style="color:#f92672">]</span> .note.GNU-stack   PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000069</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 8<span style="color:#f92672">]</span> .eh_frame         PROGBITS        <span style="color:#ae81ff">00000000</span> 00006c <span style="color:#ae81ff">000038</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span> 9<span style="color:#f92672">]</span> .rel.eh_frame     REL             <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000204</span> <span style="color:#ae81ff">000008</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span>10<span style="color:#f92672">]</span> .shstrtab         STRTAB          <span style="color:#ae81ff">00000000</span> 0000a4 00005f <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span>11<span style="color:#f92672">]</span> .symtab           SYMTAB          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000104</span> 0000c0 <span style="color:#ae81ff">10</span>     <span style="color:#ae81ff">12</span>   <span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span>12<span style="color:#f92672">]</span> .strtab           STRTAB          <span style="color:#ae81ff">00000000</span> 0001c4 <span style="color:#ae81ff">000025</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+Key to Flags:
+  W <span style="color:#f92672">(</span>write<span style="color:#f92672">)</span>, A <span style="color:#f92672">(</span>alloc<span style="color:#f92672">)</span>, X <span style="color:#f92672">(</span>execute<span style="color:#f92672">)</span>, M <span style="color:#f92672">(</span>merge<span style="color:#f92672">)</span>, S <span style="color:#f92672">(</span>strings<span style="color:#f92672">)</span>
+  I <span style="color:#f92672">(</span>info<span style="color:#f92672">)</span>, L <span style="color:#f92672">(</span>link order<span style="color:#f92672">)</span>, G <span style="color:#f92672">(</span>group<span style="color:#f92672">)</span>, T <span style="color:#f92672">(</span>TLS<span style="color:#f92672">)</span>, E <span style="color:#f92672">(</span>exclude<span style="color:#f92672">)</span>, x <span style="color:#f92672">(</span>unknown<span style="color:#f92672">)</span>
+  O <span style="color:#f92672">(</span>extra OS processing required<span style="color:#f92672">)</span> o <span style="color:#f92672">(</span>OS specific<span style="color:#f92672">)</span>, p <span style="color:#f92672">(</span>processor specific<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Now,we know that the offset .text about the file base is 0x34, the .rodata is 0x52, which the string &ldquo;date&rdquo; in.
 So, the entry addr of injection() is:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>0xf771b000 + 0x34 <span style="color:#f92672">=</span> 0xf771b034
-</code></pre></div><p>So we change the value in 0x08049858 to 0xf771b034:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>set *0x08049858 <span style="color:#f92672">=</span> 0xf771b034
-</code></pre></div><p>But, only change the address of myprint() to injection() is not enough, there are some other entries need to be relocated, below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ readelf -r myinject.o
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>重定位节 <span style="color:#e6db74">&#39;.rel.text&#39;</span> 位于偏移量 0x1ec 含有 <span style="color:#ae81ff">3</span> 个条目：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span> Offset     Info    Type            Sym.Value  Sym. Name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#ae81ff">00000007</span>  00000a02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   myprint
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>0000000f  <span style="color:#ae81ff">00000501</span> R_386_32          <span style="color:#ae81ff">00000000</span>   .rodata
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#ae81ff">00000014</span>  00000b02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   system
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>重定位节 <span style="color:#e6db74">&#39;.rel.eh_frame&#39;</span> 位于偏移量 0x204 含有 <span style="color:#ae81ff">1</span> 个条目：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span> Offset     Info    Type            Sym.Value  Sym. Name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#ae81ff">00000020</span>  <span style="color:#ae81ff">00000202</span> R_386_PC32        <span style="color:#ae81ff">00000000</span>   .text
-</code></pre></div><p>As we invoke myprint() and system() in injection(), we give a string arguement &ldquo;date&rdquo; that stored in .rodata.
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">0xf771b000 + 0x34 <span style="color:#f92672">=</span> 0xf771b034
+</code></pre></td></tr></table>
+</div>
+</div><p>So we change the value in 0x08049858 to 0xf771b034:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>set *0x08049858 <span style="color:#f92672">=</span> 0xf771b034
+</code></pre></td></tr></table>
+</div>
+</div><p>But, only change the address of myprint() to injection() is not enough, there are some other entries need to be relocated, below:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -r myinject.o
+
+重定位节 <span style="color:#e6db74">&#39;.rel.text&#39;</span> 位于偏移量 0x1ec 含有 <span style="color:#ae81ff">3</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">00000007</span>  00000a02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   myprint
+0000000f  <span style="color:#ae81ff">00000501</span> R_386_32          <span style="color:#ae81ff">00000000</span>   .rodata
+<span style="color:#ae81ff">00000014</span>  00000b02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   system
+
+重定位节 <span style="color:#e6db74">&#39;.rel.eh_frame&#39;</span> 位于偏移量 0x204 含有 <span style="color:#ae81ff">1</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">00000020</span>  <span style="color:#ae81ff">00000202</span> R_386_PC32        <span style="color:#ae81ff">00000000</span>   .text
+</code></pre></td></tr></table>
+</div>
+</div><p>As we invoke myprint() and system() in injection(), we give a string arguement &ldquo;date&rdquo; that stored in .rodata.
 Because the myinject.o is load in to mem manual, so we have to do the relocation as the linker.
 From above we see that there two kinds of relocation:</p>
 <ul>
@@ -292,44 +555,91 @@ From above we see that there two kinds of relocation:</p>
 <p>The R_386_32 is the absolute offset, just calc via base-addr + offset + addend.
 (直接加载后基地址加上所在段偏移和附加数就OK)。</p>
 <p>So, we will relocation the myprint(), &ldquo;date&rdquo;, system():</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#75715e">#relocate myprint()</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>$3 <span style="color:#f92672">=</span> -4
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p myprint
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>$4 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>void <span style="color:#f92672">()}</span> 0xf771d550 &lt;myprint&gt;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771d550 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#75715e">#relocate system()</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>$5 <span style="color:#f92672">=</span> -4
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p system
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>$6 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>&lt;text variable, no debug info&gt;<span style="color:#f92672">}</span> 0xf7542e00 &lt;system&gt;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf7542e00 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#75715e">#relocate &#34;date&#34;, in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>$7 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771b000 + 0x52
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
-</code></pre></div><h4 id="3final">3.Final</h4>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#relocate myprint()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span>
+$3 <span style="color:#f92672">=</span> -4
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p myprint
+$4 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>void <span style="color:#f92672">()}</span> 0xf771d550 &lt;myprint&gt;
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771d550 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
+
+<span style="color:#75715e">#relocate system()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span>
+$5 <span style="color:#f92672">=</span> -4
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p system
+$6 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>&lt;text variable, no debug info&gt;<span style="color:#f92672">}</span> 0xf7542e00 &lt;system&gt;
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf7542e00 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
+
+<span style="color:#75715e">#relocate &#34;date&#34;, in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span>
+$7 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771b000 + 0x52
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="3final">3.Final</h4>
 <p>After do this, we will get the result like below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>2015年 07月 29日 星期三 21:17:17 CST
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>4, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>2015年 07月 29日 星期三 21:17:20 CST
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>5, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>2015年 07月 29日 星期三 21:17:23 CST
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>6, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>Wake up
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>2015年 07月 29日 星期三 21:17:26 CST
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>7, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
-</code></pre></div><h2 id="summary">Summary</h2>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+2015年 07月 29日 星期三 21:17:17 CST
+4, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:20 CST
+5, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:23 CST
+6, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:26 CST
+7, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="summary">Summary</h2>
 <p>So we use gdb(ptrace) to attach a running process, and manual pull a .o file into its process space, then we replace the <a href="mailto:myprint@got.plt">myprint@got.plt</a> to the address of injection(), then we do the relocation for myinject.o as a linker(yeah, cause when the .o file to a executable file, the linker do the relocation, so we have to do it manually). Then we get our goal.</p>
 <p>And in this lab, what we should learn is:</p>
 <ul>

@@ -107,25 +107,53 @@ It works very well for python or C/C++ project cause usually you can easily star
 <h2 id="debug-remote-java-project-via-attach">Debug remote java project via attach</h2>
 <p><strong>F</strong>irst make sure you&rsquo;ve already build your project successfully in to a jar file with all dependencies. If you build a jar without the dependencies, you may have to specify <strong>classpath</strong> to let Java can find them.</p>
 <p>Then here is the way to start them in debug mode.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>java -agentlib:jdwp<span style="color:#f92672">=</span>transport<span style="color:#f92672">=</span>dt_socket<span style="color:#ae81ff">\
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ae81ff"></span>,server<span style="color:#f92672">=</span>y,suspend<span style="color:#f92672">=</span>y,address<span style="color:#f92672">=</span>127.0.0.1:6666 -jar <span style="color:#f92672">[</span>YOUR JAR FILE<span style="color:#f92672">]</span>
-</code></pre></div><p>If the jar file have all dependencies satisfied. It will be launch but wait for debugger to attach.</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">java -agentlib:jdwp<span style="color:#f92672">=</span>transport<span style="color:#f92672">=</span>dt_socket<span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>,server<span style="color:#f92672">=</span>y,suspend<span style="color:#f92672">=</span>y,address<span style="color:#f92672">=</span>127.0.0.1:6666 -jar <span style="color:#f92672">[</span>YOUR JAR FILE<span style="color:#f92672">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>If the jar file have all dependencies satisfied. It will be launch but wait for debugger to attach.</p>
 <p>Then in your vscode workspace, add below entry to launch.json in your workspace&rsquo;s .vscode folder. If there is no launch.json, create it.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Use</span> <span style="color:#960050;background-color:#1e0010">IntelliSense</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">learn</span> <span style="color:#960050;background-color:#1e0010">about</span> <span style="color:#960050;background-color:#1e0010">possible</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Hover</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">view</span> <span style="color:#960050;background-color:#1e0010">descriptions</span> <span style="color:#960050;background-color:#1e0010">of</span> <span style="color:#960050;background-color:#1e0010">existing</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">For</span> <span style="color:#960050;background-color:#1e0010">more</span> <span style="color:#960050;background-color:#1e0010">information,</span> <span style="color:#960050;background-color:#1e0010">visit:</span> <span style="color:#960050;background-color:#1e0010">https://go.microsoft.com/fwlink/?linkid=830387</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;0.2.0&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#f92672">&#34;configurations&#34;</span>: [
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>            <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;java&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>            <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Debug (Attach) - Remote&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>            <span style="color:#f92672">&#34;request&#34;</span>: <span style="color:#e6db74">&#34;attach&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>            <span style="color:#f92672">&#34;hostName&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">6666</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>        }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#960050;background-color:#1e0010">}</span>
-</code></pre></div><p>Now feel free to debug your project with any breakpoints on your source files. :)</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Use</span> <span style="color:#960050;background-color:#1e0010">IntelliSense</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">learn</span> <span style="color:#960050;background-color:#1e0010">about</span> <span style="color:#960050;background-color:#1e0010">possible</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">Hover</span> <span style="color:#960050;background-color:#1e0010">to</span> <span style="color:#960050;background-color:#1e0010">view</span> <span style="color:#960050;background-color:#1e0010">descriptions</span> <span style="color:#960050;background-color:#1e0010">of</span> <span style="color:#960050;background-color:#1e0010">existing</span> <span style="color:#960050;background-color:#1e0010">attributes.</span>
+    <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#960050;background-color:#1e0010">For</span> <span style="color:#960050;background-color:#1e0010">more</span> <span style="color:#960050;background-color:#1e0010">information,</span> <span style="color:#960050;background-color:#1e0010">visit:</span> <span style="color:#960050;background-color:#1e0010">https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;0.2.0&#34;</span>,
+    <span style="color:#f92672">&#34;configurations&#34;</span>: [
+        {
+            <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;java&#34;</span>,
+            <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Debug (Attach) - Remote&#34;</span>,
+            <span style="color:#f92672">&#34;request&#34;</span>: <span style="color:#e6db74">&#34;attach&#34;</span>,
+            <span style="color:#f92672">&#34;hostName&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
+            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">6666</span>
+        }
+<span style="color:#960050;background-color:#1e0010">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Now feel free to debug your project with any breakpoints on your source files. :)</p>
 
     </div>
     <div class="post-footer">
