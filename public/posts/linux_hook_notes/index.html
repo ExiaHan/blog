@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Linux Hook Notes // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Linux Hook Notes"/>
+<meta name="twitter:description" content="Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
+Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
+//file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif //file mylib.c #include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;#include &#34;mylib.h&#34; void myprint() { static unsigned counter = 0; counter&#43;&#43;; printf(&#34;%d, pid (%d)&#34;, counter, getpid()); return; } //mymain."/>
+
+    <meta property="og:title" content="Linux Hook Notes" />
+<meta property="og:description" content="Foreword For have read a article in WebSite code project, and learned lots of from it. So make a memo for later consulting.
+Start First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.
+//file mylib.h #ifndef _MYLIB_H_ #define _MYLIB_H_  extern void myprint(const char *str); #endif //file mylib.c #include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;#include &#34;mylib.h&#34; void myprint() { static unsigned counter = 0; counter&#43;&#43;; printf(&#34;%d, pid (%d)&#34;, counter, getpid()); return; } //mymain." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/linux_hook_notes/" />
+<meta property="article:published_time" content="2015-07-29T09:59:25+08:00" />
+<meta property="article:modified_time" content="2015-07-29T09:59:25+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://www.linkedin.com/in/yang-han-4a3b79135/" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin">
+  <title>linkedin</title>
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        
+          <a target="_blank" href="mailto:exiahan@exiahan.com" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-mail">
+  <title>mail</title>
+  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        
+      </div>
+      <br>
+      <p>Exchange Links:</p>
+      <div class="app-header-exchange">
+        
+          <a target="_blank" href="https://blog.icehoney.me/" rel="noreferrer noopener">秋水姐姐</a><br>
+        
+          <a target="_blank" href="https://blog.brickgao.com/" rel="noreferrer noopener">高菊苣</a><br>
+        
+          <a target="_blank" href="https://farseerfc.me/" rel="noreferrer noopener">fc菊苣</a><br>
+        
+          <a target="_blank" href="https://felixc.at/" rel="noreferrer noopener">肥猫</a><br>
+        
+          <a target="_blank" href="https://blog.lilydjwg.me/" rel="noreferrer noopener">仙子</a><br>
+        
+          <a target="_blank" href="https://burningcodes.net/" rel="noreferrer noopener">光哥</a><br>
+        
+          <a target="_blank" href="https://erik1iu.github.io/" rel="noreferrer noopener">eric1iu</a><br>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Linux Hook Notes</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Jul 29, 2015
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          9 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="https://blog.exiahan.com/tags/linux/">Linux</a><a class="tag" href="https://blog.exiahan.com/tags/hook/">Hook</a><a class="tag" href="https://blog.exiahan.com/tags/gdb/">GDB</a><a class="tag" href="https://blog.exiahan.com/tags/ptrace/">Ptrace</a></div></div>
+    </header>
+    <div class="post-content">
+      <h2 id="foreword">Foreword</h2>
+<p>For have read a article in WebSite <a href="http://www.codeproject.com/Articles/33340/Code-Injection-into-Running-Linux-Application">code project</a>, and learned lots of from it. So make a memo for later consulting.</p>
+<h2 id="start">Start</h2>
+<p>First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file mylib.h
+</span><span style="color:#75715e"></span><span style="color:#75715e">#ifndef _MYLIB_H_
+</span><span style="color:#75715e">#define _MYLIB_H_
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>str);
+<span style="color:#75715e">#endif
+</span></code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file mylib.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myprint</span>()
+{
+   <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">unsigned</span> counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+   counter<span style="color:#f92672">++</span>;
+   printf(<span style="color:#e6db74">&#34;%d, pid (%d)&#34;</span>, counter, getpid());
+   <span style="color:#66d9ef">return</span>;
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//mymain.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+
+<span style="color:#75715e">#define TRUE 1
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
+{
+    <span style="color:#66d9ef">while</span>(TRUE) {
+        myprint();
+        printf(<span style="color:#e6db74">&#34;Going to sleep</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        sleep(<span style="color:#ae81ff">3</span>);
+        printf(<span style="color:#e6db74">&#34;Wake up</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+    }
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//file myinject.c
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mylib.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injection</span>()
+{
+    myprint();
+    system(<span style="color:#e6db74">&#34;date&#34;</span>);
+}
+</code></pre></div><p>For in the above, the file mylib.h, mylib.c is used to generate our test app, and the file myinject.c is used to do our injdect, that is we want hook the myprint function, when myprint is invoke, the function injection will be invoked indeed.</p>
+<p>create the three file, and compile like below.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so
+$ gcc -g -lmylib -L ./ mymain.c -o app
+$ gcc -Wall myinject.c -c -o myinject.o
+$ export LD_LIBRARY_PATH<span style="color:#f92672">=</span>.:<span style="color:#f92672">[</span>your path where the libmylib.so in<span style="color:#f92672">]</span>
+</code></pre></div><p>For Address-Independent, we add the option -fPIC when build mylib.c to libmylib.so</p>
+<p>what you should care is the -lmylib is fixed to the libmylib, so remember to change it if you name your file another name.</p>
+<h2 id="lets-rock-our-app">Let&rsquo;s Rock Our App</h2>
+<p>Now we can do with the elf file what we just generated.</p>
+<h4 id="1start-our-app">1.Start our app</h4>
+<p>Run our app:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./app
+</code></pre></div><p>Now we will see the PID via the output. Then we will use gdb to attach the app, via the pid:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./app
+1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo gdb -p PID<span style="color:#f92672">[</span>5832<span style="color:#f92672">]</span>
+</code></pre></div><p>After do this, we now attached to the app:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo gdb -p <span style="color:#ae81ff">5832</span>
+GNU gdb <span style="color:#f92672">(</span>GDB<span style="color:#f92672">)</span> 7.9.1
+Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> <span style="color:#ae81ff">2015</span> Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version <span style="color:#ae81ff">3</span> or later
+......
+Attaching to process <span style="color:#ae81ff">6618</span>
+Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.
+Reading symbols from ./libmylib.so...done.
+Reading symbols from /usr/lib32/libc.so.6...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
+Reading symbols from /lib/ld-linux.so.2...<span style="color:#f92672">(</span>no debugging symbols found<span style="color:#f92672">)</span>...done.
+0xf7722c10 in __kernel_vsyscall <span style="color:#f92672">()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
+</code></pre></div><h4 id="2operate-and-analysis-our-appmyinjecto">2.Operate and Analysis our app/myinject.o</h4>
+<p>First we load our myinject.o into the app&rsquo;s process space.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call open<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myinject.o&#34;</span>, 2<span style="color:#f92672">)</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>call mmap<span style="color:#f92672">(</span>0, Size, 1|2|4, 2, ReturnFrom-open, 0<span style="color:#f92672">)</span>
+</code></pre></div><p>In the open ,the value 2 represent the O_RDWR(Read and Write),then we use mmap function, to put the myinject.o in to the app&rsquo;s process space, the first and second specify the size of myinject.o, if first is NULL(0), the os justify the start address of the file, the <strong>Size</strong> can be get via:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ls -l myinject.o
+</code></pre></div><p>Then the 1|2|4 represent PROT_READ | PROT_WRITE | PROT_EXEC, so we can for we will write and execute it. The follow 1 represent the <strong>MAP_SHARED</strong> <strong>[But caution, we can use 2, means MAP_PRIVATE, it also works, the MAP_SHARED  will cause the myinject.o in the file also be changed if we write something, yes, actually we will.][好吧，重要的地方说中文，flags最好设置成MAP_PRIIVATE，这样mmap文件到内存后，修改不会影响disk文件，按照英文的文档用SHARED的话，下次要重新生成myinject.o，不然文件被改，怎么做都不会对的，对，我就是蠢货，没好好看mmap的文档，倒腾一天]</strong>. Also the ReturnFom-open is the return value after we call the open(), after do the above two steps, what we will see is like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">(gdb) call open(<span style="color:#e6db74">&#34;myinject.o&#34;</span>, <span style="color:#ae81ff">2</span>)
+<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+(gdb) call mmap(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1044</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">|</span><span style="color:#ae81ff">2</span><span style="color:#f92672">|</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">0</span>)
+<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">143544320</span>
+(gdb)
+</code></pre></div><hr>
+<p>Then, we will use readelf to analyse our the app and myinject.o</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>exiahan@Veda hijack<span style="color:#f92672">]</span>$ readelf -r app
+
+重定位节 <span style="color:#e6db74">&#39;.rel.dyn&#39;</span> 位于偏移量 0x3c8 含有 <span style="color:#ae81ff">1</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">08049844</span>  <span style="color:#ae81ff">00000506</span> R_386_GLOB_DAT    <span style="color:#ae81ff">00000000</span>   __gmon_start__
+
+重定位节 <span style="color:#e6db74">&#39;.rel.plt&#39;</span> 位于偏移量 0x3d0 含有 <span style="color:#ae81ff">5</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">08049854</span>  <span style="color:#ae81ff">00000207</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   sleep
+<span style="color:#ae81ff">08049858</span>  <span style="color:#ae81ff">00000307</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   myprint
+0804985c  <span style="color:#ae81ff">00000407</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   puts
+<span style="color:#ae81ff">08049860</span>  <span style="color:#ae81ff">00000507</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __gmon_start__
+<span style="color:#ae81ff">08049864</span>  <span style="color:#ae81ff">00000607</span> R_386_JUMP_SLOT   <span style="color:#ae81ff">00000000</span>   __libc_start_main
+</code></pre></div><p>we can see that the offset of the function we <strong>myprint</strong> want to hook is <strong>0x08049858</strong>, it is the address where it location in the file. But when app be loaded into memory, the the address will change. So how the app still can invoke myprint via call *0x08049858, it is the plt(Procedure Linker Table) and the GOT(Global Offset Table), when app is going to invoke myprint, it will call the *0x08049858(in fact it&rsquo;s in the GOT), what in the address is a pointer that pointer to some procedure in plt, via the procedure, will found the real address of myprint, then the address will be put in 0x08049858, in the furture, when invoke myprint, simple call *0x08049858 will work.</p>
+<p>So, when the app is running, we can change the value in 0x08049858, then we done the hook operation of the function <strong>myprint</strong>.</p>
+<p>For do this, we first get the Base Address of myinject.o in app&rsquo;s process space:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /proc/5832/maps | grep myinject
+
+f771b000-f771c000 rwxp <span style="color:#ae81ff">00000000</span> fe:03 <span style="color:#ae81ff">20342761</span>  <span style="color:#f92672">[</span>path<span style="color:#f92672">]</span>/myinject.o
+</code></pre></div><p>Now we know that the base-addr is 0xf774f000, then use readelf to get other info we need, like the offset of function injection(), and others that need to be relocated.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -s myinject.o
+
+Symbol table <span style="color:#e6db74">&#39;.symtab&#39;</span> contains <span style="color:#ae81ff">12</span> entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  LOCAL  DEFAULT  UND
+     1: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> FILE    LOCAL  DEFAULT  ABS myinject.c
+     2: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">1</span>
+     3: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">3</span>
+     4: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">4</span>
+     5: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">5</span>
+     6: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">7</span>
+     7: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">8</span>
+     8: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> SECTION LOCAL  DEFAULT    <span style="color:#ae81ff">6</span>
+     9: <span style="color:#ae81ff">00000000</span>    <span style="color:#ae81ff">30</span> FUNC    GLOBAL DEFAULT    <span style="color:#ae81ff">1</span> injection
+    10: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND myprint
+    11: <span style="color:#ae81ff">00000000</span>     <span style="color:#ae81ff">0</span> NOTYPE  GLOBAL DEFAULT  UND system
+</code></pre></div><p>We see that the offset of function injection() is 0x0(the value).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -S myinject.o
+共有 <span style="color:#ae81ff">13</span> 个节头，从偏移量 0x20c 开始：
+
+节头：
+  <span style="color:#f92672">[</span>Nr<span style="color:#f92672">]</span> Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  <span style="color:#f92672">[</span> 0<span style="color:#f92672">]</span>                   NULL            <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">0</span>
+  <span style="color:#f92672">[</span> 1<span style="color:#f92672">]</span> .text             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000034</span> 00001e <span style="color:#ae81ff">00</span>  AX  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 2<span style="color:#f92672">]</span> .rel.text         REL             <span style="color:#ae81ff">00000000</span> 0001ec <span style="color:#ae81ff">000018</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span> 3<span style="color:#f92672">]</span> .data             PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 4<span style="color:#f92672">]</span> .bss              NOBITS          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>  WA  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 5<span style="color:#f92672">]</span> .rodata           PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000052</span> <span style="color:#ae81ff">000005</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 6<span style="color:#f92672">]</span> .comment          PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000057</span> <span style="color:#ae81ff">000012</span> <span style="color:#ae81ff">01</span>  MS  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 7<span style="color:#f92672">]</span> .note.GNU-stack   PROGBITS        <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000069</span> <span style="color:#ae81ff">000000</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span> 8<span style="color:#f92672">]</span> .eh_frame         PROGBITS        <span style="color:#ae81ff">00000000</span> 00006c <span style="color:#ae81ff">000038</span> <span style="color:#ae81ff">00</span>   A  <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span> 9<span style="color:#f92672">]</span> .rel.eh_frame     REL             <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000204</span> <span style="color:#ae81ff">000008</span> <span style="color:#ae81ff">08</span>   I <span style="color:#ae81ff">11</span>   <span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span>10<span style="color:#f92672">]</span> .shstrtab         STRTAB          <span style="color:#ae81ff">00000000</span> 0000a4 00005f <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+  <span style="color:#f92672">[</span>11<span style="color:#f92672">]</span> .symtab           SYMTAB          <span style="color:#ae81ff">00000000</span> <span style="color:#ae81ff">000104</span> 0000c0 <span style="color:#ae81ff">10</span>     <span style="color:#ae81ff">12</span>   <span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">4</span>
+  <span style="color:#f92672">[</span>12<span style="color:#f92672">]</span> .strtab           STRTAB          <span style="color:#ae81ff">00000000</span> 0001c4 <span style="color:#ae81ff">000025</span> <span style="color:#ae81ff">00</span>      <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>  <span style="color:#ae81ff">1</span>
+Key to Flags:
+  W <span style="color:#f92672">(</span>write<span style="color:#f92672">)</span>, A <span style="color:#f92672">(</span>alloc<span style="color:#f92672">)</span>, X <span style="color:#f92672">(</span>execute<span style="color:#f92672">)</span>, M <span style="color:#f92672">(</span>merge<span style="color:#f92672">)</span>, S <span style="color:#f92672">(</span>strings<span style="color:#f92672">)</span>
+  I <span style="color:#f92672">(</span>info<span style="color:#f92672">)</span>, L <span style="color:#f92672">(</span>link order<span style="color:#f92672">)</span>, G <span style="color:#f92672">(</span>group<span style="color:#f92672">)</span>, T <span style="color:#f92672">(</span>TLS<span style="color:#f92672">)</span>, E <span style="color:#f92672">(</span>exclude<span style="color:#f92672">)</span>, x <span style="color:#f92672">(</span>unknown<span style="color:#f92672">)</span>
+  O <span style="color:#f92672">(</span>extra OS processing required<span style="color:#f92672">)</span> o <span style="color:#f92672">(</span>OS specific<span style="color:#f92672">)</span>, p <span style="color:#f92672">(</span>processor specific<span style="color:#f92672">)</span>
+</code></pre></div><p>Now,we know that the offset .text about the file base is 0x34, the .rodata is 0x52, which the string &ldquo;date&rdquo; in.
+So, the entry addr of injection() is:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">0xf771b000 + 0x34 <span style="color:#f92672">=</span> 0xf771b034
+</code></pre></div><p>So we change the value in 0x08049858 to 0xf771b034:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>set *0x08049858 <span style="color:#f92672">=</span> 0xf771b034
+</code></pre></div><p>But, only change the address of myprint() to injection() is not enough, there are some other entries need to be relocated, below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ readelf -r myinject.o
+
+重定位节 <span style="color:#e6db74">&#39;.rel.text&#39;</span> 位于偏移量 0x1ec 含有 <span style="color:#ae81ff">3</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">00000007</span>  00000a02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   myprint
+0000000f  <span style="color:#ae81ff">00000501</span> R_386_32          <span style="color:#ae81ff">00000000</span>   .rodata
+<span style="color:#ae81ff">00000014</span>  00000b02 R_386_PC32        <span style="color:#ae81ff">00000000</span>   system
+
+重定位节 <span style="color:#e6db74">&#39;.rel.eh_frame&#39;</span> 位于偏移量 0x204 含有 <span style="color:#ae81ff">1</span> 个条目：
+ Offset     Info    Type            Sym.Value  Sym. Name
+<span style="color:#ae81ff">00000020</span>  <span style="color:#ae81ff">00000202</span> R_386_PC32        <span style="color:#ae81ff">00000000</span>   .text
+</code></pre></div><p>As we invoke myprint() and system() in injection(), we give a string arguement &ldquo;date&rdquo; that stored in .rodata.
+Because the myinject.o is load in to mem manual, so we have to do the relocation as the linker.
+From above we see that there two kinds of relocation:</p>
+<ul>
+<li>R_386_PC32</li>
+<li>R_386_32</li>
+</ul>
+<p>The R_386_PC32 means that the relocation will related to the value of eip(so called the program counter), simply, the offset is the offset that the real address of entries to the following address of the current instruction address,let <strong>S, A, P</strong> represent the real address in runtime, the addend num and the address that will be affect, in intel x86, the A is store in P, the calucator is:</p>
+<!-- raw HTML omitted -->
+<p>(尼码，英语实在说不明白了，大概意思就是计算的偏移和实际运行是的eip相关，计算方法大概是实际所在的地址相对于读到这条指令后，紧接着的指令的地址的偏移。计算方法就是<strong>S、A、P</strong>分别表示的事该条目运行时的<strong>实际所在地址</strong>， <strong>附加数（有时候一个段，如.rodata要重定位的不止一个，一个个排的话肯定需要一个附加数，通常是2,4,8,结构体另说）</strong>，<strong>将被影响的地址，即此地址的值要被修改成真正的地址所在(通过readelf 和加载基地址联合重定位节.rel.text里的偏移得到)</strong>).</p>
+<p>The R_386_32 is the absolute offset, just calc via base-addr + offset + addend.
+(直接加载后基地址加上所在段偏移和附加数就OK)。</p>
+<p>So, we will relocation the myprint(), &ldquo;date&rdquo;, system():</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#relocate myprint()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span>
+$3 <span style="color:#f92672">=</span> -4
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p myprint
+$4 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>void <span style="color:#f92672">()}</span> 0xf771d550 &lt;myprint&gt;
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771d550 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x7<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
+
+<span style="color:#75715e">#relocate system()</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span>
+$5 <span style="color:#f92672">=</span> -4
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p system
+$6 <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>&lt;text variable, no debug info&gt;<span style="color:#f92672">}</span> 0xf7542e00 &lt;system&gt;
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf7542e00 - <span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0x14<span style="color:#f92672">)</span> - <span style="color:#ae81ff">4</span>
+
+<span style="color:#75715e">#relocate &#34;date&#34;, in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> p *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span>
+$7 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span> set *<span style="color:#f92672">(</span>0xf771b000 + 0x34 + 0xf<span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 0xf771b000 + 0x52
+<span style="color:#f92672">(</span>gdb<span style="color:#f92672">)</span>
+</code></pre></div><h4 id="3final">3.Final</h4>
+<p>After do this, we will get the result like below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">1, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+3, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+2015年 07月 29日 星期三 21:17:17 CST
+4, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:20 CST
+5, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:23 CST
+6, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+Wake up
+2015年 07月 29日 星期三 21:17:26 CST
+7, pid <span style="color:#f92672">(</span>5832<span style="color:#f92672">)</span>Going to sleep
+</code></pre></div><h2 id="summary">Summary</h2>
+<p>So we use gdb(ptrace) to attach a running process, and manual pull a .o file into its process space, then we replace the <a href="mailto:myprint@got.plt">myprint@got.plt</a> to the address of injection(), then we do the relocation for myinject.o as a linker(yeah, cause when the .o file to a executable file, the linker do the relocation, so we have to do it manually). Then we get our goal.</p>
+<p>And in this lab, what we should learn is:</p>
+<ul>
+<li>ELF File Format</li>
+<li>ELF Relocation
+<ul>
+<li>R_386_PC32</li>
+<li>R_386_32</li>
+</ul>
+</li>
+<li>Usage of GDB [-p PID]</li>
+<li>Usage of mmap [MAP_PRIVATE/SHARED] and open</li>
+<li>Usage of readelf [-r -s -S]</li>
+<li>Usage of objdump [-s -S]</li>
+</ul>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

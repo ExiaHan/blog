@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Dice Write Up // ExiaHan&#39;s Blog</title>
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="ExiaHan" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://blog.exiahan.com/css/main.min.61bb32028587f24ca28522d8d197970c7ef33284e5fffb45a75fcbbb2dbc4dcb.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Dice Write Up"/>
+<meta name="twitter:description" content="0x1 题目链接：Simple-Reverse-Dice
+0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
+运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
+0x3 使用IDA和Ollydbg进行分析
+ 在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个time类型，推测可能每次摇骰子是随机生成数值。 继续向下，可以看到程序有判断是否有附加调试器：  isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测   继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7 再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch 仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2 最后发现上面最好patch后，加了横线的描述应该不会发生  #0x4 上述步骤完成，拿到flag，如图：
+#0x5
+昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&laquo;(≧口≦)&raquo;o，炸裂了。。我好蠢。。汪，就这样
+顺便把我的暴力方法打的断点图备忘一下："/>
+
+    <meta property="og:title" content="Dice Write Up" />
+<meta property="og:description" content="0x1 题目链接：Simple-Reverse-Dice
+0x2 拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。
+运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。
+0x3 使用IDA和Ollydbg进行分析
+ 在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个time类型，推测可能每次摇骰子是随机生成数值。 继续向下，可以看到程序有判断是否有附加调试器：  isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测   继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7 再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch 仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2 最后发现上面最好patch后，加了横线的描述应该不会发生  #0x4 上述步骤完成，拿到flag，如图：
+#0x5
+昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&laquo;(≧口≦)&raquo;o，炸裂了。。我好蠢。。汪，就这样
+顺便把我的暴力方法打的断点图备忘一下：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/dice_write_up/" />
+<meta property="article:published_time" content="2015-09-18T20:01:27+08:00" />
+<meta property="article:modified_time" content="2015-09-18T20:01:27+08:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://blog.exiahan.com/"><img class="app-header-avatar" src="/avatar.jpg" alt="ExiaHan" /></a>
+      <h1>ExiaHan&#39;s Blog</h1>
+      <p>Record everything, day by day.. 记录岁月，记录一切。</p>
+      <div class="app-header-social">
+        
+          <a target="_blank" href="https://github.com/exiahan" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github">
+  <title>github</title>
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://twitter.com/exia_han" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter">
+  <title>twitter</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+</svg></a>
+        
+          <a target="_blank" href="https://www.linkedin.com/in/yang-han-4a3b79135/" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin">
+  <title>linkedin</title>
+  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        
+          <a target="_blank" href="mailto:exiahan@exiahan.com" rel="noreferrer noopener"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-mail">
+  <title>mail</title>
+  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        
+      </div>
+      <br>
+      <p>Exchange Links:</p>
+      <div class="app-header-exchange">
+        
+          <a target="_blank" href="https://blog.icehoney.me/" rel="noreferrer noopener">秋水姐姐</a><br>
+        
+          <a target="_blank" href="https://blog.brickgao.com/" rel="noreferrer noopener">高菊苣</a><br>
+        
+          <a target="_blank" href="https://farseerfc.me/" rel="noreferrer noopener">fc菊苣</a><br>
+        
+          <a target="_blank" href="https://felixc.at/" rel="noreferrer noopener">肥猫</a><br>
+        
+          <a target="_blank" href="https://blog.lilydjwg.me/" rel="noreferrer noopener">仙子</a><br>
+        
+          <a target="_blank" href="https://burningcodes.net/" rel="noreferrer noopener">光哥</a><br>
+        
+          <a target="_blank" href="https://erik1iu.github.io/" rel="noreferrer noopener">eric1iu</a><br>
+        
+      </div>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Dice Write Up</h1>
+      <div class="post-meta">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Sep 18, 2015
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          1 min read
+        </div><div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
+  <title>tag</title>
+  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line>
+</svg>
+          <a class="tag" href="https://blog.exiahan.com/tags/ctf/">CTF</a><a class="tag" href="https://blog.exiahan.com/tags/reverse/">Reverse</a><a class="tag" href="https://blog.exiahan.com/tags/simplexue/">SimpleXue</a></div></div>
+    </header>
+    <div class="post-content">
+      <h2 id="0x1">0x1</h2>
+<p>题目链接：<a href="http://ctf5.simplexue.com/re/Dice.exe">Simple-Reverse-Dice</a></p>
+<h2 id="0x2">0x2</h2>
+<p>拿到程序后运行观察其行为，发现是一个Windows CLI程序，运行后提示是按其要求摇骰子，摇出其指定的点数才能进行到下一步，全部正确则吐出Flag，错误则结束。</p>
+<p>运行时程序会有一些提示字符串，记下部分，用IDA打开静态分析。</p>
+<h2 id="0x3">0x3</h2>
+<p>使用IDA和Ollydbg进行分析</p>
+<ul>
+<li>在String Tab中找到对应的String，找到其关联的代码，转成C伪代码分析，可以看到程序是一个WinMain程序，查看其变量，发现有两个<strong>time类型</strong>，推测可能每次摇骰子是随机生成数值。</li>
+<li>继续向下，可以看到程序有判断是否有附加调试器：
+<ul>
+<li>isDebugerPresent()函数，标记，使用Ollydbg时要记得修改其值，绕过调试器检测</li>
+</ul>
+</li>
+<li>继续向下走的话，可以看到每次判断都是调用随机数生成函数后存入值到内存地址0x0022FE9C处，然后从此内存取值，依次判断是否是3-1-3-3-7，需要注意的是最后一个判断7的时候没有再生成随机数，所以要在判断前直接修改内存为7</li>
+<li><del>再继续，3-1-3-3-7完成后，在显示flag之前，还有一次比较，如果相等会跳到something wrong，所以也要做一次patch</del></li>
+<li>仅按照上述内容patch后发现打出的flag是乱码，猜测可能有其他坑，重新浏览代码发现每次判断roll点正确（即3-1-3-3-7）后，还会判断时间差，如果大于2，就会把用来计算flag的值做一次乘2,所以每次比较完后要在比较时间差处也做patch，防止被乘2</li>
+<li>最后发现上面最好patch后，加了横线的描述应该不会发生</li>
+</ul>
+<p>#0x4
+上述步骤完成，拿到flag，如图：</p>
+<p><img src="/images/DiceWriteUp/flag.jpg" alt="flag"></p>
+<p>#0x5</p>
+<p>昨晚后光哥给的思路是直接运行前静态改好，然后直接让他跑一下就把flag吐出来了。。。o&laquo;(≧口≦)&raquo;o，炸裂了。。我好蠢。。汪，就这样</p>
+<p>顺便把我的暴力方法打的断点图备忘一下：</p>
+<p><img src="/images/DiceWriteUp/breaklist.jpg" alt="break list"></p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>

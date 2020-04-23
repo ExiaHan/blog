@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Android on ExiaHan&#39;s Blog</title>
+    <link>https://blog.exiahan.com/tags/android/</link>
+    <description>Recent content in Android on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
+    
+	<atom:link href="https://blog.exiahan.com/tags/android/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Build SQLITE For Android</title>
+      <link>https://blog.exiahan.com/posts/build_sqlite_for_android/</link>
+      <pubDate>Wed, 01 Aug 2018 22:18:20 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/build_sqlite_for_android/</guid>
+      <description>&lt;h2 id=&#34;describe&#34;&gt;Describe&lt;/h2&gt;
+&lt;p&gt;Recently I need to use sqlite3 to quickly modify values in a db file located in an android device.  Usually the easy way is to directly copy an sqlite3 ELF file from an exist AOSP rom&amp;rsquo;s side products of target architecture, but sometimes we may not have any aosp rom built on our disk or even no aosp source files on disk. So it may be not convenience to archive a executable sqlite3 ELF file from a built rom&amp;rsquo;s side products. So it will be  fine to build sqlite3 from sqlite3 source file directly. This article will tell you how to build a usable sqlite3 from sqlite&amp;rsquo;s source file via android-ndk.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;I Assume you are using Linux.&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;prepare&#34;&gt;Prepare&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ANDROID NDK: Because we are going to build ELF file for android, so you must have &lt;a href=&#34;https://developer.android.com/ndk/&#34;&gt;Android-NDK&lt;/a&gt; installed. If you don&amp;rsquo;t have it, install it via distribution&amp;rsquo;s package manager(If you are using Linux) or directly download from official site.&lt;/li&gt;
+&lt;li&gt;The Source File: Then we should download the source file of sqlite. The source file can be downloaded easily from its &lt;a href=&#34;https://www.sqlite.org/download.html&#34;&gt;Official Site&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Essential Building Components: Also make sure your system has essential building components installed. If it alerts any missing when building, just install them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;build&#34;&gt;Build&lt;/h3&gt;
+&lt;p&gt;Now everything is ok. We can start our building action. To avoid any not errors when building. Here I recommend you use the &lt;a href=&#34;https://developer.android.com/ndk/guides/standalone_toolchain&#34;&gt;Standalone ToolChain&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A standalone toolchain can be easily setup via do what the tutorial says.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Create an arm64 API 26 libc++ toolchain.&lt;/span&gt;
+export NDK&lt;span style=&#34;color:#f92672&#34;&gt;={&lt;/span&gt;path to ndk&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+$NDK/build/tools/make_standalone_toolchain.py &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --arch arm64 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --api &lt;span style=&#34;color:#ae81ff&#34;&gt;26&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --stl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;libc++ &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --install-dir&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Add the standalone toolchain to the search path.&lt;/span&gt;
+export PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$PATH:/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/bin
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what tools to use.&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# If you want armeabi, just change target_host to&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# target_host=arm-linux-androideabi&lt;/span&gt;
+target_host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;aarch64-linux-android
+export AR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ar
+export AS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+export CC&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+export CXX&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang++
+export LD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ld
+export STRIP&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-strip
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what flags Android requires.&lt;/span&gt;
+export CFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-fPIE -fPIC&amp;#34;&lt;/span&gt;
+export LDFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-pie&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now everything is ok. Extract the source file to some place you want, then use configure and make like below shows, the sqlite ELF file will be generated successfully.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$tar -xzvf sqlite-snapshot-201807272333.tar.gz
+$./configure --host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;arm-linux-androideabi
+$make
+...
+$file sqlite3
+sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SYSV&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All done.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Dump Dex From IJiaMi</title>
+      <link>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</link>
+      <pubDate>Wed, 07 Oct 2015 23:20:29 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/dump_dex_from_ijiami/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;内容仅供学习讨论&lt;/strong&gt;
+&lt;strong&gt;参考文档：&lt;/strong&gt; &lt;em&gt;&lt;a href=&#34;http://www.sycode.cn/2015/06/27/%E7%88%B1%E5%8A%A0%E5%AF%86-%E5%8A%A8%E6%80%81%E8%84%B1%E5%A3%B3%E4%B9%8B%E3%80%90%E6%99%BA%E8%83%BD%E8%A7%86%E7%AA%97app%E3%80%91%E8%84%B1%E5%A3%B3%E4%BF%AE%E5%A4%8D/#0x001&#34;&gt;爱加密动态脱壳&lt;/a&gt;，&lt;a href=&#34;http://www.cnblogs.com/2014asm/p/4112116.html&#34;&gt;爱加密动态脱壳法&lt;/a&gt;，&lt;a href=&#34;http://www.9hao.info/pages/2014/07/qian-tan-androidni-xiang-fen-xi-na-xie-lan-lu-hu&#34;&gt;浅谈android逆向分析那些拦路虎&lt;/a&gt;，&lt;a href=&#34;http://burningcodes.net/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%B8%AD%E8%B7%9F%E8%B8%AAdex%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B/&#34;&gt;光哥博客&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x1-说在开头&#34;&gt;0x1 说在开头&lt;/h2&gt;
+&lt;p&gt;现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-实验环境&#34;&gt;0x2 实验环境&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Android 真机，Version 4.1.2， with &lt;strong&gt;ROOT &amp;amp; Xposed&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;某被IJiaMi加固的App&lt;/li&gt;
+&lt;li&gt;IDA调试器&lt;/li&gt;
+&lt;li&gt;adb&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;0x3-过程&#34;&gt;0x3 过程&lt;/h2&gt;
+&lt;p&gt;下断点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;libc.so fgets fopen&lt;/li&gt;
+&lt;li&gt;libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt; |---/proc/&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;pid&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;/status
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;对于这个我也写了个，大概实现可以看这里：&lt;a href=&#34;https://github.com/ExiaHan/exiahanLib/blob/master/exiahanLib.c&#34;&gt;getTracerPid&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID
+所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&amp;lt;(=｀o′=)&amp;gt;┓哼 ┏&amp;lt;(=｀○′=)&amp;gt;┛哼┏&amp;lt;(=｀o′=)&amp;gt;┓哈┗&amp;lt;(=｀O′=)&amp;gt;┛兮！！&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？&lt;/p&gt;
+&lt;p&gt;去源码dalvik文件夹下执行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;grep -rn dvmDexFileOpen
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;72&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 73  * Given a file descriptor for an open &amp;#34;optimized&amp;#34; DEX file, map it into
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 74  * memory and parse the contents.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 75  *
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 76  * On success, returns 0 and sets &amp;#34;*ppDvmDex&amp;#34; to a newly-allocated DvmDex.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 77  * On failure, returns a meaningful error code [currently just -1].
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 78  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;79&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; dvmDexFileOpenFromFd(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; fd, DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt; ppDvmDex);
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;81&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 82  * Open a partial DEX file.  Only useful as part of the optimization process.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 83  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;84&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; dvmDexFileOpenPartial(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; addr, &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; len, DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt; ppDvmDex);
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;85&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;86&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 87  * Free a DvmDex structure, along with any associated structures.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; 88  */&lt;/span&gt;
+ &lt;span style=&#34;color:#ae81ff&#34;&gt;89&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; dvmDexFileFree(DvmDex&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; pDvmDex);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可以看到三个和加载dex（包括odex）的函数都在这里，就像注释说明的，dvmDexFileOpenPartial函数是加载dex文件必须用到的一步，其前两个参数分别是dex文件在内存中的地址和其长度，知道这些后就可以尝试现在这里下断然后尝试dump出来dex文件啦。所以在其中下断，就能找到运行时所加载的真正dex文件，然后使用IDC脚本dump出来即可.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; fp, dexAddress;
+fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;xx.dex&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;wb&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (dexAddress &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x3D4AE72C&lt;/span&gt;; dexAddress &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x3DB9C098&lt;/span&gt;; dexAddress&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;)
+   fputc(Byte(dexAddress), fp)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;del&gt;脱掉后dex2jar转成jar用jd-gui看下真正的入口Activity，然后baksmali一下，把manifest.xml里的入口改掉，改成真正入口Activity。&lt;/del&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Xposed with Android Studio</title>
+      <link>https://blog.exiahan.com/posts/xposed_with_android_studio/</link>
+      <pubDate>Wed, 02 Sep 2015 16:06:55 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/xposed_with_android_studio/</guid>
+      <description>&lt;h2 id=&#34;0x1-介绍&#34;&gt;0x1 介绍&lt;/h2&gt;
+&lt;p&gt;Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。
+本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-开工&#34;&gt;0x2 开工&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;这篇文章也是作为Xposed插桩的练习记录&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;引入xposed框架&#34;&gt;引入Xposed框架&lt;/h3&gt;
+&lt;p&gt;不得不说，即使有&lt;a href=&#34;https://github.com/rovo89&#34;&gt;rovo89&lt;/a&gt;的&lt;a href=&#34;https://github.com/rovo89/XposedBridge/wiki/Development-tutorial&#34;&gt;Xposed Tutorial&lt;/a&gt;，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;下载xposed框架jar包&lt;/li&gt;
+&lt;li&gt;创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;在app/src下创建文件夹xposedLib&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;方法一：&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library&lt;/li&gt;
+&lt;li&gt;在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如图：
+&lt;img src=&#34;https://blog.exiahan.com/images/XposedWithAndroidStudio/xposedprovide.jpg&#34; alt=&#34;xposed provide&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;方法二：&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;把下载好的xposed-bridgeAPI.jar包拖进去&lt;/li&gt;
+&lt;li&gt;在app/xposedLib/路径里创建build.gradle文件，内容如下&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;apply plugin: &amp;#39;java&amp;#39;
+dependencies {
+    compile project(&amp;#34;:lib&amp;#34;)
+    provided fileTree(dir: &amp;#39;lib&amp;#39;, include: [&amp;#39;*.jar&amp;#39;])
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;blockquote&gt;
+&lt;p&gt;根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含
+xposed的jar包要求仅被引用，而不能包含
+所以放xposedLib
+并且在module settings里把相关项改成provide&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;到这里xposed框架的引入即可成功&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;创建你的xposed-module&#34;&gt;创建你的Xposed Module&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;修改AndroidManifest.xml，加入xposed的meta元素（&lt;strong&gt;具体如何参见rovo89的Tutorial&lt;/strong&gt;）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如下所示：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;application&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:allowBackup=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;true&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:icon=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@mipmap/ic_launcher&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:label=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@string/app_name&amp;#34;&lt;/span&gt;
+        &lt;span style=&#34;color:#a6e22e&#34;&gt;android:theme=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@style/AppTheme&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposedmodule&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;true&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposeddescription&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;My First Xposed Module for Hook&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;meta-data&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;xposedminversion&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:value=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;30&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;activity&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;.MainActivity&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;android:label=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;@string/app_name&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+......
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;创建你的使用xposed插件的函数，如MyXposedModule&lt;/li&gt;
+&lt;li&gt;添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名
+&lt;ul&gt;
+&lt;li&gt;如&lt;strong&gt;com.xxx.helloxposedhook.MyXposedModule&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数&lt;/p&gt;
+&lt;p&gt;功能代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MyXposedModule&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;implements&lt;/span&gt; IXposedHookLoadPackage&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handleLoadPackage&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;XC_LoadPackage&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;LoadPackageParam&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+        &lt;span style=&#34;color:#75715e&#34;&gt;//TODO Auto-generated method stub
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//filter the package
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(!&lt;/span&gt;lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;packageName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;equals&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;com.xxx.remotecontrol&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+
+        Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Package&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\n&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;packageName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\n&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;//if has a custom class param, use reflact to get the class as type
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//Class&amp;lt;?&amp;gt; XXXJni = null;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//XXXJni = lpparam.classLoader.loadClass(&amp;#34;com.xxx.remotecontrol&amp;#34;);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        findAndHookMethod&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;com.xxx.remotecontrol.mainActivity&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; lpparam&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;classLoader&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;forHook&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; String&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; XC_MethodHook&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;protected&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;beforeHookedMethod&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;MethodHookParam param&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                &lt;span style=&#34;color:#75715e&#34;&gt;// this will be called before the clock was updated by the original method
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                String parg &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;String&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; param&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;args&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;0&lt;span style=&#34;color:#f92672&#34;&gt;];&lt;/span&gt;
+                Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Result:&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\nHi\n&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+                Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CMD:&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; parg&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+            &lt;span style=&#34;color:#a6e22e&#34;&gt;@Override&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;protected&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;afterHookedMethod&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;MethodHookParam param&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throws&lt;/span&gt; Throwable &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                &lt;span style=&#34;color:#75715e&#34;&gt;// this will be called after the clock was updated by the original method
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;});&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Hook成功后首先打印Hi，然后打印参数，即CMD后的parg&lt;/p&gt;
+&lt;p&gt;结果如图：
+&lt;img src=&#34;https://blog.exiahan.com/images/XposedWithAndroidStudio/result.jpg&#34; alt=&#34;result&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;到这里也即完成了xposed module的创建&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x3-结束&#34;&gt;0x3 结束&lt;/h2&gt;
+&lt;p&gt;这里仅仅作为一个例子. 想继续深入研究的朋友可以去github找一些较大的xposed插件工程源码阅读:).&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SubsTrate with AndroidStudio</title>
+      <link>https://blog.exiahan.com/posts/substrate_with_androidstudio/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/substrate_with_androidstudio/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;参考文档：&lt;/strong&gt; &lt;em&gt;&lt;a href=&#34;http://bbs.pediy.com/showthread.php?t=199671&#34;&gt;看雪&lt;/a&gt;，&lt;a href=&#34;http://burningcodes.net/cydia-substrate-android-so-hook/&#34;&gt;光哥博客&lt;/a&gt;，&lt;a href=&#34;http://drops.wooyun.org/tips/8084&#34;&gt;乌云知识库&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x1-介绍&#34;&gt;0x1 介绍&lt;/h2&gt;
+&lt;p&gt;在家木事，学了下substrate用法，这里记录下～&lt;/p&gt;
+&lt;p&gt;*&lt;em&gt;&lt;a href=&#34;http://www.cydiasubstrate.com/&#34;&gt;Substrate&lt;/a&gt;&lt;strong&gt;是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的&lt;/strong&gt;&lt;/em&gt;&lt;a href=&#34;http://www.cydiasubstrate.com/api/c/&#34;&gt;文档&lt;/a&gt;***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。&lt;/p&gt;
+&lt;h2 id=&#34;0x2-准备工作&#34;&gt;0x2 准备工作&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本&lt;/li&gt;
+&lt;li&gt;按照官方说明，下载substrate框架apk并安装，重启设备&lt;/li&gt;
+&lt;li&gt;下载sdk到本地并解压，官方提供了两种方式
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://asdk.cydiasubstrate.com/zips/cydia_substrate-r2.zip&#34;&gt;直接下载&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;通过Android SDK Manager管理下载：&lt;a href=&#34;http://www.cydiasubstrate.com/id/73e45fe5-4525-4de7-ac14-6016652cc1b8/&#34;&gt;说明页面&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;0x3-substrate-with-android-studio&#34;&gt;0x3 Substrate with Android Studio&lt;/h2&gt;
+&lt;p&gt;首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。
+言归正传：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;新建一个工程，名字随意，比如HelloSubstrate&lt;/li&gt;
+&lt;li&gt;由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要&lt;/li&gt;
+&lt;li&gt;在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去&lt;/li&gt;
+&lt;li&gt;在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&amp;mdash;&lt;a href=&#34;http://www.cydiasubstrate.com/inject/android/&#34;&gt;文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;在manifest文件里加上权限声明，否则无法正常工作
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;&lt;code&gt;&amp;lt;uses-permission android:name=&amp;quot;cydia.permission.SUBSTRATE&amp;quot;/&amp;gt;&lt;/code&gt;&lt;/strong&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;额外的准备工作&#34;&gt;额外的准备工作&lt;/h3&gt;
+&lt;p&gt;又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确保你的gradle是最新的&lt;/li&gt;
+&lt;li&gt;修改./Project/build.gradle的classpath为
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;&lt;code&gt;classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;&lt;/code&gt;&lt;/strong&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;修改./Project/app/build.gradle为如下样式：&lt;strong&gt;注意其中的不同&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;apply plugin的模块变了&lt;/li&gt;
+&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;ldquo;=&amp;rdquo;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-XML&#34; data-lang=&#34;XML&#34;&gt;apply plugin: &amp;#39;com.android.model.application&amp;#39;
+
+model {
+    android {
+        compileSdkVersion = 23
+        buildToolsVersion = &amp;#34;23.0.2&amp;#34;
+        defaultConfig.with {
+            applicationId = &amp;#34;com.exiahan.hellosubstrate&amp;#34;
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 23
+            versionCode = 1
+            versionName = &amp;#34;1.0&amp;#34;
+        }
+        tasks.withType(JavaCompile) {
+            //指定编译JDK版本
+            sourceCompatibility = JavaVersion.VERSION_1_7
+            targetCompatibility = JavaVersion.VERSION_1_7
+        }
+    }
+    android.buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles += file(&amp;#39;proguard-rules.pro&amp;#39;)
+        }
+    }
+
+    android.ndk {
+        moduleName = &amp;#34;cydiaSubstrateHook.cy&amp;#34;
+        ldFlags += &amp;#34;-L./lib/armeabi&amp;#34;
+        ldLibs += &amp;#34;log&amp;#34;
+        ldLibs += &amp;#34;substrate&amp;#34;
+        ldLibs += &amp;#34;substrate-dvm&amp;#34;
+        abiFilters += &amp;#34;armeabi&amp;#34;
+    }
+}
+dependencies {
+    compile fileTree(include: [&amp;#39;*.jar&amp;#39;], dir: &amp;#39;libs&amp;#39;)
+    compile &amp;#39;com.android.support:appcompat-v7:23.0.0&amp;#39;
+}
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;由于我们生成的hook用apk会在运行时使用substrate框架提供的库函数和log相关函数，所以需要加上动态链接的一些选项，同时按照sdk要求，生成的modulename必须是.cy.so结尾&lt;/p&gt;
+&lt;p&gt;一切就绪，就可以开始编写小例子了。&lt;/p&gt;
+&lt;p&gt;在刚刚的jni文件夹里创建cydiaSubstrateHook.cy.cpp文件，内容如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Created by exiahan on 15-10-5.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;android/log.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;substrate.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define TAG &amp;#34;CydiaSubstrate&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//define LOGI Marco
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#define GETLR(store_lr)  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;  __asm__ __volatile__(  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    &amp;#34;mov %0, lr\n\t&amp;#34;  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    :  &amp;#34;=r&amp;#34;(store_lr)  \
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;  )
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;//Specify the lib to hook
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;MSConfig(MSFilterLibrary, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/system/lib/libc.so&amp;#34;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; oldfopen)(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; path, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; mode);
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;newfopen&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; path, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; mode) {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; lr;
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:newfopen called! -- [%d]&amp;#34;&lt;/span&gt;, getpid());
+    GETLR(lr);
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:BackTrace -- [0x%x]&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, lr);
+    LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[I]:File Path -- [%s]&amp;#34;&lt;/span&gt;, path);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; oldfopen(path, mode);
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * Substrate entry point
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; */&lt;/span&gt;
+MSInitialize
+{
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Let the user know that the extension has been
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// extension has been registered
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    LOGI( &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Substrate initialized.&amp;#34;&lt;/span&gt;);
+    MSImageRef image;
+
+    image &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; MSGetImageByName(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/system/lib/libc.so&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (image &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; NULL)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hookfopen&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;MSFindSymbol(image,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fopen&amp;#34;&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(hookfopen&lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt;NULL)
+        {
+            LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;error find fopen &amp;#34;&lt;/span&gt;);
+        }
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+            MSHookFunction(hookfopen,(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;newfopen,(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;oldfopen);
+        }
+    }
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+        LOGI(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ERROR FIND LIBC&amp;#34;&lt;/span&gt;);
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;阅读源码，可知Hook过程如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确定我们要Hook的函数，为其重写一个我们自己的版本，这里选择的是fopen，也是脱壳时通常会注意的函数&lt;/li&gt;
+&lt;li&gt;使用MSConfig宏指定fopen所在的库libc.so为要hook的库&lt;/li&gt;
+&lt;li&gt;在MSInitialize初始化函数里执行如下流程：
+&lt;ul&gt;
+&lt;li&gt;MSGetImageByName得到libc.so句柄&lt;/li&gt;
+&lt;li&gt;MSFindSymbol找到即将被hook的函数fopen的函数指针并存储，以保证在hook后依旧可以正常完成相关功能&lt;/li&gt;
+&lt;li&gt;MSHookFunction开始hook函数，这时会把原本的fopen的调用地址放到oldopen里，这样在newfopen里调用oldfopen完成真正的fopen功能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;运行结果如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/SubsTrateWithAndroidStudio/result.jpg&#34; alt=&#34;result&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;0x4-总结&#34;&gt;0x4 总结&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;到现在为止接触了两种用于Hook的框架，相对于Xposed，Substrate在代码注入上更容易操作，而且提供了native层的注入选项，但是相对于xposed现在已经支持Lolipop而言，substrate还停留在dalvik的时代，期待支持lollipop的substrate尽快出现&lt;/li&gt;
+&lt;li&gt;框架为我们提供了方便，但是阅读他们的文档就能发现归根结底的话都是在对rom做动态修改，最近看到了看雪上的**&lt;a href=&#34;http://bbs.pediy.com/showthread.php?p=1389779#post1389779&#34;&gt;DexHunter&lt;/a&gt;**，十分厉害，大概思路是定制ROM实现脱壳，这样apk做的一些反调试和防注入而言（*一些加固方案会自己通过.init方法在本地hook一些libc关键函数*）基本上都是小儿科了，准备下个月有空了买个Nexus好好研究下。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

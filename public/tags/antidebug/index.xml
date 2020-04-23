@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AntiDebug on ExiaHan&#39;s Blog</title>
+    <link>https://blog.exiahan.com/tags/antidebug/</link>
+    <description>Recent content in AntiDebug on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 09 Jan 2016 21:44:08 +0800</lastBuildDate>
+    
+	<atom:link href="https://blog.exiahan.com/tags/antidebug/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Android AntiDebug and Signature Verify Example</title>
+      <link>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</link>
+      <pubDate>Sat, 09 Jan 2016 21:44:08 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/android_antidebug_and_signature_verify/</guid>
+      <description>&lt;p&gt;Reference:&lt;a href=&#34;http://blog.csdn.net/grafx/article/details/40403577&#34;&gt;grafx&lt;/a&gt;, &lt;a href=&#34;http://burningcodes.net/%E7%94%A8jni%E5%AE%9E%E7%8E%B0apk%E7%9A%84%E5%8F%8D%E8%B0%83%E8%AF%95/&#34;&gt;IT Dreamer&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;We can use lots of tools like apktool, baksmali, dex2jar to convert a android app to java source code easily. So now most of our developers will put the core-function in the native level(with C/C++ code) because the arm-assembly language or C pseudo code are more difficult to read than java.
+But others can still read the native code if they really want, they can use IDA to read .so files and debug our apps dynamicly. In order to make our apps difficultly to debug dynamicly, we may will need to add some methods that can provide antidebug functions for us.&lt;/p&gt;
+&lt;p&gt;This aritcle will provide a simple example about how to antidebug and the sinature-verify.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;PS: Recently I am helping my teacher to prepare a Android-Security Course, so I feel it is time to record something, and&lt;/em&gt; &lt;strong&gt;Sorry for my poor English. (: but I think write article in English is the fast way to help me to improve my English.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;sinature-verify&#34;&gt;Sinature Verify&lt;/h2&gt;
+&lt;h3 id=&#34;java-level&#34;&gt;Java Level&lt;/h3&gt;
+&lt;p&gt;When we publish our apps to the app-store, we will sign apps with our private key, and put the public key into our apps, if others modify our apps, he will re-sign the apps and the public key will be changed, so we can add some code into our apps to check the sinature, if it is not same with ourselves public keys, we can let the apps to exit to prevent the modified apps do something that is harmful to users.
+Below is the code in java level:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-Java&#34; data-lang=&#34;Java&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;CheckSign&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+    Context context&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    PackageManager packageManager&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    String strPackagename&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[]&lt;/span&gt; byteSign&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    String strSign&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    Signature&lt;span style=&#34;color:#f92672&#34;&gt;[]&lt;/span&gt; signatureArray&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+
+    CheckSign&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Context context&lt;span style=&#34;color:#f92672&#34;&gt;){&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;this&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; context&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;native&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;checkSignNative&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Context context&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;//The arguement is your public key&amp;#39;s value that is deal with md5 and base64
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;boolean&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;checkSign&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;String strOriSign&lt;span style=&#34;color:#f92672&#34;&gt;){&lt;/span&gt;
+        checkSignNative&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;this&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;try&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+            packageManager &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;this&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getPackageManager&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;();&lt;/span&gt;
+            strPackagename &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;this&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getPackageName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;();&lt;/span&gt;
+            signatureArray &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;this&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;packageManager&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getPackageInfo&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;strPackagename&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; PackageManager&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;GET_SIGNATURES&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;).&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;signatures&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+
+            &lt;span style=&#34;color:#75715e&#34;&gt;/*Improper validation of app signatures could lead to
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             *issues where a malicious app submits itself to the
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * Play Store with both its real certificate and a
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * fake certificate and gains access to functionality
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * or information it shouldn&amp;#39;t have due to another
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * application only checking for the fake certificate
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * and ignoring the rest. Please make sure to validate
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * all signatures returned by this method.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;             * */&lt;/span&gt;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; signatureArray&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;length&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt; i&lt;span style=&#34;color:#f92672&#34;&gt;++)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;v&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Verbose: &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Check Signatures&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+                byteSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; signatureArray&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;i&lt;span style=&#34;color:#f92672&#34;&gt;].&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;toByteArray&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;();&lt;/span&gt;
+                byteSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; CertificateFactory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getInstance&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X509&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;).&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;generateCertificate&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; ByteArrayInputStream&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;byteSign&lt;span style=&#34;color:#f92672&#34;&gt;)).&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getEncoded&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;();&lt;/span&gt;
+                strSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; String&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Base64&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;encode&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;MessageDigest&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getInstance&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;md5&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;).&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;digest&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;byteSign&lt;span style=&#34;color:#f92672&#34;&gt;),&lt;/span&gt; 19&lt;span style=&#34;color:#f92672&#34;&gt;));&lt;/span&gt;
+                &lt;span style=&#34;color:#75715e&#34;&gt;//strSign = Base64.encodeToString(MessageDigest.getInstance(&amp;#34;md5&amp;#34;).digest(byteSign), 19));
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(!&lt;/span&gt;strOriSign&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;equals&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;strSign&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+                    Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Error: &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Fake Signature&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+                    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+                &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;
+                    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;catch&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Exception e&lt;span style=&#34;color:#f92672&#34;&gt;){&lt;/span&gt;
+            Log&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;e&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Error: &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CheckSign Failed&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; e&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;toString&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;());&lt;/span&gt;
+            System&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;exit&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(-&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;);&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The java code above will do the sinature verify in java level. As what we have metioned, it is easy to be pathed by modify the smali file. So the more safy way is to do it in a .so file, which is so-called &amp;ldquo;native level&amp;rdquo;.&lt;/p&gt;
+&lt;h3 id=&#34;sinature-verify-via-c&#34;&gt;Sinature Verify via C&lt;/h3&gt;
+&lt;p&gt;To do it, we should add some code in our java code, and be careful, what this example do is simple add a native funciton that will only do the sign-check, this can be patched easily by modify the smali, too. So in the real env we should merge the code to our core-function, that means if we patched the native method call in java level, the app won&amp;rsquo;t work.
+Below code will return the signature, you can do the verify after you get the sinature easily:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//Return the String, which is generated via base64(md5(signature));
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;getSignature&lt;/span&gt;(JNIEnv&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; env, jobject obj)
+{
+    jstring jstringSign;
+    jbyte &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;byteSign;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strSign;
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得Context类
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jclass cls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectClass(env, obj);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 得到getPackageManager方法的ID
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jmethodID mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;getPackageManager&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;()Landroid/content/pm/PackageManager;&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得应用包的管理器
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jobject pm &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallObjectMethod(env, obj, mid);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 得到getPackageName方法的ID
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;getPackageName&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;()Ljava/lang/String;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得当前应用包名
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jstring packageName &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (jstring)(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallObjectMethod(env, obj, mid);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得PackageManager类
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectClass(env, pm);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 得到getPackageInfo方法的ID
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    mid  &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;getPackageInfo&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得应用包的信息
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jobject packageInfo &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallObjectMethod(env, pm, mid, packageName, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x40&lt;/span&gt;); &lt;span style=&#34;color:#75715e&#34;&gt;//GET_SIGNATURES = 64;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得PackageInfo 类
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectClass(env, packageInfo);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得签名数组属性的ID
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jfieldID fid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetFieldID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;signatures&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[Landroid/content/pm/Signature;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 得到签名数组
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jobjectArray signatures &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (jobjectArray)(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectField(env, packageInfo, fid);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 得到签名
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jobject sign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectArrayElement(env, signatures, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 获得Signature类
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetObjectClass(env, sign);
+    &lt;span style=&#34;color:#75715e&#34;&gt;//得到ByteSign
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;toByteArray&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;()[B&amp;#34;&lt;/span&gt;);
+    byteSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallObjectMethod(env, sign, mid);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;//根据Byte生成md5消息摘要
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cls  &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;FindClass(env, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;java/security/MessageDigest&amp;#34;&lt;/span&gt;);
+    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetStaticMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;getInstance&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;(Ljava/lang/String;)Ljava/security/MessageDigest;&amp;#34;&lt;/span&gt;);
+    jobject jmd5 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallStaticObjectMethod(env, cls, mid, (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;NewStringUTF(env, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;md5&amp;#34;&lt;/span&gt;));
+    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;update&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;([B)V&amp;#34;&lt;/span&gt;);
+    (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallVoidMethod(env, jmd5, mid, byteSign);
+    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;digest&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;()[B&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;//md5散列后的byte[]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    byteSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallObjectMethod(env, jmd5, mid);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;//生成Base64后的String
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cls &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;FindClass(env, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;android/util/Base64&amp;#34;&lt;/span&gt;);
+    mid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetStaticMethodID(env, cls, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;encodeToString&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;([BI)Ljava/lang/String;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;//得到base64后的String
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    jstringSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;CallStaticObjectMethod(env, cls, mid, byteSign, &lt;span style=&#34;color:#ae81ff&#34;&gt;19&lt;/span&gt;);
+    strSign &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;env)&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;GetStringUTFChars(env, jstringSign, NULL);
+    &lt;span style=&#34;color:#75715e&#34;&gt;//LOGW(&amp;#34;%s&amp;#34;, strSign);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; strSign;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The code above will call the java function via relfcetion, and the second arguement is a Context object that can be passed by declare a java method like&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-Java&#34; data-lang=&#34;Java&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;native&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;Return Type&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;FunctionName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Context&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;...);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;antidebug&#34;&gt;Antidebug&lt;/h2&gt;
+&lt;p&gt;Simplly, we can start a new process via the fork(), the new process will check the parent&amp;rsquo;s &lt;strong&gt;/proc/[PID]/status&lt;/strong&gt; file to see whether the &lt;strong&gt;TracerPid&lt;/strong&gt; is 0, if not, kill the parent and then exit. Also, we should prevent others to debug the child process via dynamic debuging, we can let the child process &lt;a href=&#34;https://en.wikipedia.org/wiki/Ptrace&#34;&gt;&lt;strong&gt;ptrace&lt;/strong&gt;&lt;/a&gt; itself.&lt;/p&gt;
+&lt;p&gt;The code below will provide antidebug function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;antiDebug&lt;/span&gt;()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; bufsize &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1024&lt;/span&gt;;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; filename[bufsize];
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; line[bufsize];
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; pid &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getpid();
+    sprintf(filename, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/proc/%d/status&amp;#34;&lt;/span&gt;, pid);
+    FILE&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; fd;
+    &lt;span style=&#34;color:#75715e&#34;&gt;//Child Proc check the parent&amp;#39;s status
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; pt;
+        pt &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ptrace(PTRACE_TRACEME, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;); &lt;span style=&#34;color:#75715e&#34;&gt;//Child Proc anti ptrace
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) {
+            fd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(filename, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;r&amp;#34;&lt;/span&gt;);
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fd &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; NULL) {
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (fgets(line, bufsize, fd)) {
+                    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (strncmp(line, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;TracerPid&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) {
+                        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; statue &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; atoi(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;line[&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;]);
+                        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (statue &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) {
+                            fclose(fd);
+                            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kill(pid, SIGKILL);
+                            exit(&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;);
+                        }
+                        &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
+                    }
+                }
+                fclose(fd);
+            }
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+				;
+            }
+            sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To do something more, you can also create a marco which will do&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-CPP&#34; data-lang=&#34;CPP&#34;&gt;	fd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(filename, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;r&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fd &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; NULL) {
+    	&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (fgets(line, bufsize, fd)) {
+        	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (strncmp(line, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;TracerPid&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) {
+            	&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; statue &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; atoi(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;line[&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;]);
+            	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (statue &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) {
+            		fclose(fd);
+            		&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kill(pid, SIGKILL);
+           		 	exit(&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;);
+           		}
+            	&lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
+            }
+		}
+    }
+	fclose(fd);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;and put it in a lot of places in your c source code, to add the difficulty of reversing apps.&lt;/p&gt;
+&lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In this article we provide a simple example about antidebug and signCheck, it can not prevent others to reverse our apps completely, but it can add the difficulty in reversing. Hope this article can help someone. :)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

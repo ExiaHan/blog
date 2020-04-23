@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Https on ExiaHan&#39;s Blog</title>
+    <link>https://blog.exiahan.com/tags/https/</link>
+    <description>Recent content in Https on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 30 Jan 2017 03:51:33 +0800</lastBuildDate>
+    
+	<atom:link href="https://blog.exiahan.com/tags/https/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Start To Use Nginx Hexo and Let&#39;s Encrypt</title>
+      <link>https://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</link>
+      <pubDate>Mon, 30 Jan 2017 03:51:33 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/start_to_use_nginx_hexo_and_lets_encrypt/</guid>
+      <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;It&amp;rsquo;s just a record for myself. It may contain errors. But it still can help you if you don&amp;rsquo;t know how to start the config.
+For a Offical instruction, you may try this in &lt;a href=&#34;https://www.digitalocean.com/community/tags/let-s-encrypt?type=tutorials&#34;&gt;Digital Ocean&lt;/a&gt;.
+&lt;strong&gt;And what I think is that: The tutorials in DigitalOcean is much better that what is written in some linux distribution&amp;rsquo;s wikipage like ubuntu&amp;hellip;.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;
+&lt;p&gt;It is time to embrace https since chrome begin to mark website which use http as unsafe. As we know hexo are just a static html server, so if we want to use https, we need a &lt;strong&gt;real&lt;/strong&gt; web server, which should supports https. What I choose is Nginx, it small, simple, elegent and stable. Below will show you how to set up nginx to support https and how to let nginx work with hexo and git.&lt;/p&gt;
+&lt;p&gt;##&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

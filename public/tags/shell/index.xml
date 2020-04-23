@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shell on ExiaHan&#39;s Blog</title>
+    <link>https://blog.exiahan.com/tags/shell/</link>
+    <description>Recent content in Shell on ExiaHan&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 18 Aug 2015 12:48:57 +0800</lastBuildDate>
+    
+	<atom:link href="https://blog.exiahan.com/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>ELF_Simple_Shell</title>
+      <link>https://blog.exiahan.com/posts/elf_simple_shell/</link>
+      <pubDate>Tue, 18 Aug 2015 12:48:57 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/posts/elf_simple_shell/</guid>
+      <description>&lt;h2 id=&#34;0x00-前言&#34;&gt;0x00 前言&lt;/h2&gt;
+&lt;p&gt;之前看了ELF文件的文件格式PDF&lt;a href=&#34;http://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf&#34;&gt;文档&lt;/a&gt;，又从&lt;a href=&#34;http://bbs.pediy.com/showthread.php?t=191649&#34;&gt;看雪论坛&lt;/a&gt;和&lt;a href=&#34;http://www.burningcodes.net/&#34;&gt;光哥&lt;/a&gt;那里看了点so加密的文章，就想试下直接对elf可执行文件加密。现做一点整理和记录，留待备用。&lt;/p&gt;
+&lt;p&gt;大概流程如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;核心代码放到指定节&lt;/li&gt;
+&lt;li&gt;.init section 加入解密函数decryptFunc&lt;/li&gt;
+&lt;li&gt;加密程序读取编译好的elf文件，加密指定节&lt;/li&gt;
+&lt;li&gt;运行时decryptFunc函数解密核心代码&lt;/li&gt;
+&lt;li&gt;正确执行&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;0x01-准备工作&#34;&gt;0x01 准备工作&lt;/h2&gt;
+&lt;p&gt;要对ELF可执行文件进行处理，首先需要了解ELF文件格式，具体可见上一篇Po主的渣翻译（&lt;strong&gt;真的很渣，英语老师已气死&lt;/strong&gt;），这里对需要用到的地方再进行一次说明：&lt;/p&gt;
+&lt;h3 id=&#34;elf文件格式&#34;&gt;ELF文件格式&lt;/h3&gt;
+&lt;p&gt;ELF文件组织结构如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;Linker View&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Execution View&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;ELF Header&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;ELF Header&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Section Header Table&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Section Header Table[Optional]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Program Header Table[Optional]&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Program Header Table&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Sections&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Segments&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&amp;hellip;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;ELF文件ELF Header结构如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;......
+&lt;span style=&#34;color:#75715e&#34;&gt;#define EI_NIDENT 16
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int8_t u1;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int16_t u2;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int32_t u4;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int8_t&lt;/span&gt; i1;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int16_t&lt;/span&gt; i2;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int32_t&lt;/span&gt; i4;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+    u1 e_ident[EI_NIDENT];
+    u2 e_type;
+    u2 e_machine;
+    u4 e_version;
+    u4 e_entry;
+    u4 e_phoff;
+    u4 e_shoff;
+    u4 e_flags;
+    u2 e_ehsize;
+    u2 e_phentsize;
+    u2 e_phnum;
+    u2 e_shentsize;
+    u2 e_shnum;
+    u2 e_shstrndx;
+}elf32_Header, &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;pElf32_Header;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;根据文档，对于Linker，其对Section进行操作，而在装入内存执行时，进程内部数据是按照段(Segment)进行组织，所以对于非可执行的ELF文件，如gcc -c xxx.o生成的 xxx.o文件，其内部可以没有Program Header Table，但必须有Section Header Table；对于可执行文件(gcc -o xxx)，其内部可以没有Section Header Table，但是必须有Program Header Table。&lt;/p&gt;
+&lt;p&gt;因此，我们可以利用ELF Header中与section有关的字段，如e_shoff和e_shentsize，用来存放我们加解密需要的数据来供decryptFunc函数使用，如此不仅方便，还能有效避免可执行文件被IDA等静态工具分析。&lt;/p&gt;
+&lt;p&gt;##0x02 开工&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;a准备一个简单的c源程序&#34;&gt;A、准备一个简单的C源程序：&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;头文件elf32.h，包含对elf header结构的定义&lt;/li&gt;
+&lt;li&gt;example.c 示例文件，包含解密函数等定义&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;elf32.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#define MAXLEN 1000
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define PAGESIZE 4096
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;//The function to decrypt the segment
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute__((constructor)) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mydecrypt();
+
+&lt;span style=&#34;color:#75715e&#34;&gt;//The section that will be encrypted
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mysecFunction();
+
+__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection_data&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; strMySec[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NzTfdujpo&amp;#34;&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv)
+{
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello world&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    mysecFunction();
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mysecFunction&lt;/span&gt;()
+{
+    ......
+	&lt;span style=&#34;color:#75715e&#34;&gt;//deal data in section mysection_data
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//then print it
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mydecrypt&lt;/span&gt;()
+{
+	......
+	&lt;span style=&#34;color:#75715e&#34;&gt;//code will decrypt data in section: mysection
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;/****************************************************
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* find a module&amp;#39;s base via /proc/[pid]/maps,
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* in this scenario, it will be the base addr of the
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* executable elf file&amp;#39;s base address
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;****************************************************/&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; buf[MAXLEN] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;};
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+    FILE &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
+
+    sprintf(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/proc/%d/maps&amp;#34;&lt;/span&gt;, getpid());
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;r&amp;#34;&lt;/span&gt;))) {
+        perror(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Error when open file&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(fgets(buf, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(buf), fp)) {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (strstr(buf, strName)) {
+            sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtok(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-&amp;#34;&lt;/span&gt;);
+            uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtol(sAddr, NULL, &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;);
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
+        }
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
+}
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;代码大概内容如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一个mysection节，包含一个会被加密的函数mysecFunction()，函数会把mysectin_data里的字符数组进行处理（其实是加），打印出真正的字符串&lt;/li&gt;
+&lt;li&gt;一个mysection_data节，包含一个字符数组，用于打印&lt;/li&gt;
+&lt;li&gt;一个会在程序加载到内存后init阶段执行的解密函数mydecrypt()，函数&lt;/li&gt;
+&lt;li&gt;一个getAddress函数，用来获取程序加载基地址(&lt;strong&gt;其实这个函数在这里可以看成是多余的，因为和shared object不一样，可执行文件的程序地址是写死的，写这里是作为备忘，总归会碰到加密so的&lt;/strong&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对源码进行编译生成目标文件：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ gcc -m32 -c -o example.o example.c
+$ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mysection&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;0x08881000
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里需要注意的是加了编译选项-Wl,&amp;ndash;section-start=mysection=0x08881000，原因在于：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;so被加载进来后，通常其起始地址是按页对齐的，不同于so，elf可执行文件里代码位置是写死的，而且通常每个section里的代码在segment里并不会按页对齐，所以我们的mysection通常不会在一个页的起始处&lt;/li&gt;
+&lt;li&gt;加密函数使用了mprotect活的相关内存区域的写入权限，mprotect函数修改内存权限是按页修改，所以如果不强制到某个页上，函数调用会失败&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;所以，指定对应节的起始地址为一个按4K对齐的地址。&lt;/p&gt;
+&lt;h4 id=&#34;b加密生成的elf可执行文件的指定区域&#34;&gt;B、加密生成的ELF可执行文件的指定区域&lt;/h4&gt;
+&lt;p&gt;这里使用python脚本自动搜索完成&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ./elfshell.py example
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;思路如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;读取ELF Header，取得Section Table，Section String Name Table&lt;/li&gt;
+&lt;li&gt;遍历Section Table和Section Stringg Name Table，找到mysection节的offset[&lt;strong&gt;磁盘上文件中位置&lt;/strong&gt;]，addr[&lt;strong&gt;加载到内存后的位置&lt;/strong&gt;]，size等信息&lt;/li&gt;
+&lt;li&gt;利用offset和size，加密mysection的内容&lt;/li&gt;
+&lt;li&gt;把mysection的addr，size填入elf-header结构的e_shoff,e_shentsize中，供解密函数mydecrypt()使用[&lt;strong&gt;前面已经说过，elf-header结构里与section相关的信息在执行时是不会是用的&lt;/strong&gt;]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;c执行&#34;&gt;C、执行&lt;/h4&gt;
+&lt;p&gt;完成上述步骤后，使用IDA静态逆向elf文件example，会提示无法正确解析，但是可以正常执行，执行流程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;首先，constructor属性的mydecrypt()会执行，调用getAddress得到example基址&lt;/li&gt;
+&lt;li&gt;mydecrypt()读取elf-header结构的e_shoff和e_shentsize，找到mysection&lt;/li&gt;
+&lt;li&gt;解密mysection&lt;/li&gt;
+&lt;li&gt;程序开始执行&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;代码：&lt;a href=&#34;https://github.com/ExiaHan/ELF_Shell&#34;&gt;github&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

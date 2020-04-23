@@ -1,0 +1,44 @@
+baseURL = "https://blog.exiahan.com/"
+languageCode = "en-us"
+title = "ExiaHan's Blog"
+theme = "m10c"
+
+
+[params]
+    author = "ExiaHan"
+    description = "Record everything, day by day.. 记录岁月，记录一切。"
+
+    [[params.social]]
+        name = "github"
+        url = "https://github.com/exiahan"
+    [[params.social]]
+        name = "twitter"
+        url = "https://twitter.com/exia_han"
+    [[params.social]]
+        name = "linkedin"
+        url = "https://www.linkedin.com/in/yang-han-4a3b79135/"
+    [[params.social]]
+        name = "mail"
+        url = "mailto:exiahan@exiahan.com"
+    [[params.exchange]]
+        name = "秋水姐姐"
+        url = "https://blog.icehoney.me/"
+    [[params.exchange]]
+        name = "高菊苣"
+        url = "https://blog.brickgao.com/"
+    [[params.exchange]]
+        name = "fc菊苣"
+        url = "https://farseerfc.me/"
+    [[params.exchange]]
+        name = "肥猫"
+        url = "https://felixc.at/"
+    [[params.exchange]]
+        name = "仙子"
+        url = "https://blog.lilydjwg.me/"
+    [[params.exchange]]
+        name = "光哥"
+        url = "https://burningcodes.net/"
+    [[params.exchange]]
+        name = "eric1iu"
+        url = "https://erik1iu.github.io/"
+
