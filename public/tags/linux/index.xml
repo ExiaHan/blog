@@ -29,38 +29,38 @@
 &lt;h3 id=&#34;build&#34;&gt;Build&lt;/h3&gt;
 &lt;p&gt;Now everything is ok. We can start our building action. To avoid any not errors when building. Here I recommend you use the &lt;a href=&#34;https://developer.android.com/ndk/guides/standalone_toolchain&#34;&gt;Standalone ToolChain&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;A standalone toolchain can be easily setup via do what the tutorial says.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Create an arm64 API 26 libc++ toolchain.&lt;/span&gt;
-export NDK&lt;span style=&#34;color:#f92672&#34;&gt;={&lt;/span&gt;path to ndk&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
-$NDK/build/tools/make_standalone_toolchain.py &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --arch arm64 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --api &lt;span style=&#34;color:#ae81ff&#34;&gt;26&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --stl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;libc++ &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --install-dir&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Add the standalone toolchain to the search path.&lt;/span&gt;
-export PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$PATH:/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/bin
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what tools to use.&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# If you want armeabi, just change target_host to&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# target_host=arm-linux-androideabi&lt;/span&gt;
-target_host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;aarch64-linux-android
-export AR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ar
-export AS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
-export CC&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
-export CXX&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang++
-export LD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ld
-export STRIP&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-strip
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what flags Android requires.&lt;/span&gt;
-export CFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-fPIE -fPIC&amp;#34;&lt;/span&gt;
-export LDFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-pie&amp;#34;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Create an arm64 API 26 libc++ toolchain.&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;export NDK&lt;span style=&#34;color:#f92672&#34;&gt;={&lt;/span&gt;path to ndk&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;$NDK/build/tools/make_standalone_toolchain.py &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --arch arm64 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --api &lt;span style=&#34;color:#ae81ff&#34;&gt;26&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --stl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;libc++ &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;  --install-dir&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Add the standalone toolchain to the search path.&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;export PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$PATH:/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;path you want&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;tool chain name&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;/bin
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what tools to use.&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# If you want armeabi, just change target_host to&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# target_host=arm-linux-androideabi&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;target_host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;aarch64-linux-android
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;export AR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ar
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;export AS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;export CC&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;export CXX&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-clang++
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20&lt;/span&gt;export LD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-ld
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21&lt;/span&gt;export STRIP&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$target_host-strip
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Tell configure what flags Android requires.&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24&lt;/span&gt;export CFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-fPIE -fPIC&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25&lt;/span&gt;export LDFLAGS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-pie&amp;#34;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now everything is ok. Extract the source file to some place you want, then use configure and make like below shows, the sqlite ELF file will be generated successfully.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$tar -xzvf sqlite-snapshot-201807272333.tar.gz
-$./configure --host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;arm-linux-androideabi
-$make
-...
-$file sqlite3
-sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SYSV&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$tar -xzvf sqlite-snapshot-201807272333.tar.gz
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;$./configure --host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;arm-linux-androideabi
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;$make
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;...
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;$file sqlite3
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6&lt;/span&gt;sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SYSV&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All done.&lt;/p&gt;
 </description>
     </item>
@@ -111,35 +111,35 @@ sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;co
 &lt;ul&gt;
 &lt;li&gt;Mount the partions like below:&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;|--sda
-   |--sda2 /mnt/
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;|--sda
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;   |--sda2 /mnt/
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then run this command in shell:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# rsync -SPAaXxr --exclude={/boot,/home,/var}  ./ /mnt/&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# rsync -SPAaXxr --exclude={/boot,/home,/var}  ./ /mnt/&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;wait the command complete. Then reboot into Live-USB.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Mount the partions like below:&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;|--sda
-   |--sda2 /mnt/
-   |--sda1 /mnt/boot
-|--sdb
-   |--sdb5
-      |--archlvm-var /mnt/var
-	  |--archlvm-home /mnt/home
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;|--sda
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;   |--sda2 /mnt/
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;   |--sda1 /mnt/boot
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;|--sdb
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;   |--sdb5
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6&lt;/span&gt;      |--archlvm-var /mnt/var
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;7&lt;/span&gt;	  |--archlvm-home /mnt/home
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
 &lt;li&gt;turn on the swap&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# swapon /dev/archlvm/swap&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# swapon /dev/archlvm/swap&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
 &lt;li&gt;Regenerate the fstab(&lt;strong&gt;Remember to check it, it there is something wrong in it, you may can&amp;rsquo;t boot after reboot without Live-USB&lt;/strong&gt;)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;genfstab -U -p /mnt &amp;gt; /mnt/etc/fstab
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;genfstab -U -p /mnt &amp;gt; /mnt/etc/fstab
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A classic fstab can be found in &lt;a href=&#34;https://wiki.archlinux.org/index.php/Fstab&#34;&gt;ArchLinux WIKI&lt;/a&gt;, the UUID you may need can be get by command &lt;strong&gt;blkid&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;arch-chroot&lt;/strong&gt; to &amp;ldquo;/mnt&amp;rdquo;&lt;/li&gt;
 &lt;li&gt;Reinstall Grub to &lt;strong&gt;sda&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After do this, we should not run &lt;strong&gt;grub-mkconfig&lt;/strong&gt; immediately, because we haven&amp;rsquo;t expand the &amp;ldquo;archlvm-home&amp;rdquo;.&lt;/p&gt;
 &lt;h2 id=&#34;expand-logical-volume&#34;&gt;Expand Logical Volume&lt;/h2&gt;
 &lt;p&gt;As I said, what I want is deleting archlvm-root, and expand archlvm-home with the space the being deleted archlvm-root has. Now let&amp;rsquo;s follow below step to reach this goal.&lt;/p&gt;
@@ -148,23 +148,23 @@ sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version &lt;span style=&#34;co
 &lt;li&gt;Unmount all the logical volumes in group &lt;strong&gt;archlvm&lt;/strong&gt;.(&lt;strong&gt;CAUTION: This must be done, or you may get error.&lt;/strong&gt;)&lt;/li&gt;
 &lt;li&gt;Delete &lt;strong&gt;archlvm-root&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lvremove /dev/archlvm/root&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lvremove /dev/archlvm/root&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
 &lt;li&gt;expand &lt;strong&gt;archlvm-home&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lvresize -l +100%FREE /dev/archlvm/home&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lvresize -l +100%FREE /dev/archlvm/home&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After do this, the &lt;strong&gt;archlvm-home&lt;/strong&gt; will take all the free space freed by delete &lt;em&gt;archlvm-root&lt;/em&gt;.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;resizefs(&lt;strong&gt;CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.&lt;/strong&gt;)
 After we execute &lt;em&gt;lvresize&lt;/em&gt;, we need to &lt;strong&gt;resize filesystem&lt;/strong&gt; to let system know the change.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# resize2fs /dev/archlvm/home&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# resize2fs /dev/archlvm/home&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In somecase, the &lt;strong&gt;resize2fs&lt;/strong&gt; may say that you should run command &lt;strong&gt;e2fsck&lt;/strong&gt; first. If you get this, run it. (&lt;strong&gt;CAUTION: Althrough it does not cause any error in my notebook, but I know it may cause some error in some scenarios.&lt;/strong&gt;)&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# e2fsck -f /dev/archlvm/home&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# e2fsck -f /dev/archlvm/home&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After this complete, you can run command &lt;strong&gt;resize2fs&lt;/strong&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;complete&#34;&gt;Complete&lt;/h2&gt;
 &lt;p&gt;If all the steps are completed successfully, there is only one instruction we need to do&amp;mdash;&amp;mdash;&lt;em&gt;grub-mkconfig&lt;/em&gt;&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# grub-mkconfig \-o /boot/grub/grub.cfg&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# grub-mkconfig \-o /boot/grub/grub.cfg&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Reboot your computer, now we should migrate our data to SSD and expand logical volume &lt;strong&gt;archlvm-home&lt;/strong&gt; successfully.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/ExpandALogicalVolumeInLVM/after.png&#34; alt=&#34;after&#34;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Tips:&lt;/strong&gt;&lt;/p&gt;
@@ -239,36 +239,36 @@ After we execute &lt;em&gt;lvresize&lt;/em&gt;, we need to &lt;strong&gt;resize 
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;p&gt;ELF文件ELF Header结构如下：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;......
-&lt;span style=&#34;color:#75715e&#34;&gt;#define EI_NIDENT 16
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int8_t u1;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int16_t u2;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int32_t u4;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int8_t&lt;/span&gt; i1;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int16_t&lt;/span&gt; i2;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int32_t&lt;/span&gt; i4;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
-    u1 e_ident[EI_NIDENT];
-    u2 e_type;
-    u2 e_machine;
-    u4 e_version;
-    u4 e_entry;
-    u4 e_phoff;
-    u4 e_shoff;
-    u4 e_flags;
-    u2 e_ehsize;
-    u2 e_phentsize;
-    u2 e_phnum;
-    u2 e_shentsize;
-    u2 e_shnum;
-    u2 e_shstrndx;
-}elf32_Header, &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;pElf32_Header;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;#endif
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define EI_NIDENT 16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int8_t u1;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int16_t u2;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; u_int32_t u4;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int8_t&lt;/span&gt; i1;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int16_t&lt;/span&gt; i2;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int32_t&lt;/span&gt; i4;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;    u1 e_ident[EI_NIDENT];
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;    u2 e_type;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;    u2 e_machine;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;    u4 e_version;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;    u4 e_entry;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;    u4 e_phoff;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;    u4 e_shoff;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20&lt;/span&gt;    u4 e_flags;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21&lt;/span&gt;    u2 e_ehsize;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22&lt;/span&gt;    u2 e_phentsize;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23&lt;/span&gt;    u2 e_phnum;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24&lt;/span&gt;    u2 e_shentsize;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25&lt;/span&gt;    u2 e_shnum;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;26&lt;/span&gt;    u2 e_shstrndx;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;27&lt;/span&gt;}elf32_Header, &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;pElf32_Header;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;28&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;29&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;30&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;根据文档，对于Linker，其对Section进行操作，而在装入内存执行时，进程内部数据是按照段(Segment)进行组织，所以对于非可执行的ELF文件，如gcc -c xxx.o生成的 xxx.o文件，其内部可以没有Program Header Table，但必须有Section Header Table；对于可执行文件(gcc -o xxx)，其内部可以没有Section Header Table，但是必须有Program Header Table。&lt;/p&gt;
 &lt;p&gt;因此，我们可以利用ELF Header中与section有关的字段，如e_shoff和e_shentsize，用来存放我们加解密需要的数据来供decryptFunc函数使用，如此不仅方便，还能有效避免可执行文件被IDA等静态工具分析。&lt;/p&gt;
 &lt;p&gt;##0x02 开工&lt;/p&gt;
@@ -278,73 +278,73 @@ After we execute &lt;em&gt;lvresize&lt;/em&gt;, we need to &lt;strong&gt;resize 
 &lt;li&gt;头文件elf32.h，包含对elf header结构的定义&lt;/li&gt;
 &lt;li&gt;example.c 示例文件，包含解密函数等定义&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;elf32.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;#define MAXLEN 1000
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define PAGESIZE 4096
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;//The function to decrypt the segment
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute__((constructor)) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mydecrypt();
-
-&lt;span style=&#34;color:#75715e&#34;&gt;//The section that will be encrypted
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mysecFunction();
-
-__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection_data&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; strMySec[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NzTfdujpo&amp;#34;&lt;/span&gt;;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv)
-{
-    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello world&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
-    mysecFunction();
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-}
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mysecFunction&lt;/span&gt;()
-{
-    ......
-	&lt;span style=&#34;color:#75715e&#34;&gt;//deal data in section mysection_data
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//then print it
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;;
-}
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mydecrypt&lt;/span&gt;()
-{
-	......
-	&lt;span style=&#34;color:#75715e&#34;&gt;//code will decrypt data in section: mysection
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
-}
-
-&lt;span style=&#34;color:#75715e&#34;&gt;/****************************************************
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* find a module&amp;#39;s base via /proc/[pid]/maps,
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* in this scenario, it will be the base addr of the
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* executable elf file&amp;#39;s base address
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;****************************************************/&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; buf[MAXLEN] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;};
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-    FILE &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
-
-    sprintf(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/proc/%d/maps&amp;#34;&lt;/span&gt;, getpid());
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;r&amp;#34;&lt;/span&gt;))) {
-        perror(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Error when open file&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
-    }
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(fgets(buf, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(buf), fp)) {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (strstr(buf, strName)) {
-            sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtok(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-&amp;#34;&lt;/span&gt;);
-            uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtol(sAddr, NULL, &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;);
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
-        }
-    }
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
-}
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;elf32.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define MAXLEN 1000
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define PAGESIZE 4096
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//The function to decrypt the segment
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute__((constructor)) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mydecrypt();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//The section that will be encrypted
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; mysecFunction();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;__attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysection_data&amp;#34;&lt;/span&gt;))) &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; strMySec[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NzTfdujpo&amp;#34;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hello world&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;    mysecFunction();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mysecFunction&lt;/span&gt;()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25&lt;/span&gt;    ......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;26&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//deal data in section mysection_data
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;27&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//then print it
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;28&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;29&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;30&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;31&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;32&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mydecrypt&lt;/span&gt;()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;33&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;34&lt;/span&gt;	......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;35&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//code will decrypt data in section: mysection
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;36&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;37&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;38&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;39&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;/****************************************************
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;40&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* find a module&amp;#39;s base via /proc/[pid]/maps,
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;41&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* in this scenario, it will be the base addr of the
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;42&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;* executable elf file&amp;#39;s base address
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;43&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;****************************************************/&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;44&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;getAddress&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;strName);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;45&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;46&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; buf[MAXLEN] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;};
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;47&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;48&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;49&lt;/span&gt;    FILE &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; NULL;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;50&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;51&lt;/span&gt;    sprintf(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/proc/%d/maps&amp;#34;&lt;/span&gt;, getpid());
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;52&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;r&amp;#34;&lt;/span&gt;))) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;53&lt;/span&gt;        perror(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Error when open file&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;54&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;55&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;56&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;57&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(fgets(buf, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(buf), fp)) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;58&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (strstr(buf, strName)) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;59&lt;/span&gt;            sAddr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtok(buf, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;60&lt;/span&gt;            uRet &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; strtol(sAddr, NULL, &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;61&lt;/span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;62&lt;/span&gt;        }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;63&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;64&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;65&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; uRet;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;66&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;67&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;代码大概内容如下：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;一个mysection节，包含一个会被加密的函数mysecFunction()，函数会把mysectin_data里的字符数组进行处理（其实是加），打印出真正的字符串&lt;/li&gt;
@@ -353,8 +353,8 @@ __attribute((section(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mysectio
 &lt;li&gt;一个getAddress函数，用来获取程序加载基地址(&lt;strong&gt;其实这个函数在这里可以看成是多余的，因为和shared object不一样，可执行文件的程序地址是写死的，写这里是作为备忘，总归会碰到加密so的&lt;/strong&gt;)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;对源码进行编译生成目标文件：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ gcc -m32 -c -o example.o example.c
-$ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mysection&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;0x08881000
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ gcc -m32 -c -o example.o example.c
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;$ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mysection&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;0x08881000
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里需要注意的是加了编译选项-Wl,&amp;ndash;section-start=mysection=0x08881000，原因在于：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;so被加载进来后，通常其起始地址是按页对齐的，不同于so，elf可执行文件里代码位置是写死的，而且通常每个section里的代码在segment里并不会按页对齐，所以我们的mysection通常不会在一个页的起始处&lt;/li&gt;
@@ -363,7 +363,7 @@ $ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f9
 &lt;p&gt;所以，指定对应节的起始地址为一个按4K对齐的地址。&lt;/p&gt;
 &lt;h4 id=&#34;b加密生成的elf可执行文件的指定区域&#34;&gt;B、加密生成的ELF可执行文件的指定区域&lt;/h4&gt;
 &lt;p&gt;这里使用python脚本自动搜索完成&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ./elfshell.py example
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ ./elfshell.py example
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;思路如下：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;读取ELF Header，取得Section Table，Section String Name Table&lt;/li&gt;
@@ -393,180 +393,180 @@ $ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f9
 &lt;p&gt;For have read a article in WebSite &lt;a href=&#34;http://www.codeproject.com/Articles/33340/Code-Injection-into-Running-Linux-Application&#34;&gt;code project&lt;/a&gt;, and learned lots of from it. So make a memo for later consulting.&lt;/p&gt;
 &lt;h2 id=&#34;start&#34;&gt;Start&lt;/h2&gt;
 &lt;p&gt;First we will make some file for the lab.So we need three file, a .h file, two .c file, the code showed below.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file mylib.h
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#ifndef _MYLIB_H_
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define _MYLIB_H_
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;myprint&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;str);
-&lt;span style=&#34;color:#75715e&#34;&gt;#endif
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file mylib.c
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;myprint&lt;/span&gt;()
-{
-   &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; counter &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-   counter&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;;
-   printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%d, pid (%d)&amp;#34;&lt;/span&gt;, counter, getpid());
-   &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;;
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//mymain.c
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;#define TRUE 1
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(TRUE) {
-        myprint();
-        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Going to sleep&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
-        sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;);
-        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Wake up&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
-    }
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-}
-
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file myinject.c
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;injection&lt;/span&gt;()
-{
-    myprint();
-    system(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;date&amp;#34;&lt;/span&gt;);
-}
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file mylib.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#ifndef _MYLIB_H_
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define _MYLIB_H_
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;myprint&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;str);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file mylib.c
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;myprint&lt;/span&gt;()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;   &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; counter &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;   counter&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;   printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%d, pid (%d)&amp;#34;&lt;/span&gt;, counter, getpid());
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;   &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//mymain.c
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define TRUE 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt;(TRUE) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;        myprint();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Going to sleep&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;        sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Wake up&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//file myinject.c
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;mylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;injection&lt;/span&gt;()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;7&lt;/span&gt;    myprint();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;8&lt;/span&gt;    system(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;date&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;9&lt;/span&gt;}
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For in the above, the file mylib.h, mylib.c is used to generate our test app, and the file myinject.c is used to do our injdect, that is we want hook the myprint function, when myprint is invoke, the function injection will be invoked indeed.&lt;/p&gt;
 &lt;p&gt;create the three file, and compile like below.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so
-$ gcc -g -lmylib -L ./ mymain.c -o app
-$ gcc -Wall myinject.c -c -o myinject.o
-$ export LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;.:&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;your path where the libmylib.so in&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ gcc -g -Wall  -fPIC -shared mylib.c -o libmylib.so
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;$ gcc -g -lmylib -L ./ mymain.c -o app
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;$ gcc -Wall myinject.c -c -o myinject.o
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;$ export LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;.:&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;your path where the libmylib.so in&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For Address-Independent, we add the option -fPIC when build mylib.c to libmylib.so&lt;/p&gt;
 &lt;p&gt;what you should care is the -lmylib is fixed to the libmylib, so remember to change it if you name your file another name.&lt;/p&gt;
 &lt;h2 id=&#34;lets-rock-our-app&#34;&gt;Let&amp;rsquo;s Rock Our App&lt;/h2&gt;
 &lt;p&gt;Now we can do with the elf file what we just generated.&lt;/p&gt;
 &lt;h4 id=&#34;1start-our-app&#34;&gt;1.Start our app&lt;/h4&gt;
 &lt;p&gt;Run our app:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ./app
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ ./app
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we will see the PID via the output. Then we will use gdb to attach the app, via the pid:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ./app
-1, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-2, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-3, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo gdb -p PID&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ ./app
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;1, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;2, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6&lt;/span&gt;3, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ sudo gdb -p PID&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After do this, we now attached to the app:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo gdb -p &lt;span style=&#34;color:#ae81ff&#34;&gt;5832&lt;/span&gt;
-GNU gdb &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;GDB&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; 7.9.1
-Copyright &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;C&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2015&lt;/span&gt; Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; or later
-......
-Attaching to process &lt;span style=&#34;color:#ae81ff&#34;&gt;6618&lt;/span&gt;
-Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.
-Reading symbols from ./libmylib.so...done.
-Reading symbols from /usr/lib32/libc.so.6...&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no debugging symbols found&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;...done.
-Reading symbols from /lib/ld-linux.so.2...&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no debugging symbols found&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;...done.
-0xf7722c10 in __kernel_vsyscall &lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;$ sudo gdb -p &lt;span style=&#34;color:#ae81ff&#34;&gt;5832&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;GNU gdb &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;GDB&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; 7.9.1
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;Copyright &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;C&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2015&lt;/span&gt; Free Software Foundation, Inc.
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;License GPLv3+: GNU GPL version &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; or later
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;......
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;Attaching to process &lt;span style=&#34;color:#ae81ff&#34;&gt;6618&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;Reading symbols from /home/exiahan/Developments/Linux/hijack/app...done.
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;Reading symbols from ./libmylib.so...done.
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;Reading symbols from /usr/lib32/libc.so.6...&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no debugging symbols found&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;...done.
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;Reading symbols from /lib/ld-linux.so.2...&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no debugging symbols found&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;...done.
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;0xf7722c10 in __kernel_vsyscall &lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;2operate-and-analysis-our-appmyinjecto&#34;&gt;2.Operate and Analysis our app/myinject.o&lt;/h4&gt;
 &lt;p&gt;First we load our myinject.o into the app&amp;rsquo;s process space.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;call open&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;myinject.o&amp;#34;&lt;/span&gt;, 2&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;call mmap&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0, Size, 1|2|4, 2, ReturnFrom-open, 0&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;call open&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;myinject.o&amp;#34;&lt;/span&gt;, 2&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;call mmap&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0, Size, 1|2|4, 2, ReturnFrom-open, 0&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In the open ,the value 2 represent the O_RDWR(Read and Write),then we use mmap function, to put the myinject.o in to the app&amp;rsquo;s process space, the first and second specify the size of myinject.o, if first is NULL(0), the os justify the start address of the file, the &lt;strong&gt;Size&lt;/strong&gt; can be get via:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ls -l myinject.o
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ ls -l myinject.o
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then the 1|2|4 represent PROT_READ | PROT_WRITE | PROT_EXEC, so we can for we will write and execute it. The follow 1 represent the &lt;strong&gt;MAP_SHARED&lt;/strong&gt; &lt;strong&gt;[But caution, we can use 2, means MAP_PRIVATE, it also works, the MAP_SHARED  will cause the myinject.o in the file also be changed if we write something, yes, actually we will.][好吧，重要的地方说中文，flags最好设置成MAP_PRIIVATE，这样mmap文件到内存后，修改不会影响disk文件，按照英文的文档用SHARED的话，下次要重新生成myinject.o，不然文件被改，怎么做都不会对的，对，我就是蠢货，没好好看mmap的文档，倒腾一天]&lt;/strong&gt;. Also the ReturnFom-open is the return value after we call the open(), after do the above two steps, what we will see is like this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;(gdb) call open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;myinject.o&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)
-&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
-(gdb) call mmap(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1044&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
-&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;143544320&lt;/span&gt;
-(gdb)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;(gdb) call open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;myinject.o&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;(gdb) call mmap(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1044&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;143544320&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5&lt;/span&gt;(gdb)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
 &lt;p&gt;Then, we will use readelf to analyse our the app and myinject.o&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;exiahan@Veda hijack&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ readelf -r app
-
-重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.dyn&amp;#39;&lt;/span&gt; 位于偏移量 0x3c8 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; 个条目：
- Offset     Info    Type            Sym.Value  Sym. Name
-&lt;span style=&#34;color:#ae81ff&#34;&gt;08049844&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000506&lt;/span&gt; R_386_GLOB_DAT    &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __gmon_start__
-
-重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.plt&amp;#39;&lt;/span&gt; 位于偏移量 0x3d0 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; 个条目：
- Offset     Info    Type            Sym.Value  Sym. Name
-&lt;span style=&#34;color:#ae81ff&#34;&gt;08049854&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000207&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   sleep
-&lt;span style=&#34;color:#ae81ff&#34;&gt;08049858&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000307&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   myprint
-0804985c  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000407&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   puts
-&lt;span style=&#34;color:#ae81ff&#34;&gt;08049860&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000507&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __gmon_start__
-&lt;span style=&#34;color:#ae81ff&#34;&gt;08049864&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000607&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __libc_start_main
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;exiahan@Veda hijack&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ readelf -r app
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.dyn&amp;#39;&lt;/span&gt; 位于偏移量 0x3c8 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; 个条目：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt; Offset     Info    Type            Sym.Value  Sym. Name
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;08049844&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000506&lt;/span&gt; R_386_GLOB_DAT    &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __gmon_start__
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.plt&amp;#39;&lt;/span&gt; 位于偏移量 0x3d0 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; 个条目：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt; Offset     Info    Type            Sym.Value  Sym. Name
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;08049854&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000207&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;08049858&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000307&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   myprint
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;0804985c  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000407&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   puts
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;08049860&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000507&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __gmon_start__
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;08049864&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000607&lt;/span&gt; R_386_JUMP_SLOT   &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   __libc_start_main
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;we can see that the offset of the function we &lt;strong&gt;myprint&lt;/strong&gt; want to hook is &lt;strong&gt;0x08049858&lt;/strong&gt;, it is the address where it location in the file. But when app be loaded into memory, the the address will change. So how the app still can invoke myprint via call *0x08049858, it is the plt(Procedure Linker Table) and the GOT(Global Offset Table), when app is going to invoke myprint, it will call the *0x08049858(in fact it&amp;rsquo;s in the GOT), what in the address is a pointer that pointer to some procedure in plt, via the procedure, will found the real address of myprint, then the address will be put in 0x08049858, in the furture, when invoke myprint, simple call *0x08049858 will work.&lt;/p&gt;
 &lt;p&gt;So, when the app is running, we can change the value in 0x08049858, then we done the hook operation of the function &lt;strong&gt;myprint&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;For do this, we first get the Base Address of myinject.o in app&amp;rsquo;s process space:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ cat /proc/5832/maps | grep myinject
-
-f771b000-f771c000 rwxp &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; fe:03 &lt;span style=&#34;color:#ae81ff&#34;&gt;20342761&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;/myinject.o
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;$ cat /proc/5832/maps | grep myinject
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3&lt;/span&gt;f771b000-f771c000 rwxp &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; fe:03 &lt;span style=&#34;color:#ae81ff&#34;&gt;20342761&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;/myinject.o
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we know that the base-addr is 0xf774f000, then use readelf to get other info we need, like the offset of function injection(), and others that need to be relocated.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ readelf -s myinject.o
-
-Symbol table &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.symtab&amp;#39;&lt;/span&gt; contains &lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt; entries:
-   Num:    Value  Size Type    Bind   Vis      Ndx Name
-     0: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  LOCAL  DEFAULT  UND
-     1: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; FILE    LOCAL  DEFAULT  ABS myinject.c
-     2: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-     3: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
-     4: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-     5: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;
-     6: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;
-     7: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;
-     8: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;
-     9: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;    &lt;span style=&#34;color:#ae81ff&#34;&gt;30&lt;/span&gt; FUNC    GLOBAL DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; injection
-    10: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  GLOBAL DEFAULT  UND myprint
-    11: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  GLOBAL DEFAULT  UND system
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;$ readelf -s myinject.o
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;Symbol table &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.symtab&amp;#39;&lt;/span&gt; contains &lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt; entries:
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;   Num:    Value  Size Type    Bind   Vis      Ndx Name
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;     0: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  LOCAL  DEFAULT  UND
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;     1: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; FILE    LOCAL  DEFAULT  ABS myinject.c
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;     2: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;     3: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;     4: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;     5: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;     6: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;     7: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;     8: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; SECTION LOCAL  DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;     9: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;    &lt;span style=&#34;color:#ae81ff&#34;&gt;30&lt;/span&gt; FUNC    GLOBAL DEFAULT    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; injection
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;    10: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  GLOBAL DEFAULT  UND myprint
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;    11: &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; NOTYPE  GLOBAL DEFAULT  UND system
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We see that the offset of function injection() is 0x0(the value).&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ readelf -S myinject.o
-共有 &lt;span style=&#34;color:#ae81ff&#34;&gt;13&lt;/span&gt; 个节头，从偏移量 0x20c 开始：
-
-节头：
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;Nr&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 0&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;                   NULL            &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 1&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .text             PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000034&lt;/span&gt; 00001e &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  AX  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 2&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rel.text         REL             &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0001ec &lt;span style=&#34;color:#ae81ff&#34;&gt;000018&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;08&lt;/span&gt;   I &lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 3&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .data             PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  WA  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 4&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .bss              NOBITS          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  WA  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 5&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rodata           PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000005&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;   A  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 6&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .comment          PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000057&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000012&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;  MS  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 7&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .note.GNU-stack   PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000069&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 8&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .eh_frame         PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 00006c &lt;span style=&#34;color:#ae81ff&#34;&gt;000038&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;   A  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 9&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rel.eh_frame     REL             &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000204&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000008&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;08&lt;/span&gt;   I &lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;10&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .shstrtab         STRTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0000a4 00005f &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;11&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .symtab           SYMTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000104&lt;/span&gt; 0000c0 &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;12&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .strtab           STRTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0001c4 &lt;span style=&#34;color:#ae81ff&#34;&gt;000025&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-Key to Flags:
-  W &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;write&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, A &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;alloc&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, X &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;execute&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, M &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;merge&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, S &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;strings&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-  I &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;info&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, L &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;link order&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, G &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;group&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, T &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;TLS&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, E &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;exclude&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, x &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;unknown&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-  O &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;extra OS processing required&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; o &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;OS specific&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, p &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;processor specific&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;$ readelf -S myinject.o
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;共有 &lt;span style=&#34;color:#ae81ff&#34;&gt;13&lt;/span&gt; 个节头，从偏移量 0x20c 开始：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;节头：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;Nr&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 0&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;                   NULL            &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 1&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .text             PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000034&lt;/span&gt; 00001e &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  AX  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 2&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rel.text         REL             &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0001ec &lt;span style=&#34;color:#ae81ff&#34;&gt;000018&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;08&lt;/span&gt;   I &lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 3&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .data             PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  WA  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 4&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .bss              NOBITS          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;  WA  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 5&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rodata           PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000052&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000005&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;   A  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 6&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .comment          PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000057&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000012&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;  MS  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 7&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .note.GNU-stack   PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000069&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 8&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .eh_frame         PROGBITS        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 00006c &lt;span style=&#34;color:#ae81ff&#34;&gt;000038&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;   A  &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; 9&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .rel.eh_frame     REL             &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000204&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000008&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;08&lt;/span&gt;   I &lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;10&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .shstrtab         STRTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0000a4 00005f &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;11&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .symtab           SYMTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;000104&lt;/span&gt; 0000c0 &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;     &lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;12&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; .strtab           STRTAB          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt; 0001c4 &lt;span style=&#34;color:#ae81ff&#34;&gt;000025&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;Key to Flags:
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20&lt;/span&gt;  W &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;write&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, A &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;alloc&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, X &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;execute&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, M &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;merge&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, S &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;strings&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21&lt;/span&gt;  I &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;info&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, L &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;link order&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, G &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;group&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, T &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;TLS&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, E &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;exclude&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, x &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;unknown&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22&lt;/span&gt;  O &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;extra OS processing required&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; o &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;OS specific&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, p &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;processor specific&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now,we know that the offset .text about the file base is 0x34, the .rodata is 0x52, which the string &amp;ldquo;date&amp;rdquo; in.
 So, the entry addr of injection() is:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;0xf771b000 + 0x34 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b034
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;0xf771b000 + 0x34 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b034
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;So we change the value in 0x08049858 to 0xf771b034:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;set *0x08049858 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b034
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;set *0x08049858 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b034
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;But, only change the address of myprint() to injection() is not enough, there are some other entries need to be relocated, below:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ readelf -r myinject.o
-
-重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.text&amp;#39;&lt;/span&gt; 位于偏移量 0x1ec 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; 个条目：
- Offset     Info    Type            Sym.Value  Sym. Name
-&lt;span style=&#34;color:#ae81ff&#34;&gt;00000007&lt;/span&gt;  00000a02 R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   myprint
-0000000f  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000501&lt;/span&gt; R_386_32          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   .rodata
-&lt;span style=&#34;color:#ae81ff&#34;&gt;00000014&lt;/span&gt;  00000b02 R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   system
-
-重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.eh_frame&amp;#39;&lt;/span&gt; 位于偏移量 0x204 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; 个条目：
- Offset     Info    Type            Sym.Value  Sym. Name
-&lt;span style=&#34;color:#ae81ff&#34;&gt;00000020&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000202&lt;/span&gt; R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   .text
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;$ readelf -r myinject.o
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.text&amp;#39;&lt;/span&gt; 位于偏移量 0x1ec 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; 个条目：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt; Offset     Info    Type            Sym.Value  Sym. Name
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;00000007&lt;/span&gt;  00000a02 R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   myprint
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;0000000f  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000501&lt;/span&gt; R_386_32          &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   .rodata
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;00000014&lt;/span&gt;  00000b02 R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   system
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;重定位节 &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.rel.eh_frame&amp;#39;&lt;/span&gt; 位于偏移量 0x204 含有 &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; 个条目：
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt; Offset     Info    Type            Sym.Value  Sym. Name
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;00000020&lt;/span&gt;  &lt;span style=&#34;color:#ae81ff&#34;&gt;00000202&lt;/span&gt; R_386_PC32        &lt;span style=&#34;color:#ae81ff&#34;&gt;00000000&lt;/span&gt;   .text
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As we invoke myprint() and system() in injection(), we give a string arguement &amp;ldquo;date&amp;rdquo; that stored in .rodata.
 Because the myinject.o is load in to mem manual, so we have to do the relocation as the linker.
 From above we see that there two kinds of relocation:&lt;/p&gt;
@@ -580,43 +580,43 @@ From above we see that there two kinds of relocation:&lt;/p&gt;
 &lt;p&gt;The R_386_32 is the absolute offset, just calc via base-addr + offset + addend.
 (直接加载后基地址加上所在段偏移和附加数就OK)。&lt;/p&gt;
 &lt;p&gt;So, we will relocation the myprint(), &amp;ldquo;date&amp;rdquo;, system():&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#relocate myprint()&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-$3 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; -4
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p myprint
-$4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;void &lt;span style=&#34;color:#f92672&#34;&gt;()}&lt;/span&gt; 0xf771d550 &amp;lt;myprint&amp;gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771d550 - &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; - &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;#relocate system()&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-$5 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; -4
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p system
-$6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&amp;lt;text variable, no debug info&amp;gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt; 0xf7542e00 &amp;lt;system&amp;gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf7542e00 - &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; - &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;#relocate &amp;#34;date&amp;#34;, in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0xf&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
-$7 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0xf&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b000 + 0x52
-&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#relocate myprint()&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;$3 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; -4
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p myprint
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;$4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;void &lt;span style=&#34;color:#f92672&#34;&gt;()}&lt;/span&gt; 0xf771d550 &amp;lt;myprint&amp;gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771d550 - &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x7&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; - &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#relocate system()&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;$5 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; -4
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p system
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;$6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&amp;lt;text variable, no debug info&amp;gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt; 0xf7542e00 &amp;lt;system&amp;gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf7542e00 - &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0x14&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; - &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#relocate &amp;#34;date&amp;#34;, in .rodata section, the off of .rodata is 0x52, get from above readelf -S myinject.o&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; p *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0xf&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17&lt;/span&gt;$7 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; set *&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0xf771b000 + 0x34 + 0xf&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 0xf771b000 + 0x52
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;gdb&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;3final&#34;&gt;3.Final&lt;/h4&gt;
 &lt;p&gt;After do this, we will get the result like below:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;1, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-2, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-3, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-2015年 07月 29日 星期三 21:17:17 CST
-4, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-2015年 07月 29日 星期三 21:17:20 CST
-5, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-2015年 07月 29日 星期三 21:17:23 CST
-6, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
-Wake up
-2015年 07月 29日 星期三 21:17:26 CST
-7, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1&lt;/span&gt;1, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3&lt;/span&gt;2, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5&lt;/span&gt;3, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6&lt;/span&gt;2015年 07月 29日 星期三 21:17:17 CST
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7&lt;/span&gt;4, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9&lt;/span&gt;2015年 07月 29日 星期三 21:17:20 CST
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10&lt;/span&gt;5, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12&lt;/span&gt;2015年 07月 29日 星期三 21:17:23 CST
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13&lt;/span&gt;6, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14&lt;/span&gt;Wake up
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15&lt;/span&gt;2015年 07月 29日 星期三 21:17:26 CST
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16&lt;/span&gt;7, pid &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;5832&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;Going to sleep
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
 &lt;p&gt;So we use gdb(ptrace) to attach a running process, and manual pull a .o file into its process space, then we replace the &lt;a href=&#34;mailto:myprint@got.plt&#34;&gt;myprint@got.plt&lt;/a&gt; to the address of injection(), then we do the relocation for myinject.o as a linker(yeah, cause when the .o file to a executable file, the linker do the relocation, so we have to do it manually). Then we get our goal.&lt;/p&gt;
 &lt;p&gt;And in this lab, what we should learn is:&lt;/p&gt;

@@ -25,7 +25,7 @@ MISC 0x1 Twitter 这题，额。。。啧啧。。一个md5,100块钱，不过�
  题目说是下载，猜测在http里，表达式过滤http 看到有个key.rar，服务器为192.168.52.1 dump出key.rar，解压，需要密码 继续查找发现获取rar之前还有个从服务器获取的页面，dump内容保存成html文件，内容有提示密码为nsfocus&#43;5个数字 生成字典，爆破，解压密码为nsfocus56317,打开后获得flag  WEB 0x1 Be Careful 使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。
 ###0x2 Decode
 题目里给了个php的函数，接受传入的字符串
-function encode($str){ $_o = strrev($str); for($_0=0;$_0&lt;strlen($_o);$_0&#43;&#43;){ $_c = substr($_o,$_0,1); $__ = ord($_c)&#43;1; $_c = chr($__); $_= $_."/>
+1function encode($str){ 2	$_o = strrev($str); 3	for($_0=0;$_0&lt;strlen($_o);$_0&#43;&#43;){ 4	$_c = substr($_o,$_0,1); 5	$__ = ord($_c)&#43;1; 6	$_c = chr($__); 7	$_= $_."/>
 
     <meta property="og:title" content="NSCTF2015 WriteUp" />
 <meta property="og:description" content="参加了NSCTF线上比赛，感觉自己水平还是有待提高啊，写一下做出来的题目的备忘
@@ -40,7 +40,7 @@ MISC 0x1 Twitter 这题，额。。。啧啧。。一个md5,100块钱，不过�
  题目说是下载，猜测在http里，表达式过滤http 看到有个key.rar，服务器为192.168.52.1 dump出key.rar，解压，需要密码 继续查找发现获取rar之前还有个从服务器获取的页面，dump内容保存成html文件，内容有提示密码为nsfocus&#43;5个数字 生成字典，爆破，解压密码为nsfocus56317,打开后获得flag  WEB 0x1 Be Careful 使用chrome dev tools跟踪页面，发现有个301重定向，猜测可能有个默认的动态页面，尝试index.php，发现确实存在，使用wireshark抓包，看到flag在注释里。
 ###0x2 Decode
 题目里给了个php的函数，接受传入的字符串
-function encode($str){ $_o = strrev($str); for($_0=0;$_0&lt;strlen($_o);$_0&#43;&#43;){ $_c = substr($_o,$_0,1); $__ = ord($_c)&#43;1; $_c = chr($__); $_= $_." />
+1function encode($str){ 2	$_o = strrev($str); 3	for($_0=0;$_0&lt;strlen($_o);$_0&#43;&#43;){ 4	$_c = substr($_o,$_0,1); 5	$__ = ord($_c)&#43;1; 6	$_c = chr($__); 7	$_= $_." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://blog.exiahan.com/posts/nsctf2015_writeup/" />
 <meta property="article:published_time" content="2015-09-25T20:56:06+08:00" />
@@ -177,16 +177,16 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&lt;strlen($_o);$_0&#43;
 <p><img src="/images/NSCTF2015WriteUp/web1.jpg" alt="web01"></p>
 <p>###0x2 Decode</p>
 <p>题目里给了个php的函数，接受传入的字符串</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">function encode($str){
-	$_o = strrev($str);
-	for($_0=0;$_0&lt;<span style="color:#f92672">strlen</span><span style="color:#960050;background-color:#1e0010">($</span><span style="color:#a6e22e">_o</span><span style="color:#960050;background-color:#1e0010">);$</span><span style="color:#a6e22e">_0</span><span style="color:#960050;background-color:#1e0010">++){</span>
-		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_c </span><span style="color:#f92672">=</span> <span style="color:#e6db74">substr($_o,$_0,1);</span>
-		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">__ </span><span style="color:#f92672">=</span> <span style="color:#e6db74">ord($_c)+1;</span>
-		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_c </span><span style="color:#f92672">=</span> <span style="color:#e6db74">chr($__);</span>
-		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_</span><span style="color:#f92672">=</span> <span style="color:#e6db74">$_.$_c;</span>
-	<span style="color:#960050;background-color:#1e0010">}</span>
-	<span style="color:#a6e22e">return</span> <span style="color:#a6e22e">str_rot13</span><span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">strrev</span><span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">base64_encode</span><span style="color:#960050;background-color:#1e0010">($</span><span style="color:#a6e22e">_</span><span style="color:#960050;background-color:#1e0010">)));</span>
-<span style="color:#960050;background-color:#1e0010">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>function encode($str){
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	$_o = strrev($str);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	for($_0=0;$_0&lt;<span style="color:#f92672">strlen</span><span style="color:#960050;background-color:#1e0010">($</span><span style="color:#a6e22e">_o</span><span style="color:#960050;background-color:#1e0010">);$</span><span style="color:#a6e22e">_0</span><span style="color:#960050;background-color:#1e0010">++){</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_c </span><span style="color:#f92672">=</span> <span style="color:#e6db74">substr($_o,$_0,1);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">__ </span><span style="color:#f92672">=</span> <span style="color:#e6db74">ord($_c)+1;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_c </span><span style="color:#f92672">=</span> <span style="color:#e6db74">chr($__);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		<span style="color:#960050;background-color:#1e0010">$</span><span style="color:#a6e22e">_</span><span style="color:#f92672">=</span> <span style="color:#e6db74">$_.$_c;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#960050;background-color:#1e0010">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#a6e22e">return</span> <span style="color:#a6e22e">str_rot13</span><span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">strrev</span><span style="color:#960050;background-color:#1e0010">(</span><span style="color:#a6e22e">base64_encode</span><span style="color:#960050;background-color:#1e0010">($</span><span style="color:#a6e22e">_</span><span style="color:#960050;background-color:#1e0010">)));</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#960050;background-color:#1e0010">}</span>
 </code></pre></div><p>其作用如下：</p>
 <ul>
 <li>反转字符串</li>
@@ -195,7 +195,7 @@ function encode($str){ $_o = strrev($str); for($_0=0;$_0&lt;strlen($_o);$_0&#43;
 <li>编码后再反转</li>
 <li>反转后rot13编码得到最终字符串，即题目的</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#f92672">**</span>a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws<span style="color:#f92672">**</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#f92672">**</span>a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws<span style="color:#f92672">**</span>
 </code></pre></div><p>根据上面的分析逆向一次即可得到flag</p>
 <h2 id="crypto">CRYPTO</h2>
 <h3 id="0x1-神秘的字符串">0x1 神秘的字符串</h3>

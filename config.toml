@@ -2,8 +2,8 @@ baseURL = "https://blog.exiahan.com/"
 languageCode = "en-us"
 title = "ExiaHan's Blog"
 theme = "m10c"
-linenos = "table"
-enableInlineShortcodes = true
+
+pygmentsOptions = "linenos=inline"
 
 [params]
     author = "ExiaHan"

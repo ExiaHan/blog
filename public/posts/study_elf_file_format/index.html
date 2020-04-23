@@ -98,7 +98,7 @@ ELF文件在Linux中有三种类型：
   <title>clock</title>
   <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
 </svg>
-          4 min read
+          5 min read
         </div><div>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
   <title>tag</title>
@@ -232,58 +232,58 @@ ELF文件在Linux中有三种类型：
 <h3 id="elf-header文件头">ELF Header(文件头)</h3>
 <p>有些Object File的控制结构(Control Structures)可以增长，因为ELF Header包含了它们的实际大小。如果Object File的文件格式改变，程序可能会遇到控制结构与期望的大小不相符的情况。在这种情况下程序可能会忽略掉“多余”(因为比期望的大小大，可能会多出一些描述数据)的信息；对于“遗失”(因为比期望的大小小)的信息的处理方法依赖于上下文，并且如果定义extensions的话，将在其中被规定相关处理方式。</p>
 <p><strong>ELF Header</strong></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#define EI_NIDENT 16
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span>{
-	unsignedchar  	e_ident[EI_NIDENT];
-	Elf32_Half		e_type;
-	Elf32_Half		e_machine;
-	Elf32_Word		e_version;
-	Elf32_Addr		e_entry;
-	Elf32_Off	 	e_phoff;
-	Elf32_Off	 	e_shoff;
-	Elf32_Word		e_flags;
-	Elf32_Half		e_ehsize;
-	Elf32_Half		e_phentsize;
-	Elf32_Half		e_phnum;
-	Elf32_Half		e_shentsize;
-	Elf32_Half		e_shnum;
-	Elf32_Half		e_shstrndx;
-}Elf32_Ehdr;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#75715e">#define EI_NIDENT 16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	unsignedchar  	e_ident[EI_NIDENT];
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	Elf32_Half		e_type;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	Elf32_Half		e_machine;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	Elf32_Word		e_version;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	Elf32_Addr		e_entry;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	Elf32_Off	 	e_phoff;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	Elf32_Off	 	e_shoff;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	Elf32_Word		e_flags;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	Elf32_Half		e_ehsize;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	Elf32_Half		e_phentsize;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	Elf32_Half		e_phnum;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	Elf32_Half		e_shentsize;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	Elf32_Half		e_shnum;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	Elf32_Half		e_shstrndx;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>}Elf32_Ehdr;
 </code></pre></div><ul>
 <li>e_ident 标记整个文件为Object File并且提供平台无关的数据用来解码和翻译整个文件内容。</li>
 <li>e_type 说明具体是哪一种Object File：</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Type</span>{
-	ET_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
-	ET_REL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
-	ET_EXEC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x2</span>;
-	ET_DYN <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3</span>;
-	ET_CORE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x4</span>;
-	ET_LOPROC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xff00</span>;
-	ET_HIPROC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xffff</span>;
-};
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Type</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	ET_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	ET_REL <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	ET_EXEC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x2</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	ET_DYN <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	ET_CORE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x4</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	ET_LOPROC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xff00</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>	ET_HIPROC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xffff</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>};
 </code></pre></div><p>Core File的内容没有被制定，ET_CORE作为保留字存在。ET_LOPROC/HIPROC两者作为处理器指定语义的保留字，两者可兼或(ET_LOPROC | ET_HIPROC)，其他的一些没有用到的类型同样作为保留字，将来可能用来关联一些新的必要的文件类型。</p>
 <ul>
 <li>e_machine 指定平台架构：</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Machine</span>{
-	EM_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
-	EM_M32 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
-	EM_SPARC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x2</span>;
-	EM_386 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3</span>;
-	EM_68K <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x4</span>;
-	EM_88K <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x5</span>;
-	EM_860 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x7</span>;
-	EM_MIPS <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x8</span>;
-};
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Machine</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	EM_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	EM_M32 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	EM_SPARC <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x2</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	EM_386 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	EM_68K <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x4</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	EM_88K <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x5</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	EM_860 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x7</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	EM_MIPS <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x8</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>};
 </code></pre></div><p>其他的值作为保留字来关联将来可能出现的新平台架构，处理器定制(Processor-specific)ELF名使用机器平台名来区分它们，举例来说：有一个在平台EM_386上的 e_flag(会以EF_开头) 为 WIDGET，那么，这个flag的将会写成 EF_386_WINDGET。</p>
 <ul>
 <li>e_version 指定ELF的文件版本，现在只有两个值：</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Version</span>{
-	EV_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
-	EV_CURRENT <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
-};
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#66d9ef">enum</span> <span style="color:#a6e22e">Elf32_Version</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	EV_NONE <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	EV_CURRENT <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>};
 </code></pre></div><p>目前一般情况下值是1，但一些特殊情况下也会是一些其他的数值(如有扩展的ELF会用一个大数，或者当需要用不同的值来反应当前的版本时)。</p>
 <ul>
 <li>e_entry 给出system first transfers control需要的用来启动进程的虚拟地址，如果没有入口，那么值是0</li>
@@ -493,18 +493,18 @@ ELF文件在Linux中有三种类型：
 </ul>
 <p><strong>Section Header(节头)</strong></p>
 <p>Section Header 的结构化定义如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
-	Elf32_Word	sh_name;
-	Elf32_Word	sh_type;
-	Elf32_Word	sh_flags;
-	Elf32_Addr	sh_addr;
-	Elf32_Off 	sh_offset;
-	Elf32_Word	sh_size;
-	Elf32_Word	sh_link;
-	Elf32_Word	sh_info;
-	Elf32_Word	sh_addralign;
-	Elf32_Word	sh_entsize;
-}Elf32_Shdr;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	Elf32_Word	sh_name;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Elf32_Word	sh_type;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	Elf32_Word	sh_flags;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	Elf32_Addr	sh_addr;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	Elf32_Off 	sh_offset;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	Elf32_Word	sh_size;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	Elf32_Word	sh_link;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	Elf32_Word	sh_info;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	Elf32_Word	sh_addralign;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	Elf32_Word	sh_entsize;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}Elf32_Shdr;
 </code></pre></div><ul>
 <li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&rsquo;\0'结尾的字符串，C风格字符串)</li>
 <li>sh_type 归类总结本段内容和语义</li>

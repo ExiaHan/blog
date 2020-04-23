@@ -17,26 +17,26 @@
 0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
 0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
  libc.so fgets fopen libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex  这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取
-|---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
+1 |---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
 文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID 所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试
 真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&lt;(=｀o′=)&gt;┓哼 ┏&lt;(=｀○′=)&gt;┛哼┏&lt;(=｀o′=)&gt;┓哈┗&lt;(=｀O′=)&gt;┛兮！！
 再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？
 去源码dalvik文件夹下执行
-grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
-72 /* 73 * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into 74 * memory and parse the contents. 75 * 76 * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex."/>
+1grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
+1 72 /* 273 * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into 374 * memory and parse the contents. 475 * 576 * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex."/>
 
     <meta property="og:title" content="Dump Dex From IJiaMi" />
 <meta property="og:description" content="内容仅供学习讨论 参考文档： 爱加密动态脱壳，爱加密动态脱壳法，浅谈android逆向分析那些拦路虎，光哥博客
 0x1 说在开头 现在有很多软件都是有加壳的，作为安全狗肯定要研究研究，从网上找了点资料，然后找了个用IJiaMi加固的顺着做了一下。
 0x2 实验环境  Android 真机，Version 4.1.2， with ROOT &amp; Xposed 某被IJiaMi加固的App IDA调试器 adb  0x3 过程 下断点：
  libc.so fgets fopen libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex  这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取
-|---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
+1 |---/proc/[pid]/status 对于这个我也写了个，大概实现可以看这里：getTracerPid
 文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID 所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试
 真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&lt;(=｀o′=)&gt;┓哼 ┏&lt;(=｀○′=)&gt;┛哼┏&lt;(=｀o′=)&gt;┓哈┗&lt;(=｀O′=)&gt;┛兮！！
 再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？
 去源码dalvik文件夹下执行
-grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
-72 /* 73 * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into 74 * memory and parse the contents. 75 * 76 * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex." />
+1grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：
+1 72 /* 273 * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into 374 * memory and parse the contents. 475 * 576 * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://blog.exiahan.com/posts/dump_dex_from_ijiami/" />
 <meta property="article:published_time" content="2015-10-07T23:20:29+08:00" />
@@ -135,38 +135,38 @@ grep -rn dvmDexFileOpen 可以找到dvmDexFileOpenPartial函数，其定义位�
 <li>libdvm.so _Z21dvmDexFileOpenPartialPKviPP6DvmDex</li>
 </ul>
 <p>这里关于为何在fgets和fopen上下断点的原因几乎都有说明，是因为加固措施里有反调试，方法是使用子进程检测父进程是否被ptrace（即被调试），如果有则强制关闭说有进程，而检测方法就是读取</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"> |---/proc/<span style="color:#f92672">[</span>pid<span style="color:#f92672">]</span>/status
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span> |---/proc/<span style="color:#f92672">[</span>pid<span style="color:#f92672">]</span>/status
 </code></pre></div><p>对于这个我也写了个，大概实现可以看这里：<a href="https://github.com/ExiaHan/exiahanLib/blob/master/exiahanLib.c">getTracerPid</a></p>
 <p>文件里的TracerPid行，如果为0说明没有被调试，否则就是调试器的PID
 所以要在fgets和fopen上下断，找到其打开后获取值的语句，改为0,patch掉反调试</p>
 <p><em>真正调试时发现其实不需要每次都patch掉，只要找到用于反调试的子进程，然后直接休眠掉即可，否则如果碰到变态的每隔几秒就检测一次的加固方式，那就只能一直人工patch了┗&lt;(=｀o′=)&gt;┓哼 ┏&lt;(=｀○′=)&gt;┛哼┏&lt;(=｀o′=)&gt;┓哈┗&lt;(=｀O′=)&gt;┛兮！！</em></p>
 <p>再下来是**_Z21dvmDexFileOpenPartialPKviPP6DvmDex**，位于libdvm.so，libdvm是library-dalvik-virtual-machine，即dalvik虚拟机的核心所在shared object，其中的*_Z21dvmDexFileOpenPartialPKviPP6DvmDex*即为运行一个dex前需要调用的**参与打开dex文件**的一个函数，为什么要在这里下断呢？</p>
 <p>去源码dalvik文件夹下执行</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">grep -rn dvmDexFileOpen
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>grep -rn dvmDexFileOpen
 </code></pre></div><p>可以找到dvmDexFileOpenPartial函数，其定义位于./dalvik/vm/DvmDex.h:84，如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"> <span style="color:#ae81ff">72</span> <span style="color:#75715e">/*
-</span><span style="color:#75715e"> 73  * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into
-</span><span style="color:#75715e"> 74  * memory and parse the contents.
-</span><span style="color:#75715e"> 75  *
-</span><span style="color:#75715e"> 76  * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex.
-</span><span style="color:#75715e"> 77  * On failure, returns a meaningful error code [currently just -1].
-</span><span style="color:#75715e"> 78  */</span>
- <span style="color:#ae81ff">79</span> <span style="color:#66d9ef">int</span> dvmDexFileOpenFromFd(<span style="color:#66d9ef">int</span> fd, DvmDex<span style="color:#f92672">**</span> ppDvmDex);
- <span style="color:#ae81ff">80</span>
- <span style="color:#ae81ff">81</span> <span style="color:#75715e">/*
-</span><span style="color:#75715e"> 82  * Open a partial DEX file.  Only useful as part of the optimization process.
-</span><span style="color:#75715e"> 83  */</span>
- <span style="color:#ae81ff">84</span> <span style="color:#66d9ef">int</span> dvmDexFileOpenPartial(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> addr, <span style="color:#66d9ef">int</span> len, DvmDex<span style="color:#f92672">**</span> ppDvmDex);
- <span style="color:#ae81ff">85</span>
- <span style="color:#ae81ff">86</span> <span style="color:#75715e">/*
-</span><span style="color:#75715e"> 87  * Free a DvmDex structure, along with any associated structures.
-</span><span style="color:#75715e"> 88  */</span>
- <span style="color:#ae81ff">89</span> <span style="color:#66d9ef">void</span> dvmDexFileFree(DvmDex<span style="color:#f92672">*</span> pDvmDex);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span> <span style="color:#ae81ff">72</span> <span style="color:#75715e">/*
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#75715e"> 73  * Given a file descriptor for an open &#34;optimized&#34; DEX file, map it into
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#75715e"> 74  * memory and parse the contents.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#75715e"> 75  *
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#75715e"> 76  * On success, returns 0 and sets &#34;*ppDvmDex&#34; to a newly-allocated DvmDex.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#75715e"> 77  * On failure, returns a meaningful error code [currently just -1].
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#75715e"> 78  */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span> <span style="color:#ae81ff">79</span> <span style="color:#66d9ef">int</span> dvmDexFileOpenFromFd(<span style="color:#66d9ef">int</span> fd, DvmDex<span style="color:#f92672">**</span> ppDvmDex);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span> <span style="color:#ae81ff">80</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span> <span style="color:#ae81ff">81</span> <span style="color:#75715e">/*
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#75715e"> 82  * Open a partial DEX file.  Only useful as part of the optimization process.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#75715e"> 83  */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span> <span style="color:#ae81ff">84</span> <span style="color:#66d9ef">int</span> dvmDexFileOpenPartial(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> addr, <span style="color:#66d9ef">int</span> len, DvmDex<span style="color:#f92672">**</span> ppDvmDex);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span> <span style="color:#ae81ff">85</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span> <span style="color:#ae81ff">86</span> <span style="color:#75715e">/*
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#75715e"> 87  * Free a DvmDex structure, along with any associated structures.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#75715e"> 88  */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span> <span style="color:#ae81ff">89</span> <span style="color:#66d9ef">void</span> dvmDexFileFree(DvmDex<span style="color:#f92672">*</span> pDvmDex);
 </code></pre></div><p>可以看到三个和加载dex（包括odex）的函数都在这里，就像注释说明的，dvmDexFileOpenPartial函数是加载dex文件必须用到的一步，其前两个参数分别是dex文件在内存中的地址和其长度，知道这些后就可以尝试现在这里下断然后尝试dump出来dex文件啦。所以在其中下断，就能找到运行时所加载的真正dex文件，然后使用IDC脚本dump出来即可.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"><span style="color:#66d9ef">auto</span> fp, dexAddress;
-fp <span style="color:#f92672">=</span> fopen(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">xx.dex&#34;</span>,<span style="color:#e6db74">&#34;wb&#34;</span>);
-<span style="color:#66d9ef">for</span> (dexAddress <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3D4AE72C</span>; dexAddress <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0x3DB9C098</span>; dexAddress<span style="color:#f92672">++</span>)
-   fputc(Byte(dexAddress), fp)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-CPP" data-lang="CPP"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#66d9ef">auto</span> fp, dexAddress;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>fp <span style="color:#f92672">=</span> fopen(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">xx.dex&#34;</span>,<span style="color:#e6db74">&#34;wb&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#66d9ef">for</span> (dexAddress <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x3D4AE72C</span>; dexAddress <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0x3DB9C098</span>; dexAddress<span style="color:#f92672">++</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>   fputc(Byte(dexAddress), fp)
 </code></pre></div><p><del>脱掉后dex2jar转成jar用jd-gui看下真正的入口Activity，然后baksmali一下，把manifest.xml里的入口改掉，改成真正入口Activity。</del></p>
 
     </div>

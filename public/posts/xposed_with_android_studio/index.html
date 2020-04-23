@@ -17,20 +17,20 @@
 0x2 开工 这篇文章也是作为Xposed插桩的练习记录
 引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
  下载xposed框架jar包 创建你的xposed module工程，如&quot;HelloXposedHook&rdquo; 在app/src下创建文件夹xposedLib   之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含
- 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    apply plugin: &#39;java&#39; dependencies { compile project(&#34;:lib&#34;) provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;]) }  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
+ 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    1apply plugin: &#39;java&#39; 2dependencies { 3 compile project(&#34;:lib&#34;) 4 provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;]) 5}  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
  到这里xposed框架的引入即可成功
 创建你的Xposed Module  修改AndroidManifest.xml，加入xposed的meta元素（具体如何参见rovo89的Tutorial）  如下所示：
-&lt;application android:allowBackup=&#34;true&#34; android:icon=&#34;@mipmap/ic_launcher&#34; android:label=&#34;@string/app_name&#34; android:theme=&#34;@style/AppTheme&#34; &gt; &lt;meta-data android:name=&#34;xposedmodule&#34; android:value=&#34;true&#34; /&gt; &lt;meta-data android:name=&#34;xposeddescription&#34; android:value=&#34;My First Xposed Module for Hook&#34; /&gt; &lt;meta-data android:name=&#34;xposedminversion&#34; android:value=&#34;30&#34; /&gt; &lt;activity android:name=&#34;."/>
+1&lt;application 2 android:allowBackup=&#34;true&#34; 3 android:icon=&#34;@mipmap/ic_launcher&#34; 4 android:label=&#34;@string/app_name&#34; 5 android:theme=&#34;@style/AppTheme&#34; &gt; 6 &lt;meta-data 7 android:name=&#34;xposedmodule&#34; 8 android:value=&#34;true&#34; /&gt; 9 &lt;meta-data 10 android:name=&#34;xposeddescription&#34; 11 android:value=&#34;My First Xposed Module for Hook&#34; /&gt; 12 &lt;meta-data 13 android:name=&#34;xposedminversion&#34; 14 android:value=&#34;30&#34; /&gt; 15	&lt;activity 16 android:name=&#34;."/>
 
     <meta property="og:title" content="Xposed with Android Studio" />
 <meta property="og:description" content="0x1 介绍 Xposed不用说，估计是很多人都知道的神器，通过替换系统文件在zygote(Android应用的孵化器)阶段进行hook，给予了xposed相当于root的权限，使用Xposed来修改修改和定制系统，或者在某些需要的情况下想从一些应用里套点数据，Xposed都是十分在行。 本文简单介绍使用Xposed来套取一个示例Android应用中某个函数运行时传入的参数。
 0x2 开工 这篇文章也是作为Xposed插桩的练习记录
 引入Xposed框架 不得不说，即使有rovo89的Xposed Tutorial，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。
  下载xposed框架jar包 创建你的xposed module工程，如&quot;HelloXposedHook&rdquo; 在app/src下创建文件夹xposedLib   之所以要在这里分开说最后一步，是因为目前我知道的有两种方法引入框架而不在生成时包含
- 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    apply plugin: &#39;java&#39; dependencies { compile project(&#34;:lib&#34;) provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;]) }  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
+ 方法一：  把下载好的xposed-bridgeAPI.jar包拖进去，右键，选择add as library 在Project视图下右键项目名，选择open module settings，把xposed-bridgeAPI那一项有compile改成proivde    如图：  方法二：  把下载好的xposed-bridgeAPI.jar包拖进去 在app/xposedLib/路径里创建build.gradle文件，内容如下    1apply plugin: &#39;java&#39; 2dependencies { 3 compile project(&#34;:lib&#34;) 4 provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;]) 5}  根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含 xposed的jar包要求仅被引用，而不能包含 所以放xposedLib 并且在module settings里把相关项改成provide
  到这里xposed框架的引入即可成功
 创建你的Xposed Module  修改AndroidManifest.xml，加入xposed的meta元素（具体如何参见rovo89的Tutorial）  如下所示：
-&lt;application android:allowBackup=&#34;true&#34; android:icon=&#34;@mipmap/ic_launcher&#34; android:label=&#34;@string/app_name&#34; android:theme=&#34;@style/AppTheme&#34; &gt; &lt;meta-data android:name=&#34;xposedmodule&#34; android:value=&#34;true&#34; /&gt; &lt;meta-data android:name=&#34;xposeddescription&#34; android:value=&#34;My First Xposed Module for Hook&#34; /&gt; &lt;meta-data android:name=&#34;xposedminversion&#34; android:value=&#34;30&#34; /&gt; &lt;activity android:name=&#34;." />
+1&lt;application 2 android:allowBackup=&#34;true&#34; 3 android:icon=&#34;@mipmap/ic_launcher&#34; 4 android:label=&#34;@string/app_name&#34; 5 android:theme=&#34;@style/AppTheme&#34; &gt; 6 &lt;meta-data 7 android:name=&#34;xposedmodule&#34; 8 android:value=&#34;true&#34; /&gt; 9 &lt;meta-data 10 android:name=&#34;xposeddescription&#34; 11 android:value=&#34;My First Xposed Module for Hook&#34; /&gt; 12 &lt;meta-data 13 android:name=&#34;xposedminversion&#34; 14 android:value=&#34;30&#34; /&gt; 15	&lt;activity 16 android:name=&#34;." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://blog.exiahan.com/posts/xposed_with_android_studio/" />
 <meta property="article:published_time" content="2015-09-02T16:06:55+08:00" />
@@ -102,7 +102,7 @@
   <title>clock</title>
   <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
 </svg>
-          1 min read
+          2 min read
         </div><div>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag">
   <title>tag</title>
@@ -143,11 +143,11 @@
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">apply plugin: &#39;java&#39;
-dependencies {
-    compile project(&#34;:lib&#34;)
-    provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;])
-}
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>apply plugin: &#39;java&#39;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>dependencies {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    compile project(&#34;:lib&#34;)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    provided fileTree(dir: &#39;lib&#39;, include: [&#39;*.jar&#39;])
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
 </code></pre></div><blockquote>
 <p>根据xposed tutorial的提示，jar包不能放app/libs，否则会自动包含
 xposed的jar包要求仅被引用，而不能包含
@@ -160,24 +160,24 @@ xposed的jar包要求仅被引用，而不能包含
 <li>修改AndroidManifest.xml，加入xposed的meta元素（<strong>具体如何参见rovo89的Tutorial</strong>）</li>
 </ul>
 <p>如下所示：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;application</span>
-        <span style="color:#a6e22e">android:allowBackup=</span><span style="color:#e6db74">&#34;true&#34;</span>
-        <span style="color:#a6e22e">android:icon=</span><span style="color:#e6db74">&#34;@mipmap/ic_launcher&#34;</span>
-        <span style="color:#a6e22e">android:label=</span><span style="color:#e6db74">&#34;@string/app_name&#34;</span>
-        <span style="color:#a6e22e">android:theme=</span><span style="color:#e6db74">&#34;@style/AppTheme&#34;</span> <span style="color:#f92672">&gt;</span>
-        <span style="color:#f92672">&lt;meta-data</span>
-            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposedmodule&#34;</span>
-            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
-        <span style="color:#f92672">&lt;meta-data</span>
-            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposeddescription&#34;</span>
-            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;My First Xposed Module for Hook&#34;</span> <span style="color:#f92672">/&gt;</span>
-        <span style="color:#f92672">&lt;meta-data</span>
-            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposedminversion&#34;</span>
-            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;30&#34;</span> <span style="color:#f92672">/&gt;</span>
-		<span style="color:#f92672">&lt;activity</span>
-            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;.MainActivity&#34;</span>
-            <span style="color:#a6e22e">android:label=</span><span style="color:#e6db74">&#34;@string/app_name&#34;</span> <span style="color:#f92672">&gt;</span>
-......
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#f92672">&lt;application</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>        <span style="color:#a6e22e">android:allowBackup=</span><span style="color:#e6db74">&#34;true&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        <span style="color:#a6e22e">android:icon=</span><span style="color:#e6db74">&#34;@mipmap/ic_launcher&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        <span style="color:#a6e22e">android:label=</span><span style="color:#e6db74">&#34;@string/app_name&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#a6e22e">android:theme=</span><span style="color:#e6db74">&#34;@style/AppTheme&#34;</span> <span style="color:#f92672">&gt;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        <span style="color:#f92672">&lt;meta-data</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposedmodule&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#f92672">&lt;meta-data</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposeddescription&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;My First Xposed Module for Hook&#34;</span> <span style="color:#f92672">/&gt;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        <span style="color:#f92672">&lt;meta-data</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;xposedminversion&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>            <span style="color:#a6e22e">android:value=</span><span style="color:#e6db74">&#34;30&#34;</span> <span style="color:#f92672">/&gt;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		<span style="color:#f92672">&lt;activity</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;.MainActivity&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>            <span style="color:#a6e22e">android:label=</span><span style="color:#e6db74">&#34;@string/app_name&#34;</span> <span style="color:#f92672">&gt;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>......
 </code></pre></div><ul>
 <li>创建你的使用xposed插件的函数，如MyXposedModule</li>
 <li>添加文件夹/app/src/main/assets/xposed_init，在里面写上你的xposed module类全称（包含包名
@@ -188,38 +188,38 @@ xposed的jar包要求仅被引用，而不能包含
 </ul>
 <p>这里我要做的是Hook自己写的另一个示例小程序的一个java方法，在log里打印出传给他的参数</p>
 <p>功能代码如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyXposedModule</span> <span style="color:#66d9ef">implements</span> IXposedHookLoadPackage<span style="color:#f92672">{</span>
-
-    <span style="color:#a6e22e">@Override</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleLoadPackage</span><span style="color:#f92672">(</span>XC_LoadPackage<span style="color:#f92672">.</span><span style="color:#a6e22e">LoadPackageParam</span> lpparam<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
-        <span style="color:#75715e">//TODO Auto-generated method stub
-</span><span style="color:#75715e"></span>        <span style="color:#75715e">//filter the package
-</span><span style="color:#75715e"></span>
-
-        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">packageName</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.xxx.remotecontrol&#34;</span><span style="color:#f92672">))</span>
-            <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
-
-        Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Package&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;\n&#34;</span> <span style="color:#f92672">+</span> lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">packageName</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">);</span>
-
-        <span style="color:#75715e">//if has a custom class param, use reflact to get the class as type
-</span><span style="color:#75715e"></span>        <span style="color:#75715e">//Class&lt;?&gt; XXXJni = null;
-</span><span style="color:#75715e"></span>        <span style="color:#75715e">//XXXJni = lpparam.classLoader.loadClass(&#34;com.xxx.remotecontrol&#34;);
-</span><span style="color:#75715e"></span>        findAndHookMethod<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.xxx.remotecontrol.mainActivity&#34;</span><span style="color:#f92672">,</span> lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">classLoader</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;forHook&#34;</span><span style="color:#f92672">,</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> XC_MethodHook<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">beforeHookedMethod</span><span style="color:#f92672">(</span>MethodHookParam param<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
-                <span style="color:#75715e">// this will be called before the clock was updated by the original method
-</span><span style="color:#75715e"></span>                String parg <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>String<span style="color:#f92672">)</span> param<span style="color:#f92672">.</span><span style="color:#a6e22e">args</span><span style="color:#f92672">[</span>0<span style="color:#f92672">];</span>
-                Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Result:&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;\nHi\n&#34;</span><span style="color:#f92672">);</span>
-                Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;CMD:&#34;</span><span style="color:#f92672">,</span> parg<span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
-
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">afterHookedMethod</span><span style="color:#f92672">(</span>MethodHookParam param<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
-                <span style="color:#75715e">// this will be called after the clock was updated by the original method
-</span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">});</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyXposedModule</span> <span style="color:#66d9ef">implements</span> IXposedHookLoadPackage<span style="color:#f92672">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#a6e22e">@Override</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">handleLoadPackage</span><span style="color:#f92672">(</span>XC_LoadPackage<span style="color:#f92672">.</span><span style="color:#a6e22e">LoadPackageParam</span> lpparam<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#75715e">//TODO Auto-generated method stub
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#75715e"></span>        <span style="color:#75715e">//filter the package
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#75715e"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">packageName</span><span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.xxx.remotecontrol&#34;</span><span style="color:#f92672">))</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>            <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Package&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;\n&#34;</span> <span style="color:#f92672">+</span> lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">packageName</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        <span style="color:#75715e">//if has a custom class param, use reflact to get the class as type
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#75715e"></span>        <span style="color:#75715e">//Class&lt;?&gt; XXXJni = null;
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#75715e"></span>        <span style="color:#75715e">//XXXJni = lpparam.classLoader.loadClass(&#34;com.xxx.remotecontrol&#34;);
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#75715e"></span>        findAndHookMethod<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.xxx.remotecontrol.mainActivity&#34;</span><span style="color:#f92672">,</span> lpparam<span style="color:#f92672">.</span><span style="color:#a6e22e">classLoader</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;forHook&#34;</span><span style="color:#f92672">,</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> XC_MethodHook<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>            <span style="color:#a6e22e">@Override</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>            <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">beforeHookedMethod</span><span style="color:#f92672">(</span>MethodHookParam param<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>                <span style="color:#75715e">// this will be called before the clock was updated by the original method
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#75715e"></span>                String parg <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>String<span style="color:#f92672">)</span> param<span style="color:#f92672">.</span><span style="color:#a6e22e">args</span><span style="color:#f92672">[</span>0<span style="color:#f92672">];</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>                Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Result:&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;\nHi\n&#34;</span><span style="color:#f92672">);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>                Log<span style="color:#f92672">.</span><span style="color:#a6e22e">e</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;CMD:&#34;</span><span style="color:#f92672">,</span> parg<span style="color:#f92672">);</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>            <span style="color:#f92672">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>            <span style="color:#a6e22e">@Override</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>            <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">afterHookedMethod</span><span style="color:#f92672">(</span>MethodHookParam param<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>                <span style="color:#75715e">// this will be called after the clock was updated by the original method
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>        <span style="color:#f92672">});</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>    <span style="color:#f92672">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span><span style="color:#f92672">}</span>
 </code></pre></div><p>Hook成功后首先打印Hi，然后打印参数，即CMD后的parg</p>
 <p>结果如图：
 <img src="/images/XposedWithAndroidStudio/result.jpg" alt="result"></p>

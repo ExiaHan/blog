@@ -109,38 +109,38 @@
 <h3 id="build">Build</h3>
 <p>Now everything is ok. We can start our building action. To avoid any not errors when building. Here I recommend you use the <a href="https://developer.android.com/ndk/guides/standalone_toolchain">Standalone ToolChain</a>.</p>
 <p>A standalone toolchain can be easily setup via do what the tutorial says.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Create an arm64 API 26 libc++ toolchain.</span>
-export NDK<span style="color:#f92672">={</span>path to ndk<span style="color:#f92672">}</span>
-$NDK/build/tools/make_standalone_toolchain.py <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --arch arm64 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --api <span style="color:#ae81ff">26</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --stl<span style="color:#f92672">=</span>libc++ <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --install-dir<span style="color:#f92672">=</span>/<span style="color:#f92672">{</span>path you want<span style="color:#f92672">}</span>/<span style="color:#f92672">{</span>tool chain name<span style="color:#f92672">}</span>
-
-<span style="color:#75715e"># Add the standalone toolchain to the search path.</span>
-export PATH<span style="color:#f92672">=</span>$PATH:/<span style="color:#f92672">{</span>path you want<span style="color:#f92672">}</span>/<span style="color:#f92672">{</span>tool chain name<span style="color:#f92672">}</span>/bin
-
-<span style="color:#75715e"># Tell configure what tools to use.</span>
-<span style="color:#75715e"># If you want armeabi, just change target_host to</span>
-<span style="color:#75715e"># target_host=arm-linux-androideabi</span>
-target_host<span style="color:#f92672">=</span>aarch64-linux-android
-export AR<span style="color:#f92672">=</span>$target_host-ar
-export AS<span style="color:#f92672">=</span>$target_host-clang
-export CC<span style="color:#f92672">=</span>$target_host-clang
-export CXX<span style="color:#f92672">=</span>$target_host-clang++
-export LD<span style="color:#f92672">=</span>$target_host-ld
-export STRIP<span style="color:#f92672">=</span>$target_host-strip
-
-<span style="color:#75715e"># Tell configure what flags Android requires.</span>
-export CFLAGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-fPIE -fPIC&#34;</span>
-export LDFLAGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-pie&#34;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#75715e"># Create an arm64 API 26 libc++ toolchain.</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>export NDK<span style="color:#f92672">={</span>path to ndk<span style="color:#f92672">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>$NDK/build/tools/make_standalone_toolchain.py <span style="color:#ae81ff">\
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#ae81ff"></span>  --arch arm64 <span style="color:#ae81ff">\
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#ae81ff"></span>  --api <span style="color:#ae81ff">26</span> <span style="color:#ae81ff">\
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#ae81ff"></span>  --stl<span style="color:#f92672">=</span>libc++ <span style="color:#ae81ff">\
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#ae81ff"></span>  --install-dir<span style="color:#f92672">=</span>/<span style="color:#f92672">{</span>path you want<span style="color:#f92672">}</span>/<span style="color:#f92672">{</span>tool chain name<span style="color:#f92672">}</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#75715e"># Add the standalone toolchain to the search path.</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>export PATH<span style="color:#f92672">=</span>$PATH:/<span style="color:#f92672">{</span>path you want<span style="color:#f92672">}</span>/<span style="color:#f92672">{</span>tool chain name<span style="color:#f92672">}</span>/bin
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#75715e"># Tell configure what tools to use.</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#75715e"># If you want armeabi, just change target_host to</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#75715e"># target_host=arm-linux-androideabi</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>target_host<span style="color:#f92672">=</span>aarch64-linux-android
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>export AR<span style="color:#f92672">=</span>$target_host-ar
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>export AS<span style="color:#f92672">=</span>$target_host-clang
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>export CC<span style="color:#f92672">=</span>$target_host-clang
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>export CXX<span style="color:#f92672">=</span>$target_host-clang++
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>export LD<span style="color:#f92672">=</span>$target_host-ld
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>export STRIP<span style="color:#f92672">=</span>$target_host-strip
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#75715e"># Tell configure what flags Android requires.</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>export CFLAGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-fPIE -fPIC&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>export LDFLAGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-pie&#34;</span>
 </code></pre></div><p>Now everything is ok. Extract the source file to some place you want, then use configure and make like below shows, the sqlite ELF file will be generated successfully.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$tar -xzvf sqlite-snapshot-201807272333.tar.gz
-$./configure --host<span style="color:#f92672">=</span>arm-linux-androideabi
-$make
-...
-$file sqlite3
-sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>SYSV<span style="color:#f92672">)</span>, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$tar -xzvf sqlite-snapshot-201807272333.tar.gz
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>$./configure --host<span style="color:#f92672">=</span>arm-linux-androideabi
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>$make
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>$file sqlite3
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>sqlite3: ELF 32-bit LSB pie executable ARM, EABI5 version <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>SYSV<span style="color:#f92672">)</span>, dynamically linked, interpreter /system/bin/linker, with debug_info, not stripped
 </code></pre></div><p>All done.</p>
 
     </div>
