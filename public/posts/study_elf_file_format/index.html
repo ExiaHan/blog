@@ -3,7 +3,7 @@
   <head>
     <title>Study ELF File Format // ExiaHan&#39;s Blog</title>
     <meta charset="utf-8" />
-    <meta name="generator" content="Hugo 0.69.0" />
+    <meta name="generator" content="Hugo 0.69.2" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="ExiaHan" />
     <meta name="description" content="" />
@@ -588,7 +588,7 @@ ELF文件在Linux中有三种类型：
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&rsquo;\0'结尾的字符串，C风格字符串)</li>
+<li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&rsquo;\0&rsquo;结尾的字符串，C风格字符串)</li>
 <li>sh_type 归类总结本段内容和语义</li>
 <li>sh_flags 按bit标出一些属性杂项</li>
 <li>sh_addr 如果所在Section将出现在一个进程镜像中，则本字段指出本Section第一个Byte应占据的Address，否则为0</li>

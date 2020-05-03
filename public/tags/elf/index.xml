@@ -829,7 +829,7 @@ $ gcc -m32 -o example example.o -Wl,--section-start&lt;span style=&#34;color:#f9
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&amp;rsquo;\0&#39;结尾的字符串，C风格字符串)&lt;/li&gt;
+&lt;li&gt;sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&amp;rsquo;\0&amp;rsquo;结尾的字符串，C风格字符串)&lt;/li&gt;
 &lt;li&gt;sh_type 归类总结本段内容和语义&lt;/li&gt;
 &lt;li&gt;sh_flags 按bit标出一些属性杂项&lt;/li&gt;
 &lt;li&gt;sh_addr 如果所在Section将出现在一个进程镜像中，则本字段指出本Section第一个Byte应占据的Address，否则为0&lt;/li&gt;
