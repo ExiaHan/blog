@@ -7,8 +7,6 @@ keywords: ['RFiD', 'NFC']
 category: ['Technology']
 ---
 
-[TOC]
-
 Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.
 
 ![Proxmark3 Device](/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg)
