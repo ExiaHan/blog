@@ -17,7 +17,76 @@
       <pubDate>Sat, 15 Feb 2020 10:09:00 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</guid>
-      <description></description>
+      <description>&lt;p&gt;[TOC]&lt;/p&gt;
+&lt;p&gt;Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;../../static/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg&#34; alt=&#34;Proxmark3 Device&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Here I just log what I do to crack and clone the access card cause it&amp;rsquo;s convenient to use a tag which can be attached to key ring instead of take a card..&lt;/p&gt;
+&lt;h2 id=&#34;1-determine-the-card-type&#34;&gt;1. Determine the card type&lt;/h2&gt;
+&lt;p&gt;First plug Proxmark3 to your computer and make sure your system recognizes it correctly. Here for me it is recognized as ttyACM0.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;../../static/images/PlayWithRFiDForFunAndConvenient/deviceRecognized.png&#34; alt=&#34;Device Recognized&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Then use connect to it and try to recognize the card. Here I already known that it&amp;rsquo;s HF card, so I directly use below command to check whether it works or not.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ proxmark3 /dev/ttyACM0
+&amp;gt; hf search
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;If success, it will show me below information.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;../../static/images/PlayWithRFiDForFunAndConvenient/foundCard.png&#34; alt=&#34;Found Cards&#34;&gt;&lt;/p&gt;
+&lt;p&gt;If proxmark3 throw any errors, you may have a try to flash the ROM, for more details following the instructions in the github &lt;a href=&#34;https://github.com/Proxmark/proxmark3/wiki&#34;&gt;page&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;2-retrieve-keys&#34;&gt;2. Retrieve Keys&lt;/h2&gt;
+&lt;p&gt;Now we already know it&amp;rsquo;s a &lt;strong&gt;NXP MIFARE Classic&lt;/strong&gt; 1k card, we try to use below command to get keys for each sectors.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ hf mf chk *1 ? t
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;../../static/images/PlayWithRFiDForFunAndConvenient/chkCard.png&#34; alt=&#34;Check Card&#34;&gt;&lt;/p&gt;
+&lt;p&gt;We found that the &lt;strong&gt;sector 1&lt;/strong&gt; does not use a key in proxmark3&amp;rsquo;s dict, but we can see the &lt;strong&gt;sector 0&lt;/strong&gt; use a known key.&lt;/p&gt;
+&lt;p&gt;If you are not luck, you may encounter that the &lt;strong&gt;sector 0&lt;/strong&gt; also use a unknown key. Then you can try to use below command to do a crack.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# This will try to perform PRNG crack&lt;/span&gt;
+$ hf mf mifare
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;3-cracking&#34;&gt;3. Cracking&lt;/h2&gt;
+&lt;p&gt;Here we already known the key of &lt;strong&gt;sector 0&lt;/strong&gt;, we can crack it via so called &lt;strong&gt;MFOC crack&lt;/strong&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ hf mf nested &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; A ffffffffffff
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Yeah! Just a moment we got it!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;../../static/images/PlayWithRFiDForFunAndConvenient/nestCrack.png&#34; alt=&#34;Nest Crack&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;4-clone-to-empty-tags&#34;&gt;4. Clone To Empty Tags&lt;/h2&gt;
+&lt;p&gt;Here the key for &lt;strong&gt;sector 1&lt;/strong&gt; is &lt;strong&gt;F0F1F2F3F4F5&lt;/strong&gt;. Now we get all the keys for each sectors, here I use &lt;a href=&#34;https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool&#34;&gt;MIFARE Classic Tool&lt;/a&gt; to dump it to my android phone instead of use proxmark3 to dump it into my computer cause it&amp;rsquo;s more convenient to use a android phone with NFC support to write data to tags.
+All done. :)&lt;/p&gt;
+&lt;h2 id=&#34;5-conclusion&#34;&gt;5. Conclusion&lt;/h2&gt;
+&lt;p&gt;Now it&amp;rsquo;s just a note for how to use proxmark3, in the future I will post another notes about the protocol and internals about how above things work.&lt;/p&gt;
+&lt;h2 id=&#34;related-contents&#34;&gt;Related Contents&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/Proxmark/proxmark3/wiki&#34;&gt;https://github.com/Proxmark/proxmark3/wiki&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://medium.com/exc3l/cracking-mifare-classic-cards-with-proxmark3-e42121cd968b&#34;&gt;https://medium.com/exc3l/cracking-mifare-classic-cards-with-proxmark3-e42121cd968b&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://lzy-wi.github.io/2018/07/26/proxmark3/&#34;&gt;https://lzy-wi.github.io/2018/07/26/proxmark3/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://guillaumeplayground.net/proxmark3-hardnested/&#34;&gt;https://guillaumeplayground.net/proxmark3-hardnested/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.freebuf.com/articles/wireless/109151.html&#34;&gt;https://www.freebuf.com/articles/wireless/109151.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
     </item>
     
   </channel>
