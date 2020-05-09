@@ -105,11 +105,11 @@ Here I just log what I do to crack and clone the access card cause it&rsquo;s co
     <div class="post-content">
       <p>[TOC]</p>
 <p>Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.</p>
-<p><img src="../../static/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg" alt="Proxmark3 Device"></p>
+<p><img src="/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg" alt="Proxmark3 Device"></p>
 <p>Here I just log what I do to crack and clone the access card cause it&rsquo;s convenient to use a tag which can be attached to key ring instead of take a card..</p>
 <h2 id="1-determine-the-card-type">1. Determine the card type</h2>
 <p>First plug Proxmark3 to your computer and make sure your system recognizes it correctly. Here for me it is recognized as ttyACM0.</p>
-<p><img src="../../static/images/PlayWithRFiDForFunAndConvenient/deviceRecognized.png" alt="Device Recognized"></p>
+<p><img src="/images/PlayWithRFiDForFunAndConvenient/deviceRecognized.png" alt="Device Recognized"></p>
 <p>Then use connect to it and try to recognize the card. Here I already known that it&rsquo;s HF card, so I directly use below command to check whether it works or not.</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
 <table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
@@ -122,7 +122,7 @@ Here I just log what I do to crack and clone the access card cause it&rsquo;s co
 </code></pre></td></tr></table>
 </div>
 </div><p>If success, it will show me below information.</p>
-<p><img src="../../static/images/PlayWithRFiDForFunAndConvenient/foundCard.png" alt="Found Cards"></p>
+<p><img src="/images/PlayWithRFiDForFunAndConvenient/foundCard.png" alt="Found Cards"></p>
 <p>If proxmark3 throw any errors, you may have a try to flash the ROM, for more details following the instructions in the github <a href="https://github.com/Proxmark/proxmark3/wiki">page</a>.</p>
 <h2 id="2-retrieve-keys">2. Retrieve Keys</h2>
 <p>Now we already know it&rsquo;s a <strong>NXP MIFARE Classic</strong> 1k card, we try to use below command to get keys for each sectors.</p>
@@ -134,7 +134,7 @@ Here I just log what I do to crack and clone the access card cause it&rsquo;s co
 <pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ hf mf chk *1 ? t
 </code></pre></td></tr></table>
 </div>
-</div><p><img src="../../static/images/PlayWithRFiDForFunAndConvenient/chkCard.png" alt="Check Card"></p>
+</div><p><img src="/images/PlayWithRFiDForFunAndConvenient/chkCard.png" alt="Check Card"></p>
 <p>We found that the <strong>sector 1</strong> does not use a key in proxmark3&rsquo;s dict, but we can see the <strong>sector 0</strong> use a known key.</p>
 <p>If you are not luck, you may encounter that the <strong>sector 0</strong> also use a unknown key. Then you can try to use below command to do a crack.</p>
 <div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
@@ -158,7 +158,7 @@ $ hf mf mifare
 </code></pre></td></tr></table>
 </div>
 </div><p>Yeah! Just a moment we got it!</p>
-<p><img src="../../static/images/PlayWithRFiDForFunAndConvenient/nestCrack.png" alt="Nest Crack"></p>
+<p><img src="/images/PlayWithRFiDForFunAndConvenient/nestCrack.png" alt="Nest Crack"></p>
 <h2 id="4-clone-to-empty-tags">4. Clone To Empty Tags</h2>
 <p>Here the key for <strong>sector 1</strong> is <strong>F0F1F2F3F4F5</strong>. Now we get all the keys for each sectors, here I use <a href="https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool">MIFARE Classic Tool</a> to dump it to my android phone instead of use proxmark3 to dump it into my computer cause it&rsquo;s more convenient to use a android phone with NFC support to write data to tags.
 All done. :)</p>

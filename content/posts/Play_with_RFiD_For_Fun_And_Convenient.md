@@ -11,7 +11,7 @@ category: ['Technology']
 
 Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.
 
-![Proxmark3 Device](../../static/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg)
+![Proxmark3 Device](/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg)
 
 Here I just log what I do to crack and clone the access card cause it's convenient to use a tag which can be attached to key ring instead of take a card..
 
@@ -19,7 +19,7 @@ Here I just log what I do to crack and clone the access card cause it's convenie
 
 First plug Proxmark3 to your computer and make sure your system recognizes it correctly. Here for me it is recognized as ttyACM0.
 
-![Device Recognized](../../static/images/PlayWithRFiDForFunAndConvenient/deviceRecognized.png)
+![Device Recognized](/images/PlayWithRFiDForFunAndConvenient/deviceRecognized.png)
 
 Then use connect to it and try to recognize the card. Here I already known that it's HF card, so I directly use below command to check whether it works or not.
 
@@ -30,7 +30,7 @@ $ proxmark3 /dev/ttyACM0
 
 If success, it will show me below information.
 
-![Found Cards](../../static/images/PlayWithRFiDForFunAndConvenient/foundCard.png)
+![Found Cards](/images/PlayWithRFiDForFunAndConvenient/foundCard.png)
 
 If proxmark3 throw any errors, you may have a try to flash the ROM, for more details following the instructions in the github [page](https://github.com/Proxmark/proxmark3/wiki).
 
@@ -42,7 +42,7 @@ Now we already know it's a **NXP MIFARE Classic** 1k card, we try to use below c
 $ hf mf chk *1 ? t
 ```
 
-![Check Card](../../static/images/PlayWithRFiDForFunAndConvenient/chkCard.png)
+![Check Card](/images/PlayWithRFiDForFunAndConvenient/chkCard.png)
 
 We found that the **sector 1** does not use a key in proxmark3's dict, but we can see the **sector 0** use a known key.
 
@@ -63,7 +63,7 @@ $ hf mf nested 1 0 A ffffffffffff
 
 Yeah! Just a moment we got it!
 
-![Nest Crack](../../static/images/PlayWithRFiDForFunAndConvenient/nestCrack.png)
+![Nest Crack](/images/PlayWithRFiDForFunAndConvenient/nestCrack.png)
 
 ## 4. Clone To Empty Tags
 
