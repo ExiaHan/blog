@@ -1,5 +1,5 @@
 ---
-title: "Happy_New_Year_2020"
+title: "Happy New Year 2020"
 date: 2020-01-01T03:35:24+08:00
 tags: ['Life', 'Vision']
 categories: ['Life', 'Vision']
