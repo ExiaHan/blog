@@ -17,8 +17,7 @@
       <pubDate>Sat, 15 Feb 2020 10:09:00 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/posts/play_with_rfid_for_fun_and_convenient/</guid>
-      <description>&lt;p&gt;[TOC]&lt;/p&gt;
-&lt;p&gt;Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.&lt;/p&gt;
+      <description>&lt;p&gt;Thanks to my rich colleague Geoffrey for give me a chance to play Proxmark3.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/PlayWithRFiDForFunAndConvenient/proxmark3Device.jpg&#34; alt=&#34;Proxmark3 Device&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Here I just log what I do to crack and clone the access card cause it&amp;rsquo;s convenient to use a tag which can be attached to key ring instead of take a card..&lt;/p&gt;
 &lt;h2 id=&#34;1-determine-the-card-type&#34;&gt;1. Determine the card type&lt;/h2&gt;
