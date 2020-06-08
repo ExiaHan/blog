@@ -23,7 +23,6 @@ tags: ["Android", "Android-Studio", "SubsTrate"]
 
 ## 0x3 Substrate with Android Studio
 
-
 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。
 言归正传：
 

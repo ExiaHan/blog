@@ -3,7 +3,7 @@
   <head>
     <title>ABI on x86 and arm for Linux // ExiaHan&#39;s Blog</title>
     <meta charset="utf-8" />
-    <meta name="generator" content="Hugo 0.70.0" />
+    <meta name="generator" content="Hugo 0.72.0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="author" content="ExiaHan" />
     <meta name="description" content="" />
@@ -376,7 +376,7 @@ sum:
 	ret
 </code></pre></td></tr></table>
 </div>
-</div><p>Here we can see that in <strong>main</strong>, the <strong>L3</strong> and <strong>L2</strong>&lsquo;s first two line is the <strong>for</strong> loop, and  <strong>args</strong> starts from <strong>-68(%ebp)</strong>, before call <strong>sum</strong>, it do 10 times push operation to put all the args to the stack, the order is from <strong>int j</strong> to <strong>int a</strong>, aka. from the tail to head. Then the <strong>sum</strong> is called, this will cause a <strong>ret address</strong> also be push to the stack, so the stack grows about <strong>10 * 4 + 4 = 44 Bytes</strong>, here don&rsquo;t care about why it sub 48 bytes after call sum, since before ret, it just use <strong>ebp</strong> to restore the stack, which will ensure the balance.</p>
+</div><p>Here we can see that in <strong>main</strong>, the <strong>L3</strong> and <strong>L2</strong>&rsquo;s first two line is the <strong>for</strong> loop, and  <strong>args</strong> starts from <strong>-68(%ebp)</strong>, before call <strong>sum</strong>, it do 10 times push operation to put all the args to the stack, the order is from <strong>int j</strong> to <strong>int a</strong>, aka. from the tail to head. Then the <strong>sum</strong> is called, this will cause a <strong>ret address</strong> also be push to the stack, so the stack grows about <strong>10 * 4 + 4 = 44 Bytes</strong>, here don&rsquo;t care about why it sub 48 bytes after call sum, since before ret, it just use <strong>ebp</strong> to restore the stack, which will ensure the balance.</p>
 <h3 id="11-conclusion">1.1 Conclusion</h3>
 <p>Here we know that in x86, all args will be put on <strong>stack</strong>.</p>
 <h2 id="2-x86_64">2. x86_64</h2>
