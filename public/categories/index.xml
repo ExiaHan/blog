@@ -6,10 +6,46 @@
     <description>Recent content in Categories on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Jan 2020 03:35:24 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 23 Jun 2020 00:42:00 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.exiahan.com/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Android</title>
+      <link>https://blog.exiahan.com/categories/android/</link>
+      <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/categories/android/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CVE</title>
+      <link>https://blog.exiahan.com/categories/cve/</link>
+      <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/categories/cve/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Exploit</title>
+      <link>https://blog.exiahan.com/categories/exploit/</link>
+      <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/categories/exploit/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux</title>
+      <link>https://blog.exiahan.com/categories/linux/</link>
+      <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/categories/linux/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Life</title>
@@ -53,24 +89,6 @@
       <pubDate>Mon, 30 Jan 2017 03:51:33 +0800</pubDate>
       
       <guid>https://blog.exiahan.com/categories/blog/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Linux</title>
-      <link>https://blog.exiahan.com/categories/linux/</link>
-      <pubDate>Sun, 29 Jan 2017 03:29:32 +0000</pubDate>
-      
-      <guid>https://blog.exiahan.com/categories/linux/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Android</title>
-      <link>https://blog.exiahan.com/categories/android/</link>
-      <pubDate>Sat, 09 Jan 2016 21:44:08 +0800</pubDate>
-      
-      <guid>https://blog.exiahan.com/categories/android/</guid>
       <description></description>
     </item>
     

