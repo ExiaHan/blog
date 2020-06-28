@@ -64,8 +64,8 @@
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;整个触发时间过程如下图：
-&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/crashTimeline.jpg&#34; alt=&#34;binder poll crash&#34;&gt;&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;整个触发时间过程如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/crashTimeline.jpg&#34; alt=&#34;binder poll crash&#34;&gt;&lt;/p&gt;
 &lt;p&gt;可以看到首先通过&lt;code&gt;ioctl&lt;/code&gt; 释放binder_thread, 然后程序退出，触发epoll的waitqueue删除操作，从而触发crash。在没打补丁且开了KASAN的对应虚拟机上尝试，可以得到如下的call stack。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/kasan.jpg&#34; alt=&#34;kasan&#34;&gt;&lt;/p&gt;
 &lt;p&gt;从这里就能看到Crash是在remove_wait_queue里面被触发，因为
@@ -132,8 +132,8 @@ EXPORT_SYMBOL(remove_wait_queue);
 &lt;p&gt;通过分析crash时的log(这里我自己加了printk在binder_thread和ep_remove_wait_queue里面)，可以看到Crash时候的binder_thread object的地址是&lt;code&gt;0xffff888046070008&lt;/code&gt;，同时在Crash之前的最后一个被释放的&lt;code&gt;eppoll_entry&lt;/code&gt;的地址是&lt;code&gt;0xffff88803ab6e6a8&lt;/code&gt;。 为了验证binder_thread object对应的fd被加到epoll中后两者的对应关系，我们使用kgdb调试一下kernel，这里具体怎么编译调试的kernel不具体展开，直接看调试打印的变量信息。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/kgdbInfo.jpg&#34; alt=&#34;kgdb info&#34;&gt;&lt;/p&gt;
 &lt;p&gt;可以看到上面crash log里面&lt;code&gt;eppoll_entry.whead&lt;/code&gt;刚好就是&lt;code&gt;binder_thread.wait&lt;/code&gt;，所以现在可以确定这里&lt;code&gt;ep_remove_wait_queue&lt;/code&gt;的&lt;code&gt;whead&lt;/code&gt;变量，即&lt;code&gt;remove_wait_queue&lt;/code&gt;的参数&lt;code&gt;wq_head&lt;/code&gt;就是已经是被释放的binder_thread里的wait，所以当引用&lt;code&gt;wait-&amp;gt;lock&lt;/code&gt;时指向了一段已经被free的内存，从而在&lt;code&gt;spin_lock_irqsave&lt;/code&gt;尝试去写&lt;code&gt;wait-&amp;gt;lock&lt;/code&gt;时触发KASAN报错。&lt;/p&gt;
-&lt;p&gt;如果深入检查&lt;code&gt;spin_lock_irqsave&lt;/code&gt;，会发现最终调用了&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/spinlock_api_smp.h?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;_raw_spin_lock_irqsave&lt;/code&gt;&lt;/a&gt;，其反汇编代码如下，可以看到其中做KASAN检查的地方。这里具体不再展开。
-&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/raw_spin_locl_irqsave_disassembly.jpg&#34; alt=&#34;raw spin lock irqsave&#34;&gt;&lt;/p&gt;
+&lt;p&gt;如果深入检查&lt;code&gt;spin_lock_irqsave&lt;/code&gt;，会发现最终调用了&lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/spinlock_api_smp.h?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b&#34;&gt;&lt;code&gt;_raw_spin_lock_irqsave&lt;/code&gt;&lt;/a&gt;，其反汇编代码如下，可以看到其中做KASAN检查的地方。这里具体不再展开。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://blog.exiahan.com/images/cve20192215/raw_spin_locl_irqsave_disassembly.jpg&#34; alt=&#34;raw spin lock irqsave&#34;&gt;&lt;/p&gt;
 &lt;p&gt;需要注意的是，如果&lt;code&gt;lock&lt;/code&gt;本身不是0，那么在这里就会hang住，下面的&lt;code&gt;__remove_wait_queue&lt;/code&gt;就无法执行，所以后面在做利用的时候需要做到能&lt;strong&gt;保持&lt;code&gt;binder_thread.wait.lock&lt;/code&gt;的值为0.&lt;/strong&gt;&lt;/p&gt;
 &lt;h2 id=&#34;2-exploit&#34;&gt;2. Exploit&lt;/h2&gt;
 &lt;p&gt;前面在Root Cause里面已经分析过，之所以被KASAN检测到是因为binder_thread 已经被释放，所以wait指向的内存已经被打上KASAN的标记，但是如果KASAN没有开启，epoll的remove流程会继续走下去，最终走到&lt;code&gt;__list_del&lt;/code&gt;。当然，P0的文章里也有提到，如果&lt;code&gt;CONFIG_DEBUG_LIST&lt;/code&gt;开启的话，会走不同的代码块，并且有很多check，所以不会有exploit的机会存在，这里只讨论没有开启该flag的情况。&lt;/p&gt;
