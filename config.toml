@@ -39,3 +39,6 @@ pygmentsOptions = "linenos=table"
     [[params.exchange]]
         name = "光哥"
         url = "https://burningcodes.net/"
+    [[params.exchange]]
+        name = "Link"
+        url = "http://showlinkroom.me"
