@@ -1,7 +1,7 @@
 ---
 title: "Summary of 2018"
 date: 2019-02-04T23:26:27+08:00
-tags: ['Life', 'Vision']
+tags: ['Life', 'Life Continues', 'Vision']
 categories: ['Life', 'Vision']
 ---
 
