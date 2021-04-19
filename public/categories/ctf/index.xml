@@ -233,7 +233,7 @@ encryptedString &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;spa
     myDecrypt(key64, iv64, encryptedString)
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;最终结果是&lt;strong&gt;wctf{dotnet_crackme1}&lt;/strong&gt;， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个&amp;rsquo;}&amp;lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;最终结果是&lt;strong&gt;wctf{dotnet_crackme1}&lt;/strong&gt;， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个&#39;}&amp;lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。&lt;/p&gt;
 &lt;hr&gt;
 &lt;h4 id=&#34;简单的pe文件逆向&#34;&gt;简单的PE文件逆向&lt;/h4&gt;
 &lt;p&gt;和题目说的一样，一道简单的PE逆向，首先运行下，命令行输入flag
@@ -916,7 +916,7 @@ out2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
 &lt;ul&gt;
 &lt;li&gt;运行，发现窗口程序&lt;/li&gt;
 &lt;li&gt;使用OD或者IDA打开&lt;/li&gt;
-&lt;li&gt;尝试搜索&amp;quot;Flag&amp;rdquo;，发现有好几个匹配，记下，同时猜测可能和第一题一样有对flag处理&lt;/li&gt;
+&lt;li&gt;尝试搜索&amp;quot;Flag&amp;quot;，发现有好几个匹配，记下，同时猜测可能和第一题一样有对flag处理&lt;/li&gt;
 &lt;li&gt;查看导入表，发现是个dialogbox，查找调用，找到&lt;strong&gt;0x00401240&lt;/strong&gt;处的DialogBoxParamA调用，从其参数里找到对应回调处理函数入口为&lt;strong&gt;0x00401180&lt;/strong&gt;&lt;/li&gt;
 &lt;li&gt;转到&lt;strong&gt;0x00401180&lt;/strong&gt;处，发现有个GetDlgItemTextA的调用，在其下有个&lt;strong&gt;call 0x00401070&lt;/strong&gt;，猜测会在其中处理Flag，修改程序执行流，让其可以执行，跟踪进入此函数，如图：&lt;/li&gt;
 &lt;/ul&gt;
@@ -962,16 +962,16 @@ out2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
 &lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f&#34;&gt;10
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td style=&#34;vertical-align:top;padding:0;margin:0;border:0;;width:100%&#34;&gt;
-&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;function encode($str){
-	$_o = strrev($str);
-	for($_0=0;$_0&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;strlen&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;($&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_o&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;);$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_0&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;++){&lt;/span&gt;
-		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_c &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;substr($_o,$_0,1);&lt;/span&gt;
-		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;__ &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;ord($_c)+1;&lt;/span&gt;
-		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_c &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;chr($__);&lt;/span&gt;
-		&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;$_.$_c;&lt;/span&gt;
-	&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;}&lt;/span&gt;
-	&lt;span style=&#34;color:#a6e22e&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;str_rot13&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;strrev&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;base64_encode&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;($&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;_&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;)));&lt;/span&gt;
-&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;}&lt;/span&gt;
+&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-php&#34; data-lang=&#34;php&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;encode&lt;/span&gt;($str){
+	$_o &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;strrev&lt;/span&gt;($str);
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt;($_0&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;$_0&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;strlen&lt;/span&gt;($_o);$_0&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;){
+		$_c &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;substr&lt;/span&gt;($_o,$_0,&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;);
+		$__ &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;ord&lt;/span&gt;($_c)&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+		$_c &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;chr&lt;/span&gt;($__);
+		$_&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; $_&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;$_c;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;str_rot13&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;strrev&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;base64_encode&lt;/span&gt;($_)));
+}
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;其作用如下：&lt;/p&gt;

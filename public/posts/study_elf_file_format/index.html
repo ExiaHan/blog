@@ -4,7 +4,7 @@
 <head>
   <title>Study ELF File Format // ExiaHan&#39;s Blog</title>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.74.3" />
+  <meta name="generator" content="Hugo 0.82.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="ExiaHan" />
   <meta name="description"
@@ -43,9 +43,10 @@ ELF文件在Linux中有三种类型：
  Relocatable File: 可重定位文件，承载代码(说成指令更准确)和数据，可以同其他的**.o**文件一起经由链接器生成Executable File(可执行文件)或者Share Object file(共享对象文件，或者叫动态链接库)。 Executable File：可执行文件，可以被执行，文件中的包含了要被执行的指令和数据等，以及指明了如何创建一个程序的进程镜像。 Shared Object File：共享对象文件，类似于Windows下的Dynamic Link Library(动态链接库)，共享对象文件可以有如下两种Link环境:  同其他的Relocatable File或者Shared Object File组成一个新的Object File文件 通过动态链接的方式，同其他的Shared Object File以及Executable File组成进程镜像。    File Format(文件结构) ELF的Object File参与了程序的Link和执行，不同的阶段，其文件中的结构略有不同，下表给出了组织结构：
    Link View Execution View     ELF Header ELF Header   Program header table(optional) Program header table   Section 1 Segment 1   &hellip; &hellip;   Section n Segment n   &hellip; &hellip;   Section header table Section header table(optional)      ELF Header 包含整个文件的路线图，描述了整个的文件的组成结构 Section 包含了说有Link需要的数据，如指令(instruction)，数据(data)，符号表(Symbol Table)，重定位信息(Relocation Infomation) Program header table 告诉系统如何创建程序的进程镜像。用于创建进程镜像的文件必有Program header table，相反，重定位文件可以没有 Section header table 包含了描述文件中各个section的信息，每个Section在表中都有一个对应的条目，其中包含了Section Name，Size等信息。linking过程中文件必须提此表，其他情形，如已经被链接一个可执行文件可以不需要。   （需要注意的是，ELF文件的结构并不一定是上面表中所列的顺序，事实上除了ELF Header一定在文件头部外，其他部分的顺序都是可变的）" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://blog.exiahan.com/posts/study_elf_file_format/" />
-<meta property="article:published_time" content="2015-07-31T16:30:21+08:00" />
-<meta property="article:modified_time" content="2015-07-31T16:30:21+08:00" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/study_elf_file_format/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2015-07-31T16:30:21&#43;08:00" />
+<meta property="article:modified_time" content="2015-07-31T16:30:21&#43;08:00" />
+
 
 
 </head>
@@ -155,38 +156,38 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="center">Link View</th>
-<th align="center">Execution View</th>
+<th style="text-align:center">Link View</th>
+<th style="text-align:center">Execution View</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">ELF Header</td>
-<td align="center">ELF Header</td>
+<td style="text-align:center">ELF Header</td>
+<td style="text-align:center">ELF Header</td>
 </tr>
 <tr>
-<td align="center">Program header table(optional)</td>
-<td align="center">Program header table</td>
+<td style="text-align:center">Program header table(optional)</td>
+<td style="text-align:center">Program header table</td>
 </tr>
 <tr>
-<td align="center">Section 1</td>
-<td align="center">Segment 1</td>
+<td style="text-align:center">Section 1</td>
+<td style="text-align:center">Segment 1</td>
 </tr>
 <tr>
-<td align="center">&hellip;</td>
-<td align="center">&hellip;</td>
+<td style="text-align:center">&hellip;</td>
+<td style="text-align:center">&hellip;</td>
 </tr>
 <tr>
-<td align="center">Section n</td>
-<td align="center">Segment n</td>
+<td style="text-align:center">Section n</td>
+<td style="text-align:center">Segment n</td>
 </tr>
 <tr>
-<td align="center">&hellip;</td>
-<td align="center">&hellip;</td>
+<td style="text-align:center">&hellip;</td>
+<td style="text-align:center">&hellip;</td>
 </tr>
 <tr>
-<td align="center">Section header table</td>
-<td align="center">Section header table(optional)</td>
+<td style="text-align:center">Section header table</td>
+<td style="text-align:center">Section header table(optional)</td>
 </tr>
 </tbody>
 </table>
@@ -207,48 +208,48 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="center">Name</th>
-<th align="center">Size</th>
-<th align="center">Alignment</th>
-<th align="center">Purpose</th>
+<th style="text-align:center">Name</th>
+<th style="text-align:center">Size</th>
+<th style="text-align:center">Alignment</th>
+<th style="text-align:center">Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">Elf32_Addr</td>
-<td align="center">4</td>
-<td align="center">4</td>
-<td align="center">Unsigned program address</td>
+<td style="text-align:center">Elf32_Addr</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">Unsigned program address</td>
 </tr>
 <tr>
-<td align="center">Elf32_Half</td>
-<td align="center">2</td>
-<td align="center">2</td>
-<td align="center">Unsigned medium integer</td>
+<td style="text-align:center">Elf32_Half</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">Unsigned medium integer</td>
 </tr>
 <tr>
-<td align="center">Elf32_Off</td>
-<td align="center">4</td>
-<td align="center">4</td>
-<td align="center">Unsigned file ofset</td>
+<td style="text-align:center">Elf32_Off</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">Unsigned file ofset</td>
 </tr>
 <tr>
-<td align="center">Elf32_Sword</td>
-<td align="center">4</td>
-<td align="center">4</td>
-<td align="center">Signed large integer</td>
+<td style="text-align:center">Elf32_Sword</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">Signed large integer</td>
 </tr>
 <tr>
-<td align="center">Elf32_Word</td>
-<td align="center">4</td>
-<td align="center">4</td>
-<td align="center">Unsigned large integer</td>
+<td style="text-align:center">Elf32_Word</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">Unsigned large integer</td>
 </tr>
 <tr>
-<td align="center">unsigned char</td>
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">Unsigned small integer</td>
+<td style="text-align:center">unsigned char</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">Unsigned small integer</td>
 </tr>
 </tbody>
 </table>
@@ -396,56 +397,56 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="center">索引名</th>
-<th align="center">值</th>
-<th align="center">用途</th>
+<th style="text-align:center">索引名</th>
+<th style="text-align:center">值</th>
+<th style="text-align:center">用途</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">EI_MAG0</td>
-<td align="center">0x0</td>
-<td align="center">文件标识</td>
+<td style="text-align:center">EI_MAG0</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:center">文件标识</td>
 </tr>
 <tr>
-<td align="center">EI_MAG1</td>
-<td align="center">0x1</td>
-<td align="center">文件标识</td>
+<td style="text-align:center">EI_MAG1</td>
+<td style="text-align:center">0x1</td>
+<td style="text-align:center">文件标识</td>
 </tr>
 <tr>
-<td align="center">EI_MAG2</td>
-<td align="center">0x2</td>
-<td align="center">文件标识</td>
+<td style="text-align:center">EI_MAG2</td>
+<td style="text-align:center">0x2</td>
+<td style="text-align:center">文件标识</td>
 </tr>
 <tr>
-<td align="center">EI_MAG3</td>
-<td align="center">0x3</td>
-<td align="center">文件标识</td>
+<td style="text-align:center">EI_MAG3</td>
+<td style="text-align:center">0x3</td>
+<td style="text-align:center">文件标识</td>
 </tr>
 <tr>
-<td align="center">EI_CLASS</td>
-<td align="center">0x4</td>
-<td align="center">文件类型</td>
+<td style="text-align:center">EI_CLASS</td>
+<td style="text-align:center">0x4</td>
+<td style="text-align:center">文件类型</td>
 </tr>
 <tr>
-<td align="center">EI_DATA</td>
-<td align="center">0x5</td>
-<td align="center">数据编码方式</td>
+<td style="text-align:center">EI_DATA</td>
+<td style="text-align:center">0x5</td>
+<td style="text-align:center">数据编码方式</td>
 </tr>
 <tr>
-<td align="center">EI_VERSION</td>
-<td align="center">0x6</td>
-<td align="center">文件版本</td>
+<td style="text-align:center">EI_VERSION</td>
+<td style="text-align:center">0x6</td>
+<td style="text-align:center">文件版本</td>
 </tr>
 <tr>
-<td align="center">EI_PAD</td>
-<td align="center">0x7</td>
-<td align="center">填充字节起始处</td>
+<td style="text-align:center">EI_PAD</td>
+<td style="text-align:center">0x7</td>
+<td style="text-align:center">填充字节起始处</td>
 </tr>
 <tr>
-<td align="center">EI_NIDENT</td>
-<td align="center">0x10</td>
-<td align="center">e_ident[]的大小</td>
+<td style="text-align:center">EI_NIDENT</td>
+<td style="text-align:center">0x10</td>
+<td style="text-align:center">e_ident[]的大小</td>
 </tr>
 </tbody>
 </table>
@@ -507,18 +508,18 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">Position</th>
-<th align="left">Value</th>
+<th style="text-align:left">Position</th>
+<th style="text-align:left">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">e_ident[EI_CLASS]</td>
-<td align="left">ELFCLASS32</td>
+<td style="text-align:left">e_ident[EI_CLASS]</td>
+<td style="text-align:left">ELFCLASS32</td>
 </tr>
 <tr>
-<td align="left">e_ident[EI_DATA]</td>
-<td align="left">ELFDATA2LSB</td>
+<td style="text-align:left">e_ident[EI_DATA]</td>
+<td style="text-align:left">ELFDATA2LSB</td>
 </tr>
 </tbody>
 </table>
@@ -530,38 +531,38 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">Name</th>
-<th align="right">Value</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:right">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">SHN_UNDEF</td>
-<td align="right">0x0</td>
+<td style="text-align:left">SHN_UNDEF</td>
+<td style="text-align:right">0x0</td>
 </tr>
 <tr>
-<td align="left">SHN_LORESERVE</td>
-<td align="right">0xFF00</td>
+<td style="text-align:left">SHN_LORESERVE</td>
+<td style="text-align:right">0xFF00</td>
 </tr>
 <tr>
-<td align="left">SHN_LOPROC</td>
-<td align="right">0xFF00</td>
+<td style="text-align:left">SHN_LOPROC</td>
+<td style="text-align:right">0xFF00</td>
 </tr>
 <tr>
-<td align="left">SHN_HIPROC</td>
-<td align="right">0xFF1F</td>
+<td style="text-align:left">SHN_HIPROC</td>
+<td style="text-align:right">0xFF1F</td>
 </tr>
 <tr>
-<td align="left">SHN_ABS</td>
-<td align="right">0xFFF1</td>
+<td style="text-align:left">SHN_ABS</td>
+<td style="text-align:right">0xFFF1</td>
 </tr>
 <tr>
-<td align="left">SHN_COMMON</td>
-<td align="right">0xFFF2</td>
+<td style="text-align:left">SHN_COMMON</td>
+<td style="text-align:right">0xFFF2</td>
 </tr>
 <tr>
-<td align="left">SHN_HIRESERVE</td>
-<td align="right">0xFFFF</td>
+<td style="text-align:left">SHN_HIRESERVE</td>
+<td style="text-align:right">0xFFFF</td>
 </tr>
 </tbody>
 </table>
@@ -614,7 +615,7 @@ ELF文件在Linux中有三种类型：
 </code></pre></td></tr></table>
 </div>
 </div><ul>
-<li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以&rsquo;\0&rsquo;结尾的字符串，C风格字符串)</li>
+<li>sh_name 指出其所在Section的名字，其值是一个index，指向Section Header String Table中的对应条目(一个以'\0&rsquo;结尾的字符串，C风格字符串)</li>
 <li>sh_type 归类总结本段内容和语义</li>
 <li>sh_flags 按bit标出一些属性杂项</li>
 <li>sh_addr 如果所在Section将出现在一个进程镜像中，则本字段指出本Section第一个Byte应占据的Address，否则为0</li>
@@ -629,74 +630,74 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">Name</th>
-<th align="right">Value</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:right">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">SHT_NULL</td>
-<td align="right">0x0</td>
+<td style="text-align:left">SHT_NULL</td>
+<td style="text-align:right">0x0</td>
 </tr>
 <tr>
-<td align="left">SHT_PROGBITS</td>
-<td align="right">0x1</td>
+<td style="text-align:left">SHT_PROGBITS</td>
+<td style="text-align:right">0x1</td>
 </tr>
 <tr>
-<td align="left">SHT_SYMTAB</td>
-<td align="right">0x2</td>
+<td style="text-align:left">SHT_SYMTAB</td>
+<td style="text-align:right">0x2</td>
 </tr>
 <tr>
-<td align="left">SHT_STRTAB</td>
-<td align="right">0x3</td>
+<td style="text-align:left">SHT_STRTAB</td>
+<td style="text-align:right">0x3</td>
 </tr>
 <tr>
-<td align="left">SHT_RELA</td>
-<td align="right">0x4</td>
+<td style="text-align:left">SHT_RELA</td>
+<td style="text-align:right">0x4</td>
 </tr>
 <tr>
-<td align="left">SHT_HASH</td>
-<td align="right">0x5</td>
+<td style="text-align:left">SHT_HASH</td>
+<td style="text-align:right">0x5</td>
 </tr>
 <tr>
-<td align="left">SHT_DYNAMIC</td>
-<td align="right">0x6</td>
+<td style="text-align:left">SHT_DYNAMIC</td>
+<td style="text-align:right">0x6</td>
 </tr>
 <tr>
-<td align="left">SHT_NOTE</td>
-<td align="right">0x7</td>
+<td style="text-align:left">SHT_NOTE</td>
+<td style="text-align:right">0x7</td>
 </tr>
 <tr>
-<td align="left">SHT_NOBITS</td>
-<td align="right">0x8</td>
+<td style="text-align:left">SHT_NOBITS</td>
+<td style="text-align:right">0x8</td>
 </tr>
 <tr>
-<td align="left">SHT_REL</td>
-<td align="right">0x9</td>
+<td style="text-align:left">SHT_REL</td>
+<td style="text-align:right">0x9</td>
 </tr>
 <tr>
-<td align="left">SHT_SHLIB</td>
-<td align="right">0xA</td>
+<td style="text-align:left">SHT_SHLIB</td>
+<td style="text-align:right">0xA</td>
 </tr>
 <tr>
-<td align="left">SHT_DYNSYM</td>
-<td align="right">0xB</td>
+<td style="text-align:left">SHT_DYNSYM</td>
+<td style="text-align:right">0xB</td>
 </tr>
 <tr>
-<td align="left">SHT_LOPROC</td>
-<td align="right">0x70000000</td>
+<td style="text-align:left">SHT_LOPROC</td>
+<td style="text-align:right">0x70000000</td>
 </tr>
 <tr>
-<td align="left">SHT_HIPROC</td>
-<td align="right">0x7FFFFFFF</td>
+<td style="text-align:left">SHT_HIPROC</td>
+<td style="text-align:right">0x7FFFFFFF</td>
 </tr>
 <tr>
-<td align="left">SHT_LOUSER</td>
-<td align="right">0x80000000</td>
+<td style="text-align:left">SHT_LOUSER</td>
+<td style="text-align:right">0x80000000</td>
 </tr>
 <tr>
-<td align="left">SHT_HIUSER</td>
-<td align="right">0xFFFFFFFF</td>
+<td style="text-align:left">SHT_HIUSER</td>
+<td style="text-align:right">0xFFFFFFFF</td>
 </tr>
 </tbody>
 </table>
@@ -722,61 +723,61 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">Name</th>
-<th align="center">Value</th>
-<th align="left">Note</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:center">Value</th>
+<th style="text-align:left">Note</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">sh_name</td>
-<td align="center">0x0</td>
-<td align="left">No name</td>
+<td style="text-align:left">sh_name</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No name</td>
 </tr>
 <tr>
-<td align="left">sh_type</td>
-<td align="center">SHT_NULL</td>
-<td align="left">Inactive</td>
+<td style="text-align:left">sh_type</td>
+<td style="text-align:center">SHT_NULL</td>
+<td style="text-align:left">Inactive</td>
 </tr>
 <tr>
-<td align="left">sh_flags</td>
-<td align="center">0x0</td>
-<td align="left">No flags</td>
+<td style="text-align:left">sh_flags</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No flags</td>
 </tr>
 <tr>
-<td align="left">sh_addr</td>
-<td align="center">0x0</td>
-<td align="left">No address</td>
+<td style="text-align:left">sh_addr</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No address</td>
 </tr>
 <tr>
-<td align="left">sh_offset</td>
-<td align="center">0x0</td>
-<td align="left">No file offset</td>
+<td style="text-align:left">sh_offset</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No file offset</td>
 </tr>
 <tr>
-<td align="left">sh_size</td>
-<td align="center">0x0</td>
-<td align="left">No size</td>
+<td style="text-align:left">sh_size</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No size</td>
 </tr>
 <tr>
-<td align="left">sh_link</td>
-<td align="center">SHN_UNDEF</td>
-<td align="left">No link information</td>
+<td style="text-align:left">sh_link</td>
+<td style="text-align:center">SHN_UNDEF</td>
+<td style="text-align:left">No link information</td>
 </tr>
 <tr>
-<td align="left">sh_info</td>
-<td align="center">0x0</td>
-<td align="left">No auxiliary informatioon</td>
+<td style="text-align:left">sh_info</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No auxiliary informatioon</td>
 </tr>
 <tr>
-<td align="left">sh_addralign</td>
-<td align="center">0x0</td>
-<td align="left">No alignment</td>
+<td style="text-align:left">sh_addralign</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No alignment</td>
 </tr>
 <tr>
-<td align="left">sh_entsize</td>
-<td align="center">0x0</td>
-<td align="left">No entries</td>
+<td style="text-align:left">sh_entsize</td>
+<td style="text-align:center">0x0</td>
+<td style="text-align:left">No entries</td>
 </tr>
 </tbody>
 </table>
@@ -784,26 +785,26 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">Name</th>
-<th align="right">Value</th>
+<th style="text-align:left">Name</th>
+<th style="text-align:right">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">SHF_WRITE</td>
-<td align="right">0x1</td>
+<td style="text-align:left">SHF_WRITE</td>
+<td style="text-align:right">0x1</td>
 </tr>
 <tr>
-<td align="left">SHF_ALLOC</td>
-<td align="right">0x2</td>
+<td style="text-align:left">SHF_ALLOC</td>
+<td style="text-align:right">0x2</td>
 </tr>
 <tr>
-<td align="left">SHF_EXECINSTR</td>
-<td align="right">0x4</td>
+<td style="text-align:left">SHF_EXECINSTR</td>
+<td style="text-align:right">0x4</td>
 </tr>
 <tr>
-<td align="left">SHF_MASKPROC</td>
-<td align="right">0xF0000000</td>
+<td style="text-align:left">SHF_MASKPROC</td>
+<td style="text-align:right">0xF0000000</td>
 </tr>
 </tbody>
 </table>
@@ -818,36 +819,36 @@ ELF文件在Linux中有三种类型：
 <table>
 <thead>
 <tr>
-<th align="left">sh_type</th>
-<th align="left">sh_link</th>
-<th align="left">sh_info</th>
+<th style="text-align:left">sh_type</th>
+<th style="text-align:left">sh_link</th>
+<th style="text-align:left">sh_info</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="left">SHT_DYNAMIC</td>
-<td align="left">The section header index of the string table used by entries in the section.</td>
-<td align="left">0x0</td>
+<td style="text-align:left">SHT_DYNAMIC</td>
+<td style="text-align:left">The section header index of the string table used by entries in the section.</td>
+<td style="text-align:left">0x0</td>
 </tr>
 <tr>
-<td align="left">SHT_HASH</td>
-<td align="left">The section header index of the string table to which the hash table applies.</td>
-<td align="left">0x0</td>
+<td style="text-align:left">SHT_HASH</td>
+<td style="text-align:left">The section header index of the string table to which the hash table applies.</td>
+<td style="text-align:left">0x0</td>
 </tr>
 <tr>
-<td align="left">SHT_REL <!-- raw HTML omitted -->SHT_RELA</td>
-<td align="left">The section header index of the associated symbol table.</td>
-<td align="left">The section header index of the section to which the relocation applies.</td>
+<td style="text-align:left">SHT_REL <!-- raw HTML omitted -->SHT_RELA</td>
+<td style="text-align:left">The section header index of the associated symbol table.</td>
+<td style="text-align:left">The section header index of the section to which the relocation applies.</td>
 </tr>
 <tr>
-<td align="left">SHT_SYMTAB <!-- raw HTML omitted -->SHT_DYNSYM</td>
-<td align="left">The section header index of the associated string table.</td>
-<td align="left">One greater than the symbol table index of the last local symbol (binding STB_LOCAL).(最后一个局部符号的符号表索引值加一)</td>
+<td style="text-align:left">SHT_SYMTAB <!-- raw HTML omitted -->SHT_DYNSYM</td>
+<td style="text-align:left">The section header index of the associated string table.</td>
+<td style="text-align:left">One greater than the symbol table index of the last local symbol (binding STB_LOCAL).(最后一个局部符号的符号表索引值加一)</td>
 </tr>
 <tr>
-<td align="left">Other</td>
-<td align="left">SHN_UNDEF</td>
-<td align="left">0x0</td>
+<td style="text-align:left">Other</td>
+<td style="text-align:left">SHN_UNDEF</td>
+<td style="text-align:left">0x0</td>
 </tr>
 </tbody>
 </table>

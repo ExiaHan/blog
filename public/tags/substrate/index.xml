@@ -57,7 +57,7 @@
 &lt;li&gt;修改./Project/app/build.gradle为如下样式：&lt;strong&gt;注意其中的不同&lt;/strong&gt;
 &lt;ul&gt;
 &lt;li&gt;apply plugin的模块变了&lt;/li&gt;
-&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;ldquo;=&amp;rdquo;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
+&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;quot;=&amp;quot;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;

@@ -1608,7 +1608,7 @@ fp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fopen(&lt;span style
 &lt;p&gt;不得不说，即使有&lt;a href=&#34;https://github.com/rovo89&#34;&gt;rovo89&lt;/a&gt;的&lt;a href=&#34;https://github.com/rovo89/XposedBridge/wiki/Development-tutorial&#34;&gt;Xposed Tutorial&lt;/a&gt;，Android-Studio到目前为止也并不是很让人能轻松上手，特别是eclipse用惯以后，这里要说明一下如何在Android-Stuio中引入Xposed框架包。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;下载xposed框架jar包&lt;/li&gt;
-&lt;li&gt;创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;创建你的xposed module工程，如&amp;quot;HelloXposedHook&amp;quot;&lt;/li&gt;
 &lt;li&gt;在app/src下创建文件夹xposedLib&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
@@ -1837,7 +1837,7 @@ xposed的jar包要求仅被引用，而不能包含
 &lt;li&gt;修改./Project/app/build.gradle为如下样式：&lt;strong&gt;注意其中的不同&lt;/strong&gt;
 &lt;ul&gt;
 &lt;li&gt;apply plugin的模块变了&lt;/li&gt;
-&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;ldquo;=&amp;rdquo;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
+&lt;li&gt;所有变量都要用 &lt;em&gt;&lt;strong&gt;&amp;quot;=&amp;quot;&lt;/strong&gt;&lt;/em&gt; 来赋值，以前可以是*&amp;ldquo;变量名 空格 值&amp;rdquo;*的形式&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;

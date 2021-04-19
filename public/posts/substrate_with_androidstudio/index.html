@@ -4,7 +4,7 @@
 <head>
   <title>SubsTrate with AndroidStudio // ExiaHan&#39;s Blog</title>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.74.3" />
+  <meta name="generator" content="Hugo 0.82.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="ExiaHan" />
   <meta name="description"
@@ -33,7 +33,7 @@
 *Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
 0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
  新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
- 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &ldquo;=&rdquo; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  apply plugin: &#39;com."/>
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &quot;=&quot; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  apply plugin: &#39;com."/>
 
   <meta property="og:title" content="SubsTrate with AndroidStudio" />
 <meta property="og:description" content="参考文档： 看雪，光哥博客，乌云知识库
@@ -41,9 +41,11 @@
 *Substrate是大名鼎鼎的Cydia团队开发的一套框架工具，支持iOS和Android，相比于Xposed而言，Substrate不仅能提供java层函数的Hook，更能对Native层的C函数进行Hook，而且使用上也比Xposed要方便一些，而且官方提供的文档***也比较全，查阅也比较方便，本文将实现一个简单的C函数Hook例子。
 0x2 准备工作  确保设备已经root，注意，测试发现目前substrate暂不支持Android Lollipop及其更新版本 按照官方说明，下载substrate框架apk并安装，重启设备 下载sdk到本地并解压，官方提供了两种方式  直接下载 通过Android SDK Manager管理下载：说明页面    0x3 Substrate with Android Studio 首先还是要吐槽下Android Studio至今对NDK的支持依然不敢恭维，而且一个版本一个config文件夹的本地文件夹命名方式也实在让人实在难受。。 言归正传：
  新建一个工程，名字随意，比如HelloSubstrate 由于是个C函数Hook的例子，所以不需要有activity（其实连java层的源码都不需要 在Project的app文件夹下创建子路径**./lib/armabi/**，把sdk里对应的文件夹下的.so文件丢进去 在src/main下创建子路径**./jni**，创建一个**xxx.cy.cpp**文件用来存放c层源码，同时把substrate.h文件丢进去（注意这里文件名结尾必须是cy.cpp，substrate文档里要求这么做，用于识别&mdash;文档 在manifest文件里加上权限声明，否则无法正常工作  &lt;uses-permission android:name=&quot;cydia.permission.SUBSTRATE&quot;/&gt;    额外的准备工作 又要吐槽Android Studio了，ndk的整合上十分混乱，到现在为止已经有三种使用ndk的方法了，使用以前的的方法会提示gradle警告，但能通过，不过为了紧跟潮流，这里试用最新的方法，步骤如下：
- 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &ldquo;=&rdquo; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  apply plugin: &#39;com." />
+ 确保你的gradle是最新的 修改./Project/build.gradle的classpath为  classpath &#39;com.android.tools.build:gradle-experimental:0.2.0&#39;   修改./Project/app/build.gradle为如下样式：注意其中的不同  apply plugin的模块变了 所有变量都要用 &quot;=&quot; 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  apply plugin: &#39;com." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://blog.exiahan.com/posts/substrate_with_androidstudio/" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/substrate_with_androidstudio/" /><meta property="article:section" content="posts" />
+
+
 
 
 
@@ -173,7 +175,7 @@
 <li>修改./Project/app/build.gradle为如下样式：<strong>注意其中的不同</strong>
 <ul>
 <li>apply plugin的模块变了</li>
-<li>所有变量都要用 <em><strong>&ldquo;=&rdquo;</strong></em> 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式</li>
+<li>所有变量都要用 <em><strong>&quot;=&quot;</strong></em> 来赋值，以前可以是*&ldquo;变量名 空格 值&rdquo;*的形式</li>
 </ul>
 </li>
 </ul>

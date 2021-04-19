@@ -4,7 +4,7 @@
 <head>
   <title>IDF.CN Practice 01 // ExiaHan&#39;s Blog</title>
   <meta charset="utf-8" />
-  <meta name="generator" content="Hugo 0.74.3" />
+  <meta name="generator" content="Hugo 0.82.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="author" content="ExiaHan" />
   <meta name="description"
@@ -57,9 +57,10 @@
 解压得到一个flag.txt，打开发现不行，binwalk一看是个pe。。。不过里面有png，而且很多60x60的，但有一个280x280的，dd解出来，打开是一张二维码，扫一下，flag为:flag{m1Sc_oxO2_Fly}，不过说没改格式，额，所以应该是wctf{m1Sc_oxO2_Fly}
 三、初探乾坤 PPC 简单编程-字符统计 给了一串字符串，让统计个数，妥妥的python，count函数直接搞定。直接提交，发现有坑，仔细看了下题目是要求2秒内搞定，那就只能自动接受内容然后发送post请求了" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://blog.exiahan.com/posts/idf_cn_practice_01/" />
-<meta property="article:published_time" content="2015-12-30T22:12:08+08:00" />
-<meta property="article:modified_time" content="2015-12-30T22:12:08+08:00" />
+<meta property="og:url" content="https://blog.exiahan.com/posts/idf_cn_practice_01/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2015-12-30T22:12:08&#43;08:00" />
+<meta property="article:modified_time" content="2015-12-30T22:12:08&#43;08:00" />
+
 
 
 </head>
@@ -363,7 +364,7 @@ encryptedString <span style="color:#f92672">=</span> <span style="color:#e6db74"
     myDecrypt(key64, iv64, encryptedString)
 </code></pre></td></tr></table>
 </div>
-</div><p>最终结果是<strong>wctf{dotnet_crackme1}</strong>， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个&rsquo;}&lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。</p>
+</div><p>最终结果是<strong>wctf{dotnet_crackme1}</strong>， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个'}&lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。</p>
 <hr>
 <h4 id="简单的pe文件逆向">简单的PE文件逆向</h4>
 <p>和题目说的一样，一道简单的PE逆向，首先运行下，命令行输入flag

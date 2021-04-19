@@ -233,7 +233,7 @@ encryptedString &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;spa
     myDecrypt(key64, iv64, encryptedString)
 &lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;最终结果是&lt;strong&gt;wctf{dotnet_crackme1}&lt;/strong&gt;， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个&amp;rsquo;}&amp;lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;最终结果是&lt;strong&gt;wctf{dotnet_crackme1}&lt;/strong&gt;， 没怎么写过C#，这里有个坑是C#的createEncrypter()可以接受byte[] iv不为8 bytes，但是python里除了DES.MODE_ECB外都不可以，刚开始用ECB解出来不对，换回ECB会提示iv应该是8 bytes，就猜可能C#有做截断处理？于是把上面代码里的iv64最后的那个&#39;}&amp;lsquo;去掉，再跑一下果然OK。。当然C#不熟，不知道理解的对不对。。。&lt;/p&gt;
 &lt;hr&gt;
 &lt;h4 id=&#34;简单的pe文件逆向&#34;&gt;简单的PE文件逆向&lt;/h4&gt;
 &lt;p&gt;和题目说的一样，一道简单的PE逆向，首先运行下，命令行输入flag
