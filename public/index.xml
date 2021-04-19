@@ -244,10 +244,10 @@
     
     <item>
       <title>CVE-2019-2215 Study Notes</title>
-      <link>https://blog.exiahan.com/cve-2019-2215_study_notes/</link>
+      <link>https://blog.exiahan.com/posts/cve-2019-2215_study_notes/</link>
       <pubDate>Tue, 23 Jun 2020 00:42:00 +0800</pubDate>
       
-      <guid>https://blog.exiahan.com/cve-2019-2215_study_notes/</guid>
+      <guid>https://blog.exiahan.com/posts/cve-2019-2215_study_notes/</guid>
       <description>&lt;p&gt;最近有了点时间，好好看了下CVE-2019-2215的漏洞利用细节，这里记录下来，一方面留着以后再看方便，一方面把自己的理解写出来也是学习的一种方式。&lt;/p&gt;
 &lt;p&gt;这里问我写的内容可以看成是对Google Project Zero的文章的翻译加上一些个人想法，不过还是推荐看看原文，链接在&lt;a href=&#34;https://googleprojectzero.blogspot.com/2019/11/bad-binder-android-in-wild-exploit.html&#34;&gt;这里&lt;/a&gt;, 因为看的其他的多多少少都有点模糊的地方,没有P0的文章说的详细，这也是我想自己写一个分析的原因。&lt;/p&gt;
 &lt;h2 id=&#34;1-root-cause&#34;&gt;1. Root Cause&lt;/h2&gt;
